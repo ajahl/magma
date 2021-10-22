@@ -19,6 +19,26 @@ test_all: buildenv $(BIN)/nosetests $(BIN)/coverage $(TEST_LIST)
 $(TEST_LIST): %_test:
 	make -C $* .test
 
+
+define run_unit_tests
+	@echo "Running tests in path $(1)"
+	timeout --foreground -k 930s 900s $(PYTHON_BUILD)/bin/nosetests --with-xunit --xunit-file=$(RESULTS_DIR)/tests.xml --with-coverage --cover-erase --cover-branches --cover-package=magma --cover-xml --cover-xml-file=$(CODECOV_DIR)/cover.xml -s $(1) || exit 1
+endef
+
+# unit_tests (UT_PATH=unit_test_path|MAGMA_SERVICE=service_name)[DONT_BUILD_ENV=1]
+unit_tests: $(TESTS) 
+ifdef MAGMA_SERVICE
+	$(eval TEST_PATH ?= $(shell grep -m 1 -oP '[^\s]+(?=$(MAGMA_SERVICE))[^\s]+' $(MAGMA_ROOT)/lte/gateway/python/defs.mk))
+else ifdef UT_PATH
+	$(eval TEST_PATH ?= $(UT_PATH))
+endif
+	@if [ ! -d "$(TEST_PATH)" ]; then echo "no tests found" && exit 1; fi
+ifndef DONT_BUILD_ENV
+	@$(MAKE) buildenv
+endif
+	$(call run_unit_tests,$(TEST_PATH))
+
+
 coverage: $(BIN)/coverage
 	$(BIN)/coverage report
 
