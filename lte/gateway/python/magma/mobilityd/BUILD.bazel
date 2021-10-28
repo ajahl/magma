@@ -11,6 +11,7 @@ py_binary(
         "//lte/protos:subscriberdb_python_grpc",
         "//lte/protos:subscriberdb_python_proto",
         "//orc8r/gateway/python/magma/common/redis:client",
+        "//orc8r/gateway/python/magma/configuration:service_configs",
     ],
 )
 
