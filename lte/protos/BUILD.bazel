@@ -18,19 +18,22 @@ package(default_visibility = ["//visibility:public"])
 cpp_proto_library(
     name = "mconfigs_cpp_proto",
     protos = [":mconfigs_proto"],
-    deps = ["//orc8r/protos:common_cpp_proto"],
+    # deps = ["//orc8r/protos:common_cpp_proto"],
+    deps = ["@orc8r_proto//:common_cpp_proto"],
 )
 
 python_proto_library(
     name = "mconfigs_python_proto",
     protos = [":mconfigs_proto"],
-    deps = ["//orc8r/protos:common_python_proto"],
+    # deps = ["//orc8r/protos:common_python_proto"],
+    deps = ["@orc8r_proto//:common_python_proto"],
 )
 
 proto_library(
     name = "mconfigs_proto",
     srcs = ["mconfig/mconfigs.proto"],
-    deps = ["//orc8r/protos:common_proto"],
+    # deps = ["//orc8r/protos:common_proto"],
+    deps = ["@orc8r_proto//:common_proto"],
 )
 
 cpp_grpc_library(
@@ -78,8 +81,10 @@ python_proto_library(
     protos = [":subscriberdb_proto"],
     deps = [
         ":apn_python_proto",
-        "//orc8r/protos:common_python_proto",
-        "//orc8r/protos:digest_python_proto",
+        # "//orc8r/protos:common_python_proto",
+        "@orc8r_proto//:common_python_proto",
+        # "//orc8r/protos:digest_python_proto",
+        "@orc8r_proto//:digest_python_proto",
     ],
 )
 
@@ -98,8 +103,10 @@ python_grpc_library(
     protos = [":subscriberdb_proto"],
     deps = [
         ":apn_python_proto",
-        "//orc8r/protos:common_python_proto",
-        "//orc8r/protos:digest_python_proto",
+        # "//orc8r/protos:common_python_proto",
+        "@orc8r_proto//:common_python_proto",
+        # "//orc8r/protos:digest_python_proto",
+        "@orc8r_proto//:digest_python_proto",
     ],
 )
 
@@ -108,8 +115,10 @@ proto_library(
     srcs = ["subscriberdb.proto"],
     deps = [
         ":apn_proto",
-        "//orc8r/protos:common_proto",
-        "//orc8r/protos:digest_proto",
+        # "//orc8r/protos:common_proto",
+        "@orc8r_proto//:common_proto",
+        # "//orc8r/protos:digest_proto",
+        "@orc8r_proto//:digest_proto",
         "@protobuf//:field_mask_proto",
     ],
 )

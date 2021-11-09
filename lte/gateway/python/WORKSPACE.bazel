@@ -1,0 +1,34 @@
+workspace(name = "lte_python")
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "subpar",
+    remote = "https://github.com/google/subpar",
+    tag = "2.0.0",
+)
+
+# new_local_repository(
+#     name = "orc8r_path",
+#     path = "/home/vagrant/magma/orc8r/gateway/python/",
+#     build_file_contents = """
+# py_library(
+#     name = "orc8r_path",
+#     srcs = glob(["**/*.py"]),
+#     visibility = ["//visibility:public"],
+# )
+
+local_repository(
+    name = "orc8r_python",
+    path = "orc8r/gateway/python",
+)
+
+local_repository(
+    name = "lte_proto",
+    path = "lte/protos",
+)
+
+local_repository(
+    name = "orc8r_proto",
+    path = "orc8r/protos",
+)
