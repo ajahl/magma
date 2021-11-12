@@ -9,9 +9,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# empty build file to make tools/build_defs into a package
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")
 
-load(":python_toolchain.bzl", "configure_python_toolchain")
-load(":python_packages.bzl", "PYTHON_PACKAGE")
+package(default_visibility = ["//visibility:public"])
 
-configure_python_toolchain(name = PYTHON_PACKAGE.name)
+proto_library(
+    name = "mconfigs_proto",
+    srcs = ["mconfig/mconfigs.proto"],
+    deps = ["//orc8r/protos:common_proto"],
+)
+
+python_proto_library(
+    name = "mconfigs_python_proto",
+    protos = [":mconfigs_proto"],
+    deps = ["//orc8r/protos:common_python_proto"],
+)
