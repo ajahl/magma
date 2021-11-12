@@ -8,10 +8,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# empty build file to make tools/build_defs into a package
-
-load(":python_toolchain.bzl", "configure_python_toolchain")
-load(":python_packages.bzl", "PYTHON_PACKAGE")
-
-configure_python_toolchain(name = PYTHON_PACKAGE.name)

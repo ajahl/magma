@@ -4,20 +4,19 @@ load("@python_deps//:requirements.bzl", "requirement")
 package(default_visibility = ["//visibility:public"])
 
 py_library(
-    name = "client",
-    srcs = ["client.py"],
+    name = "sentry",
+    srcs = ["sentry.py"],
     deps = [
-        requirement("redis"),
+        requirement("sentry_sdk"),
+        requirement("snowflake"),
         "//feg/protos:mconfigs_python_proto",
     ],
 )
 
 py_library(
-    name = "containers",
-    srcs = ["containers.py"],
-)
-
-py_library(
-    name = "serializers",
-    srcs = ["serializers.py"],
+    name = "metrics",
+    srcs = ["metrics.py"],
+    deps = [
+        requirement("prometheus_client"),
+    ],
 )
