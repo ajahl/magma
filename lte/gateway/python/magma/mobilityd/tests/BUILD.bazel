@@ -10,6 +10,13 @@
 # limitations under the License.
 
 load("@rules_python//python:defs.bzl", "py_test")
+load("@python_deps//:requirements.bzl", "requirement")
+
+DEPS = [
+    "//lte/gateway/python/magma/mobilityd",
+    requirement("fakeredis"),
+    requirement("freezegun"),
+]
 
 py_test(
     name = "ip_alloc_dhcp_test",
@@ -21,7 +28,7 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
 
 py_test(
@@ -34,7 +41,7 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
 
 py_test(
@@ -47,7 +54,7 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
 
 py_test(
@@ -60,7 +67,7 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
 
 py_test(
@@ -73,7 +80,7 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
 
 py_test(
@@ -86,7 +93,7 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
 
 py_test(
@@ -99,7 +106,7 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
 
 py_test(
@@ -112,5 +119,5 @@ py_test(
         "unittest",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//lte/gateway/python/magma/mobilityd"],
+    deps = DEPS,
 )
