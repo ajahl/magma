@@ -11,7 +11,7 @@
 
 """Python 3 Toolchain"""
 
-load("@rules_python//python:defs.bzl",  "py_runtime_pair")
+load("@rules_python//python:defs.bzl", "py_runtime_pair")
 
 def configure_python_toolchain(name):
     native.py_runtime(
