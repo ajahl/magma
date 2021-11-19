@@ -137,8 +137,8 @@ new_local_repository(
     path = "/",
 )
 
-load("//bazel:python_repositories.bzl", "python_repositories")
 load("//bazel:python_packages.bzl", "PYTHON_PACKAGE")
+load("//bazel:python_repositories.bzl", "python_repositories")
 
 python_repositories(name = PYTHON_PACKAGE.name)
 

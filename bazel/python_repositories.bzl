@@ -11,8 +11,8 @@
 
 """All external repositories used for Python dependencies"""
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@rules_python//python:pip.bzl", "pip_parse")
 load("//bazel:python_packages.bzl", "PYTHON_PACKAGE")
 
