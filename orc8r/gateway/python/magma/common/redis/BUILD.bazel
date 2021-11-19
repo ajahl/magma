@@ -19,6 +19,7 @@ py_library(
     srcs = ["client.py"],
     deps = [
         requirement("redis"),
+        requirement("hiredis"),
         "//feg/protos:mconfigs_python_proto",
     ],
 )

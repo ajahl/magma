@@ -16,3 +16,12 @@ redis-lock
 jsonpickle
 netifaces
 scapy
+
+# bazelbase container requirements
+hiredis
+deprecated
+wrapt
+
+# unit test requirements
+fakeredis
+freezegun
