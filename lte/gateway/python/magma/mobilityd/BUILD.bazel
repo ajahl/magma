@@ -9,11 +9,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_python//python:defs.bzl", "py_binary", "py_library")
-load("@subpar//:subpar.bzl", "par_binary")
+load("@rules_python//python:defs.bzl", "py_library")
 load("@python_deps//:requirements.bzl", "requirement")
 
-DEBS = [
+DEPS = [
     ":ip_address_man",
     "//lte/protos:keyval_python_proto",
     "//lte/protos:mconfigs_python_proto",
@@ -34,28 +33,51 @@ DEBS = [
     "//orc8r/protos:service303_python_proto",
 ]
 
-par_binary(
+SRCS = [
+    "dhcp_client.py",
+    "ip_allocator_base.py",
+    "ip_allocator_pool.py",
+    "ip_descriptor_map.py",
+    "main.py",
+    "serialize_utils.py",
+    "uplink_gw.py",
+    "dhcp_desc.py",
+    "ip_allocator_dhcp.py",
+    "ip_allocator_static.py",
+    "ipv6_allocator_pool.py",
+    "metrics.py",
+    "rpc_servicer.py",
+    "subscriberdb_client.py",
+    "ip_address_man.py",
+    "ip_allocator_multi_apn.py",
+    "ip_descriptor.py",
+    "mac.py",
+    "mobility_store.py",
+]
+
+par_binary(   # does not seam to work when using a self-defined python toolchain instead of the python version installed in the underlying system
     name = "mobilityd_par",
-    srcs = glob(["*.py"]),
+    srcs = SRCS,
     # legacy_creat_init = False is required to fix issues in module import, see https://github.com/rules-proto-grpc/rules_proto_grpc/issues/145
     legacy_create_init = False,
     main = "main.py",
     python_version = "PY3",
-    visibility = ["//visibility:public"],
     # zip_safe = False enables shared libraries to be extracted to a temp folder, see https://github.com/google/subpar/issues/37
     zip_safe = False,
-    deps = DEBS,
+    deps = DEPS,
 )
 
 py_binary(
     name = "mobilityd",
-    srcs = glob(["*.py"]),
+    srcs = SRCS,
     # legacy_creat_init = False is required to fix issues in module import, see https://github.com/rules-proto-grpc/rules_proto_grpc/issues/145
     legacy_create_init = False,
+    imports = ["@metricsd_python_proto:orc8r/protos/metricsd_python_proto_pb"],
+    # imports = ["//orc8r/protos:metricsd_python_proto"],
     main = "main.py",
     python_version = "PY3",
     visibility = ["//visibility:public"],
-    deps = DEBS,
+    deps = DEPS,
 )
 
 py_library(
