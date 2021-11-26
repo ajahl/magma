@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Python repository"""
+"""Hermetic Python Interpreter Packages"""
 
 PY_VERSION = "3.8.5"
 
