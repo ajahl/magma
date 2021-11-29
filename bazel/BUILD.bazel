@@ -10,6 +10,5 @@
 # limitations under the License.
 
 load(":python_toolchain.bzl", "configure_python_toolchain")
-load(":python_packages.bzl", "PYTHON_PACKAGE")
 
-configure_python_toolchain(name = PYTHON_PACKAGE.name)
+configure_python_toolchain()
