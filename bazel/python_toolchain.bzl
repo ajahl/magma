@@ -9,11 +9,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Python 3 Toolchain"""
+"""Python toolchain configuration"""
 
 load("@rules_python//python:defs.bzl", "py_runtime_pair")
 
-def configure_python_toolchain(name):
+def configure_python_toolchain(name=None):
+
     native.py_runtime(
         name = "python3",
         files = ["@python_interpreter//:files"],
