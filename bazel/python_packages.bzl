@@ -9,13 +9,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Hermetic Python Interpreter Packages"""
+"""Hermetic Python interpreter configuration"""
+
+load("@rules_python//python:pip.bzl", "pip_parse")
 
 PY_VERSION = "3.8.5"
 
 BUILD_DIR = "/tmp/bazel/external/python_{0}".format(PY_VERSION)
 
-_py_from_source_build_file_content = """
+_py_from_source = """
 exports_files(["python_bin"])
 filegroup(
     name = "files",
@@ -24,19 +26,11 @@ filegroup(
 )
 """
 
-_py_configure = """
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        cd {0} && ./configure --prefix={0}/bazel_install --with-openssl=$(brew --prefix openssl)
-    else
-        cd {0} && ./configure --prefix={0}/bazel_install
-    fi
-    """.format(BUILD_DIR)
-
-def _py_patch_cmds(configure):
+def _patch_cmds():
     return [
         "mkdir -p {0}".format(BUILD_DIR),
         "cp -r * {0}".format(BUILD_DIR),
-        _py_configure,
+        "cd {0} && ./configure --prefix={0}/bazel_install".format(BUILD_DIR),
         "cd {0} && make install".format(BUILD_DIR),
         "rm -rf * && mv {0}/* .".format(BUILD_DIR),
         "ln -s bazel_install/bin/python3 python_bin",
@@ -47,7 +41,18 @@ PYTHON_PACKAGE = struct(
     sha256 = "e3003ed57db17e617acb382b0cade29a248c6026b1bd8aad1f976e9af66a83b0",
     strip_prefix = "Python-{0}".format(PY_VERSION),
     urls = ["https://www.python.org/ftp/python/{0}/Python-{0}.tar.xz".format(PY_VERSION)],
-    build_file_content = _py_from_source_build_file_content,
-    patch_cmds = _py_patch_cmds(_py_configure),
-    python_interpreter = "python3_bin",
-)
+    build_file_content = _py_from_source,
+    patch_cmds = _patch_cmds(),
+    )
+
+def configure_python_interpreter(name=None):
+
+    native.register_toolchains("//bazel:py_toolchain")
+
+    pip_parse(
+        name = "python_deps",
+        extra_pip_args = ["--require-hashes"],
+        python_interpreter_target = "@python_interpreter//:python_bin",
+        requirements_lock = "//lte/gateway/python:requirements.txt",
+        visibility = ["//visibility:public"],
+    )

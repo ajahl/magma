@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_python//python:defs.bzl", "py_library")
+load("@rules_python//python:defs.bzl", "py_library", "py_binary")
 load("@python_deps//:requirements.bzl", "requirement")
 
 DEPS = [
@@ -54,18 +54,6 @@ SRCS = [
     "mac.py",
     "mobility_store.py",
 ]
-
-par_binary(   # does not seam to work when using a self-defined python toolchain instead of the python version installed in the underlying system
-    name = "mobilityd_par",
-    srcs = SRCS,
-    # legacy_creat_init = False is required to fix issues in module import, see https://github.com/rules-proto-grpc/rules_proto_grpc/issues/145
-    legacy_create_init = False,
-    main = "main.py",
-    python_version = "PY3",
-    # zip_safe = False enables shared libraries to be extracted to a temp folder, see https://github.com/google/subpar/issues/37
-    zip_safe = False,
-    deps = DEPS,
-)
 
 py_binary(
     name = "mobilityd",
