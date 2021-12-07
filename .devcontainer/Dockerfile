@@ -319,3 +319,5 @@ RUN ldconfig -v
 RUN ln -s $MAGMA_ROOT/bazel/bazelrcs/devcontainer.bazelrc /etc/bazelrc
 
 WORKDIR $MAGMA_ROOT
+
+ENV PYTHONPATH=$MAGMA_ROOT/lte/gateway/python/:$MAGMA_ROOT/orc8r/gateway/python/:$MAGMA_ROOT/bazel-bin/lte/protos/subscriberdb_python_grpc_pb:$MAGMA_ROOT/bazel-bin/lte/protos/mconfigs_python_proto_pb:$MAGMA_ROOT/bazel-bin/lte/protos/apn_python_proto_pb:$MAGMA_ROOT/bazel-bin/orc8r/protos/common_python_proto_pb:$MAGMA_ROOT/bazel-bin/orc8r/protos/digest_python_proto_pb

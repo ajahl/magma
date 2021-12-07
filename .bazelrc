@@ -9,6 +9,9 @@ build --cxxopt=-std=c++14
 build --strip=never
 build --compilation_mode=dbg
 
+# PYTHON
+build --action_env=PYTHONPATH
+
 # MAGMA VM CONFIGS
 build:specify_vm_cc --action_env=CC=/usr/bin/gcc
 build:specify_vm_cc --action_env=CXX=/usr/bin/g++
