@@ -14,6 +14,7 @@
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 PY_VERSION = "3.8.5"
+PY_HASH = "e3003ed57db17e617acb382b0cade29a248c6026b1bd8aad1f976e9af66a83b0"
 
 BUILD_DIR = "/tmp/bazel/external/python_{0}".format(PY_VERSION)
 
@@ -38,7 +39,7 @@ def _patch_cmds():
 
 PYTHON_PACKAGE = struct(
     name = "python_interpreter",
-    sha256 = "e3003ed57db17e617acb382b0cade29a248c6026b1bd8aad1f976e9af66a83b0",
+    sha256 = PY_HASH,
     strip_prefix = "Python-{0}".format(PY_VERSION),
     urls = ["https://www.python.org/ftp/python/{0}/Python-{0}.tar.xz".format(PY_VERSION)],
     build_file_content = _py_from_source,
