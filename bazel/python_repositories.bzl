@@ -22,6 +22,6 @@ def python_repositories():
         sha256 = PYTHON_PACKAGE.sha256,
         strip_prefix = PYTHON_PACKAGE.strip_prefix,
         patch_cmds = PYTHON_PACKAGE.patch_cmds,
-        build_file_content = PYTHON_PACKAGE.build_file_content,
+        build_file = PYTHON_PACKAGE.build_file,
     )
 
