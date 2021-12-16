@@ -22,11 +22,13 @@ cpp_proto_library(
 
 python_proto_library(
     name = "common_python_proto",
+    output_mode = "NO_PREFIX",
     protos = [":common_proto"],
 )
 
 python_proto_library(
     name = "mconfig_python_proto",
+    output_mode = "NO_PREFIX",
     protos = [":mconfig_orc8r_proto"],
 )
 
@@ -50,6 +52,7 @@ cpp_proto_library(
 
 python_proto_library(
     name = "digest_python_proto",
+    output_mode = "NO_PREFIX",
     protos = [":digest_proto"],
 )
 
@@ -67,6 +70,7 @@ cpp_grpc_library(
 
 python_grpc_library(
     name = "eventd_python_grpc",
+    output_mode = "NO_PREFIX",
     protos = [":eventd_proto"],
     deps = [":common_python_proto"],
 )
@@ -112,11 +116,13 @@ proto_library(
 
 python_proto_library(
     name = "mconfigs_python_proto",
+    output_mode = "NO_PREFIX",
     protos = [":mconfigs_proto"],
 )
 
 python_proto_library(
     name = "metrics_python_proto",
+    output_mode = "NO_PREFIX",
     protos = [":metrics_proto"],
 )
 
@@ -142,6 +148,7 @@ cpp_proto_library(
 
 python_proto_library(
     name = "metricsd_python_proto",
+    output_mode = "NO_PREFIX",
     protos = [":metricsd_proto"],
     deps = [
         ":common_python_proto",
@@ -169,6 +176,7 @@ cpp_grpc_library(
 
 python_grpc_library(
     name = "service303_python_grpc",
+    output_mode = "NO_PREFIX",
     protos = [":service303_proto"],
     deps = [
         ":common_python_proto",
