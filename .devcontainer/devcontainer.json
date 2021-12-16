@@ -18,6 +18,9 @@
 		"stackbuild.bazel-stack-vscode-cc",
 		"augustocdias.tasks-shell-input",
 		"ryuta46.multi-command",
+		"zxh404.vscode-proto3",
+		"ms-python.python",
+		"ms-python.vscode-pylance",
 	],
 	"image": "ghcr.io/magma/magma/devcontainer:sha-2f4586b",
 	"settings": {
@@ -59,7 +62,23 @@
 					"clangd.restart",
 				],
 			}
-		]
+		],
+		"python.analysis.extraPaths": [
+			"/workspaces/magma/orc8r/gateway/python/",
+			"/workspaces/magma/lte/gateway/python/",
+			"/workspaces/magma/bazel-bin/",
+			"/workspaces/magma/bazel-magma/external/",
+		],
+		"python.defaultInterpreterPath": "/workspaces/magma/bazel-magma/external/python_interpreter/bazel_install/bin/python3",
+		"python.linting.pylintEnabled": true,
+		"python.linting.pylintPath": "pylint",
+		"python.testing.pytestEnabled": true,
+		"python.testing.unittestEnabled": true,
+		"editor.formatOnSave": true,
+		"python.formatting.autopep8Args": [
+			// This should be the same set of flags as ones specified in `lte/gateway/precommit.py`
+			"--select=W191,W291,W292,W293,W391,E131,E2,E3",
+		],
 	},
 	"mounts": [
 		"source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
@@ -71,5 +90,6 @@
 	"remoteEnv": {
 		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
 	},
+	"postStartCommand": "bazel build //...",
 	"remoteUser": "vscode",
 }
