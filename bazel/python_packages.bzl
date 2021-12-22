@@ -12,6 +12,7 @@
 """Hermetic Python interpreter configuration"""
 
 load("@rules_python//python:pip.bzl", "pip_parse")
+# load("@rules_python//python:pip.bzl", "pip_install")
 
 PY_VERSION = "3.8.5"
 PY_HASH = "e3003ed57db17e617acb382b0cade29a248c6026b1bd8aad1f976e9af66a83b0"
@@ -48,3 +49,17 @@ def configure_python_interpreter(name=None):
         requirements_lock = "//lte/gateway/python:requirements.txt",
         visibility = ["//visibility:public"],
     )
+
+    # pip_install(
+    #     name = "python_deps",
+    #     python_interpreter_target = "@python_interpreter//:python_bin",
+    #     extra_pip_args = ["--require-hashes"],
+    #     requirements = "//lte/gateway/python:requirements.txt",
+    # )
+
+    # pip_install(
+    #     name = "rules_proto_grpc_py3_deps",
+    #     python_interpreter_target = "@python_interpreter//:python_bin",
+    #     # python_interpreter = "python_interpreter",
+    #     requirements = "@rules_proto_grpc//python:requirements.txt",
+    # )

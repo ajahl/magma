@@ -22,9 +22,13 @@
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 	],
-	"image": "ghcr.io/magma/magma/devcontainer:sha-2f4586b",
+	// "image": "ghcr.io/magma/magma/devcontainer:sha-2f4586b",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
 	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash",
+		"terminal.integrated.defaultProfile.linux": "bash",
 		"files.watcherExclude": {
 			"**/.bazel-cache/**": true,
 			"**/.bazel-cache-repo/**": true,
@@ -66,14 +70,16 @@
 		"python.analysis.extraPaths": [
 			"/workspaces/magma/orc8r/gateway/python/",
 			"/workspaces/magma/lte/gateway/python/",
-			"/workspaces/magma/bazel-bin/lte/protos/",
-			"/workspaces/magma/bazel-bin/orc8r/protos/",
+			"/workspaces/magma/bazel-bin/lte/protos/proto/",
+			"/workspaces/magma/bazel-bin/orc8r/protos/gprc/",
+			"/workspaces/magma/bazel-bin/lte/protos/proto/",
+			"/workspaces/magma/bazel-bin/orc8r/protos/gprc/",
 			"/workspaces/magma/bazel-magma/external/",
 		],
 		"python.defaultInterpreterPath": "/workspaces/magma/bazel-magma/external/python_interpreter/bazel_install/bin/python3",
 		"python.linting.pylintEnabled": true,
 		"python.linting.pylintPath": "pylint",
-		"python.testing.pytestEnabled": true,
+		"python.testing.pytestEnabled": false,
 		"python.testing.unittestEnabled": true,
 		"editor.formatOnSave": true,
 		"python.formatting.autopep8Args": [
@@ -84,6 +90,8 @@
 	"mounts": [
 		"source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
 	],
+	// "initializeCommand": " sudo apt -y install python3-pip",
+	// "postCreateCommand": "sudo apt -y install python-dev && sudo ln -s ${containerWorkspaceFolder}/lte/gateway/configs /etc/magma",
 	"postCreateCommand": "sudo ln -s ${containerWorkspaceFolder}/lte/gateway/configs /etc/magma",
 	"runArgs": [
 		"--init"
@@ -91,6 +99,7 @@
 	"remoteEnv": {
 		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
 	},
-	"postStartCommand": "bazel build //...",
+	// "postStartCommand": "bazel build //... && python3 -m venv .env",
+	// "postAttachCommand": "go get -v golang.org/x/tools/gopls",
 	"remoteUser": "vscode",
 }

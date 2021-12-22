@@ -108,7 +108,7 @@ bool load_service_mconfig(const std::string& service_name,
       google::protobuf::util::JsonStringToMessage(service_it->dump(), message);
   if (!status.ok()) {
     MLOG(MERROR) << "Couldn't parse " << service_name
-                 << " config, error: " << status.ToString();
+                 << " config, error: " << status.message();
   }
   return status.ok();
 }

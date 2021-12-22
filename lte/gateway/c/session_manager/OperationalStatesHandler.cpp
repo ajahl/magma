@@ -85,8 +85,11 @@ folly::dynamic get_dynamic_active_policies(
     auto status = google::protobuf::util::MessageToJsonString(
         policy, &json_policy, options);
     if (!status.ok()) {
+      // https://github.com/protocolbuffers/protobuf/commit/9ad97629be72eeecf8bc9fe8145e55ceaeab6b78#
+      // https://github.com/protocolbuffers/protobuf/pull/8354
+      // status.error_message() -> status.message()
       MLOG(MERROR) << "Error serializing PolicyRule " << policy.id()
-                   << " to JSON: " << status.error_message();
+                   << " to JSON: " << status.message();
       continue;
     }
     policies.push_back(json_policy);

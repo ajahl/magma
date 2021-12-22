@@ -41,52 +41,55 @@ RUN echo "Install general purpose packages" && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        apt-transport-https \
-        apt-utils \
-        autoconf \
-        autoconf automake \
-        automake \
-        build-essential \
-        ca-certificates \
-        clang-11 \
-        clang-format-7 \
-        clang-format-11 \
-        clang-tidy-11 \
-        curl \
-        g++ \
-        g++-9 \
-        gcc-9 \
-        lcov \
-        gdb \
-        git \
-        gnupg \
-        golang \
-        libclang-11-dev \
-        libgmp3-dev \
-        libpcap-dev \
-        libssl-dev \
-        libtool \
-        make \
-        ninja-build \
-        perl \
-        pkg-config \
-        python3 \
-        python-is-python3 \
-        redis-server \
-        ruby \
-        rubygems \
-        ruby-dev \
-        software-properties-common \
-        tzdata \
-        unzip \
-        vim \
-        wget && \
-        gem install fpm && \
-        update-alternatives --install /usr/bin/clang clang /usr/lib/llvm-11/bin/clang 10 && \
-        update-alternatives --install /usr/bin/clang++ clang++ /usr/lib/llvm-11/bin/clang++ 10 && \
-        update-alternatives --install /usr/bin/clang-format clang-format /usr/lib/llvm-7/bin/clang-format 10 && \
-        update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/lib/llvm-11/bin/clang-tidy 10 && \
-        update-alternatives --install /usr/bin/clang-apply-replacements clang-apply-replacements /usr/lib/llvm-11/bin/clang-apply-replacements 10
+    apt-transport-https \
+    apt-utils \
+    autoconf \
+    autoconf automake \
+    automake \
+    build-essential \
+    ca-certificates \
+    clang-11 \
+    clang-format-7 \
+    clang-format-11 \
+    clang-tidy-11 \
+    curl \
+    g++ \
+    g++-9 \
+    gcc-9 \
+    lcov \
+    gdb \
+    git \
+    gnupg \
+    golang \
+    libclang-11-dev \
+    libgmp3-dev \
+    libpcap-dev \
+    libssl-dev \
+    libtool \
+    make \
+    ninja-build \
+    perl \
+    pkg-config \
+    python3 \
+    python-is-python3 \
+
+    python3-pip \
+    
+    redis-server \
+    ruby \
+    rubygems \
+    ruby-dev \
+    software-properties-common \
+    tzdata \
+    unzip \
+    vim \
+    wget && \
+    gem install fpm && \
+    update-alternatives --install /usr/bin/clang clang /usr/lib/llvm-11/bin/clang 10 && \
+    update-alternatives --install /usr/bin/clang++ clang++ /usr/lib/llvm-11/bin/clang++ 10 && \
+    update-alternatives --install /usr/bin/clang-format clang-format /usr/lib/llvm-7/bin/clang-format 10 && \
+    update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/lib/llvm-11/bin/clang-tidy 10 && \
+    update-alternatives --install /usr/bin/clang-apply-replacements clang-apply-replacements /usr/lib/llvm-11/bin/clang-apply-replacements 10
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y clangd-12
 
@@ -252,7 +255,7 @@ RUN git clone https://github.com/facebook/folly && cd folly && \
     make install && \
     cd / && \
     rm -rf folly
-    
+
 ##### Build and install libgtest and gmock
 RUN cd /usr/src/googletest && \
     mkdir build && \
@@ -295,8 +298,8 @@ RUN git clone https://github.com/include-what-you-use/include-what-you-use && \
 #### libfluid is requird to build MME with OVS support
 COPY third_party /tmp/third_party/
 RUN /tmp/third_party/build/bin/libfluid_build.sh && \
-     find . -name magma-libfluid_0.1* -exec dpkg -i {} \; && \
-     rm -rf /tmp/*
+    find . -name magma-libfluid_0.1* -exec dpkg -i {} \; && \
+    rm -rf /tmp/*
 
 ##### FreeDiameter
 COPY lte/gateway/c/core/oai/patches/ /tmp/

@@ -19,7 +19,7 @@ def protobuf():
         # See https://github.com/jupp0r/prometheus-cpp.git @ d8326b2bba945a435f299e7526c403d7a1f68c1f
         name = "protobuf",
         strip_prefix = "protobuf-3.19.1",
-        #sha256 = "6aff9834fd7c540875e1836967c8d14c6897e3785a2efac629f69860fb7834ff",
+        sha256 = "87407cd28e7a9c95d9f61a098a53cf031109d451a7763e7dd1253abf8b4df422",
         urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.19.1.tar.gz"],
     )
 
@@ -30,3 +30,4 @@ def grpc():
         strip_prefix = "rules_proto_grpc-4.1.0",
         urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.1.0.tar.gz"],
     )
+
