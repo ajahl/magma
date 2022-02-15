@@ -1,0 +1,6 @@
+startup --output_base=/tmp/bazel
+
+common --disk_cache=/tmp/bazel/.bazel-cache
+common --repository_cache=/tmp/bazel/.bazel-cache-repo
+
+build --cxxopt=-std=c++14 --compilation_mode=dbg --strip=never --copt=-O3 #--linkopt="--ld-generated-unwind-info"# -fuse-ld=lld --linkopt=-fuse-ld=lld
