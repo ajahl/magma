@@ -82,6 +82,12 @@ class SpgwServiceImpl final : public SpgwService::Service {
                             DeleteBearerResult* response) override;
 
  private:
+
+  /*
+   * Split IPv4 network string in ipv4 address and subnet mask
+   * @param ipv4network: IPv4 network in string form (e.g, "192.176.128.10/24")
+   * @return tuple<string>: Return ipv4 address and subnet mask
+   */
   const std::tuple<std::string, std::string> splitIpv4Network(
       const std::string& ipv4network);
 
