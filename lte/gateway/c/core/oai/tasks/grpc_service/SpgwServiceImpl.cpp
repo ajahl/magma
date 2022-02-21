@@ -14,10 +14,10 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-#include <string>
-
 #include "lte/protos/spgw_service.pb.h"
-#include <folly/IPAddress.h>
+
+#include <string>
+#include <arpa/inet.h>
 
 extern "C" {
 #include "lte/gateway/c/core/oai/include/spgw_service_handler.h"
@@ -289,35 +289,57 @@ bool SpgwServiceImpl::fillUpPacketFilterContents(
   return true;
 }
 
+// IPv4 network format ex.: 192.176.128.10/24
+const std::tuple<std::string, std::string> SpgwServiceImpl::splitIpv4Network(
+    const std::string& ipv4network) {
+  const int slash_pos = ipv4network.find("/");
+  std::string ipv4addr = (slash_pos != std::string::npos)
+                             ? ipv4network.substr(0, slash_pos)
+                             : ipv4network;
+  std::string subnet_mask = (slash_pos != std::string::npos)
+                                ? ipv4network.substr(slash_pos + 1)
+                                : DEFAULT_MAX_LEN_STR;
+  return std::tuple<std::string, std::string>{ipv4addr, subnet_mask};
+}
+
 // IPv4 address format ex.: 192.176.128.10/24
 // FEG can provide an empty string which indicates
 // ANY and it is equivalent to 0.0.0.0/0
 // But this function is called only for non-empty ipv4 string
 bool SpgwServiceImpl::fillIpv4(packet_filter_contents_t* pf_content,
-                               const std::string ipv4addr) {
-  const auto cidrNetworkExpect = folly::IPAddress::tryCreateNetwork(ipv4addr);
-  if (cidrNetworkExpect.hasError()) {
-    OAILOG_ERROR(LOG_UTIL, "Invalid address string %s \n", ipv4addr.c_str());
+                               const std::string& ipv4network) {
+  std::tuple<std::string, std::string> ipv4network_split =
+      splitIpv4Network(ipv4network);
+  std::string ipv4addr = std::get<0>(ipv4network_split);
+  std::string mask_len_str = std::get<1>(ipv4network_split);
+  in_addr addr;
+  if (inet_pton(AF_INET, ipv4addr.c_str(), &addr) != 1) {
+    OAILOG_ERROR(LOG_UTIL, "Invalid address string %s \n", ipv4network.c_str());
     return false;
   }
   // Host Byte Order
-  uint32_t ipv4addrHBO = cidrNetworkExpect.value().first.asV4().toLongHBO();
+  uint32_t ipv4addrHBO = ntohl(addr.s_addr);
   for (int i = (TRAFFIC_FLOW_TEMPLATE_IPV4_ADDR_SIZE - 1); i >= 0; --i) {
     pf_content->ipv4remoteaddr[i].addr = (unsigned char)ipv4addrHBO & 0xFF;
     ipv4addrHBO = ipv4addrHBO >> 8;
   }
-
-  // Get the mask length:
-  // folly takes care of absence of mask_len by defaulting to 32
-  // i.e., 255.255.255.255.
-  int mask_len = cidrNetworkExpect.value().second;
+  int mask_len;
+  try {
+    mask_len = std::stoi(mask_len_str);
+  } catch (...) {
+    OAILOG_ERROR(LOG_UTIL, "Invalid address string %s \n", ipv4network.c_str());
+    return false;
+  }
+  if (mask_len > 32 || mask_len < 0) {
+    OAILOG_ERROR(LOG_UTIL, "Invalid address string %s \n", ipv4network.c_str());
+    return false;
+  }
   uint32_t mask = UINT32_MAX;        // all ones
   mask = (mask << (32 - mask_len));  // first mask_len bits are 1s, rest 0s
   for (int i = (TRAFFIC_FLOW_TEMPLATE_IPV4_ADDR_SIZE - 1); i >= 0; --i) {
     pf_content->ipv4remoteaddr[i].mask = (unsigned char)mask & 0xFF;
     mask = mask >> 8;
   }
-
   OAILOG_DEBUG(
       LOG_UTIL,
       "Network Address: %d.%d.%d.%d "

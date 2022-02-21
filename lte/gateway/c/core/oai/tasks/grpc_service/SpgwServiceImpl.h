@@ -26,7 +26,9 @@ extern "C" {
 #include "lte/gateway/c/core/oai/include/spgw_service_handler.h"
 #include "lte/gateway/c/core/oai/common/log.h"
 }
-
+namespace {
+constexpr char DEFAULT_MAX_LEN_STR[] = "32";
+}  // namespace
 namespace grpc {
 class ServerContext;
 }  // namespace grpc
@@ -80,6 +82,9 @@ class SpgwServiceImpl final : public SpgwService::Service {
                             DeleteBearerResult* response) override;
 
  private:
+  const std::tuple<std::string, std::string> splitIpv4Network(
+      const std::string& ipv4network);
+
   /*
    * Fill up the packet filter contents such as flags and flow tuple fields
    * @param pf_content: packet filter content to be filled
@@ -96,7 +101,7 @@ class SpgwServiceImpl final : public SpgwService::Service {
    * @return bool: Return true if successful, false if not
    */
   bool fillIpv4(packet_filter_contents_t* pf_content,
-                const std::string ipv4addr);
+                const std::string& ipv4addr);
 
   /*
    * Fill up the ipv6 remote address field in packet filter
