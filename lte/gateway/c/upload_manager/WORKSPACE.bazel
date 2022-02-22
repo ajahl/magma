@@ -1,0 +1,17 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")  
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive") 
+   
+http_archive(
+    name = "sentry_native",
+    build_file = "//bazel:sentry_native.BUILD",
+    sha256 = "85e0e15d7fb51388d967ab09e7ee1b95f82330a469a93c65d964ea1afd5e6127",
+    url = "https://github.com/getsentry/sentry-native/releases/download/0.4.13/sentry-native.zip",
+)
+
+new_git_repository(
+    name = "lss",
+    build_file = "//bazel:lss.BUILD",
+    commit = "e6527b0cd469e3ff5764785dadcb39bf7d787154",
+    remote = "https://chromium.googlesource.com/linux-syscall-support",
+    shallow_since = "1508355462 +0000",
+)

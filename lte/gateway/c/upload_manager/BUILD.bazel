@@ -1,0 +1,15 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cc_binary(
+  name = "sentry_crasher",
+  srcs = ["src/sentry_crasher.cpp"],
+  copts = [
+            "-DSENTRY_ENABLED",
+            "-DSENTRY_BUILD_STATIC",
+            "-D__STDC_FORMAT_MACROS",
+        ],
+  linkopts = ["-lpthread", "-g", "-Wall", "-ggdb", "-gdwarf"],
+  deps = [
+    "@sentry_native//:sentry",
+  ],
+)
