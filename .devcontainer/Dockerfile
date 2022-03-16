@@ -62,7 +62,6 @@ RUN echo "Install general purpose packages" && \
         gdb \
         git \
         gnupg \
-        golang \
         libclang-11-dev \
         libgmp3-dev \
         libpcap-dev \
@@ -97,6 +96,12 @@ RUN echo "Install general purpose packages" && \
         update-alternatives --install /usr/bin/clang-apply-replacements clang-apply-replacements /usr/lib/llvm-11/bin/clang-apply-replacements 10
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y clangd-12
+
+# Install golang 1.18
+WORKDIR /usr/local
+RUN curl https://go.dev/dl/go1.18.linux-amd64.tar.gz --remote-name --location && \
+    tar -xzf go1.18.linux-amd64.tar.gz && \
+    cp -r go/bin/* /usr/local/bin/
 
 # Install bazel
 WORKDIR /usr/sbin
