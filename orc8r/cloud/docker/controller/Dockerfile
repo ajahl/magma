@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
   unzip \
   vim
 
-# Golang 1.13
+# Golang 1.18
 WORKDIR /usr/local
 RUN curl https://go.dev/dl/go1.18.linux-amd64.tar.gz --remote-name --location && \
     tar -xzf go1.18.linux-amd64.tar.gz && \
