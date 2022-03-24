@@ -48,7 +48,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa
 	google.golang.org/grpc v1.43.0
-	google.golang.org/protobuf v1.27.1
+	google.golang.org/protobuf v1.28.0
 	gotest.tools/gotestsum v1.7.0
 	layeh.com/radius v0.0.0-20201203135236-838e26d0c9be
 	magma/feg/cloud/go v0.0.0
