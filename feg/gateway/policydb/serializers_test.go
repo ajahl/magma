@@ -43,8 +43,8 @@ func TestPolicyDeserializer(t *testing.T) {
 	assert.True(t, ok)
 
 	// clear out meta fields
-	clearOutMetaFieldsFromPolicy(policy)
-	clearOutMetaFieldsFromPolicy(deserializedPolicy)
+	// clearOutMetaFieldsFromPolicy(policy)
+	// clearOutMetaFieldsFromPolicy(deserializedPolicy)
 
 	assert.Equal(t, policy, deserializedPolicy)
 }
@@ -68,8 +68,8 @@ func TestNameSetDeserializer(t *testing.T) {
 	assert.True(t, ok)
 
 	// clear out meta fields
-	clearOutMetaFieldsFromNameSet(nameSet)
-	clearOutMetaFieldsFromNameSet(deserializedPolicy)
+	// clearOutMetaFieldsFromNameSet(nameSet)
+	// clearOutMetaFieldsFromNameSet(deserializedPolicy)
 
 	assert.Equal(t, nameSet, deserializedPolicy)
 }
@@ -107,11 +107,11 @@ func createSerializedPolicyRedisState(t *testing.T, policy *lteProtos.PolicyRule
 	return string(serializedRedisState)
 }
 
-func clearOutMetaFieldsFromPolicy(policy *lteProtos.PolicyRule) {
-	policy.XXX_NoUnkeyedLiteral = struct{}{}
-	policy.XXX_unrecognized = nil
-	policy.XXX_sizecache = 0
-}
+// func clearOutMetaFieldsFromPolicy(policy *lteProtos.PolicyRule) {
+// 	policy.XXX_NoUnkeyedLiteral = struct{}{}
+// 	policy.XXX_unrecognized = nil
+// 	policy.XXX_sizecache = 0
+// }
 
 func getDefaultNameSet() *lteProtos.ChargingRuleNameSet {
 	return &lteProtos.ChargingRuleNameSet{
@@ -131,8 +131,8 @@ func createSerializedNameSetRedisState(t *testing.T, nameSet *lteProtos.Charging
 	return string(serializedRedisState)
 }
 
-func clearOutMetaFieldsFromNameSet(nameSet *lteProtos.ChargingRuleNameSet) {
-	nameSet.XXX_NoUnkeyedLiteral = struct{}{}
-	nameSet.XXX_unrecognized = nil
-	nameSet.XXX_sizecache = 0
-}
+// func clearOutMetaFieldsFromNameSet(nameSet *lteProtos.ChargingRuleNameSet) {
+// 	nameSet.XXX_NoUnkeyedLiteral = struct{}{}
+// 	nameSet.XXX_unrecognized = nil
+// 	nameSet.XXX_sizecache = 0
+// }
