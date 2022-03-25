@@ -18,6 +18,7 @@ import (
 	"net"
 	"testing"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 
@@ -155,7 +156,7 @@ func TestHomeSubscriberServer_GetSubscriberDataGrpc(t *testing.T) {
 	assert.EqualError(t, err, "rpc error: code = NotFound desc = Subscriber '100' not found")
 
 	reply, err := client.AddSubscriber(context.Background(), &sub)
-	assert.Equal(t, orcprotos.Void{}, *reply)
+	assert.Equal(t, orcprotos.Void{}, proto.Clone(reply).(*orcprotos.Void))
 	assert.NoError(t, err)
 
 	data, err = client.GetSubscriberData(context.Background(), &id)
