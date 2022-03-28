@@ -49,8 +49,9 @@ func main() {
 		glog.Fatalf("Error creating ctraced service: %+v", err)
 	}
 
+	sqldriver := tracing.InitTracingDBHook(storage.GetSQLDriver())
 	// Init storage
-	db, err := sqorc.Open(storage.GetSQLDriver(), storage.GetDatabaseSource())
+	db, err := sqorc.Open(sqldriver, storage.GetDatabaseSource())
 	if err != nil {
 		glog.Fatalf("Error opening db connection: %+v", err)
 	}

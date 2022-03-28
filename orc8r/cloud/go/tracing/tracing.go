@@ -15,35 +15,35 @@
 package tracing
 
 import (
-        "log"
+	"log"
 
-        "go.opentelemetry.io/otel"
-        "go.opentelemetry.io/otel/propagation"
-		"go.opentelemetry.io/otel/sdk/resource"
-        sdktrace "go.opentelemetry.io/otel/sdk/trace"
-        "go.opentelemetry.io/otel/exporters/jaeger"
-		semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 )
 
 // Init configures an OpenTelemetry exporter and trace provider
 func Init(name string) *sdktrace.TracerProvider {
-		exporter, err := jaeger.New(jaeger.WithAgentEndpoint(jaeger.WithAgentHost("jaeger"), jaeger.WithAgentPort("6831")))
-        if err != nil {
-                log.Fatal(err)
-        }
-		res, err := resource.Merge(
-			resource.Default(),
-			resource.NewWithAttributes(
-				semconv.SchemaURL,
-				semconv.ServiceNameKey.String(name),
-			),
-		)
-        tp := sdktrace.NewTracerProvider(
-                sdktrace.WithSampler(sdktrace.AlwaysSample()),
-                sdktrace.WithBatcher(exporter),
-				sdktrace.WithResource(res),
-        )
-        otel.SetTracerProvider(tp)
-        otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-        return tp
+	exporter, err := jaeger.New(jaeger.WithAgentEndpoint(jaeger.WithAgentHost("jaeger"), jaeger.WithAgentPort("6831")))
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(name),
+		),
+	)
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithResource(res),
+	)
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	return tp
 }

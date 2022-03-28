@@ -46,9 +46,9 @@ func main() {
 	if err != nil {
 		glog.Fatalf("Error creating service: %s", err)
 	}
-
+	sqldriver := tracing.InitTracingDBHook(storage2.GetSQLDriver())
 	// Init storage
-	db, err := sqorc.Open(storage2.GetSQLDriver(), storage2.GetDatabaseSource())
+	db, err := sqorc.Open(sqldriver, storage2.GetDatabaseSource())
 	if err != nil {
 		glog.Fatalf("Failed to connect to database: %s", err)
 	}

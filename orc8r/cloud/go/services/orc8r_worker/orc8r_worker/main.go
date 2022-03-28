@@ -61,8 +61,8 @@ func main() {
 
 func startSingletonReindexer(srv *service.OrchestratorService) {
 	glog.Info("Running singleton reindexer")
-
-	db, err := sqorc.Open(storage.GetSQLDriver(), storage.GetDatabaseSource())
+	sqldriver := tracing.InitTracingDBHook(storage.GetSQLDriver())
+	db, err := sqorc.Open(sqldriver, storage.GetDatabaseSource())
 	if err != nil {
 		glog.Fatalf("Error connecting to database: %v", err)
 	}

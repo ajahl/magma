@@ -33,6 +33,7 @@ import (
 	indexermgr_servicers "magma/orc8r/cloud/go/services/state/servicers/protected"
 	"magma/orc8r/cloud/go/sqorc"
 	"magma/orc8r/cloud/go/storage"
+	storage2 "magma/orc8r/cloud/go/storage"
 	"magma/orc8r/cloud/go/tracing"
 	"magma/orc8r/lib/go/protos"
 	"magma/orc8r/lib/go/service/config"
@@ -70,7 +71,8 @@ func main() {
 		glog.Fatalf("Error creating state service %v", err)
 	}
 
-	db, err := sqorc.Open(storage.GetSQLDriver(), storage.GetDatabaseSource())
+	sqldriver := tracing.InitTracingDBHook(storage2.GetSQLDriver())
+	db, err := sqorc.Open(sqldriver, storage.GetDatabaseSource())
 	if err != nil {
 		glog.Fatalf("Error connecting to database: %v", err)
 	}
