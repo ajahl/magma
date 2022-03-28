@@ -21,6 +21,7 @@ import (
 
 	"github.com/fiorix/go-diameter/v4/diam"
 	"github.com/go-openapi/swag"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/stretchr/testify/assert"
 
@@ -208,14 +209,61 @@ func startServerWithExpectations(
 	return pcrf
 }
 
+// type struct1 struct {
+// 	a int
+// 	B int
+// 	C int
+// }
+//
+// type struct2 struct {
+// 	a int
+// 	B int
+// 	C int
+// }
+//
+// func Test(t *testing.T) {
+// 	str1 := struct1{a: 1, B: 2, C: 3}
+// 	str11 := struct1{a: 1, B: 2, C: 3}
+// 	// str2 := struct2{a: 1, B: 2, C: 4}
+// 	list1 := []struct1{str1, str11}
+// 	list2 := []struct1{str1, str1}
+// 	assert.ElementsMatch(t, list1, list2)
+// }
+
+func equalProtoLists(expect []*fegprotos.RuleDefinition, actual []*fegprotos.RuleDefinition) bool {
+	if len(expect) != len(actual) {
+		return false
+	}
+	for i, ruleDef := range actual {
+		if proto.Equal(expect[i], ruleDef) == false {
+			return false
+		}
+	}
+	return true
+}
+
+func equalProtoLists_REFACTOR(expect []*fegprotos.UsageMonitoringInformation, actual []*fegprotos.UsageMonitoringInformation) bool {
+	if len(expect) != len(actual) {
+		return false
+	}
+	for i, ruleDef := range actual {
+		if proto.Equal(expect[i], ruleDef) == false {
+			return false
+		}
+	}
+	return true
+}
+
 func assertCCAIsEqualToExpectedAnswer(t *testing.T, actual *gx.CreditControlAnswer, expectation *fegprotos.GxCreditControlAnswer) {
 	ruleNames, ruleBaseNames, ruleDefinitions := getRuleInstallsFromCCA(actual)
 	assert.ElementsMatch(t, expectation.GetRuleInstalls().GetRuleNames(), ruleNames)
 	assert.ElementsMatch(t, expectation.GetRuleInstalls().GetRuleBaseNames(), ruleBaseNames)
-	assert.ElementsMatch(t, expectation.GetRuleInstalls().GetRuleDefinitions(), ruleDefinitions)
+	equal := equalProtoLists(expectation.GetRuleInstalls().GetRuleDefinitions(), ruleDefinitions)
+	assert.True(t, equal)
 	assertRuleInstallTimeStampsMatch(t, expectation.GetRuleInstalls(), actual.RuleInstallAVP)
 	usageMonitors := getUsageMonitorsFromCCA(actual)
-	assert.ElementsMatch(t, expectation.GetUsageMonitoringInfos(), usageMonitors)
+	equal = equalProtoLists_REFACTOR(expectation.GetUsageMonitoringInfos(), usageMonitors)
+	assert.True(t, equal)
 }
 
 func getRuleInstallsFromCCA(cca *gx.CreditControlAnswer) ([]string, []string, []*fegprotos.RuleDefinition) {
