@@ -120,7 +120,8 @@ func TestHomeSubscriberServer_UpdateSubscriber(t *testing.T) {
 
 	retreivedSub, err := server.GetSubscriberData(context.Background(), id)
 	assert.NoError(t, err)
-	assert.Equal(t, updatedSub, retreivedSub)
+	equal := proto.Equal(updatedSub, retreivedSub)
+	assert.True(t, equal)
 }
 
 func TestHomeSubscriberServer_DeleteSubscriber(t *testing.T) {
@@ -156,7 +157,9 @@ func TestHomeSubscriberServer_GetSubscriberDataGrpc(t *testing.T) {
 	assert.EqualError(t, err, "rpc error: code = NotFound desc = Subscriber '100' not found")
 
 	reply, err := client.AddSubscriber(context.Background(), &sub)
-	assert.Equal(t, orcprotos.Void{}, proto.Clone(reply).(*orcprotos.Void))
+	replyCopy := proto.Clone(reply).(*orcprotos.Void)
+	equal := proto.Equal(&orcprotos.Void{}, replyCopy)
+	assert.True(t, equal)
 	assert.NoError(t, err)
 
 	data, err = client.GetSubscriberData(context.Background(), &id)

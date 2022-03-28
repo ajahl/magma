@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
 
 	"magma/feg/cloud/go/protos"
@@ -92,7 +93,8 @@ func standardSwxProxyTest(t *testing.T) {
 		t.Fatalf("GRPC SAR Register Error: %v", err)
 		return
 	}
-	assert.Equal(t, &protos.RegistrationAnswer{SessionId: regRes.GetSessionId()}, regRes)
+	equal := proto.Equal(&protos.RegistrationAnswer{SessionId: regRes.GetSessionId()}, regRes)
+	assert.True(t, equal)
 	regResJSON, _ := orcprotos.MarshalIntern(regRes)
 	t.Logf("GRPC Register SAA: %v", string(regResJSON))
 
@@ -102,7 +104,8 @@ func standardSwxProxyTest(t *testing.T) {
 		t.Fatalf("GRPC SAR Deregister Error: %v", err)
 		return
 	}
-	assert.Equal(t, &protos.RegistrationAnswer{SessionId: regRes.GetSessionId()}, deregRes)
+	equal = proto.Equal(&protos.RegistrationAnswer{SessionId: regRes.GetSessionId()}, deregRes)
+	assert.True(t, equal)
 	deregResJSON, _ := orcprotos.MarshalIntern(deregRes)
 	t.Logf("GRPC Deregister SAA: %v", string(deregResJSON))
 
