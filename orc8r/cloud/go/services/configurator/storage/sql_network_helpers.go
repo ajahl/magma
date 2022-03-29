@@ -19,6 +19,7 @@ import (
 	"sort"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/pkg/errors"
 	"github.com/thoas/go-funk"
@@ -26,19 +27,20 @@ import (
 	"magma/orc8r/cloud/go/sqorc"
 )
 
-func getNetworkQueryColumns(criteria NetworkLoadCriteria) []string {
+func getNetworkQueryColumns(criteria *NetworkLoadCriteria) []string {
+	criteriaCopy := proto.Clone(criteria).(*NetworkLoadCriteria)
 	ret := []string{
 		fmt.Sprintf("%s.%s", networksTable, nwIDCol),
 		fmt.Sprintf("%s.%s", networksTable, nwTypeCol),
 	}
-	if criteria.LoadMetadata {
+	if criteriaCopy.LoadMetadata {
 		ret = append(
 			ret,
 			fmt.Sprintf("%s.%s", networksTable, nwNameCol),
 			fmt.Sprintf("%s.%s", networksTable, nwDescCol),
 		)
 	}
-	if criteria.LoadConfigs {
+	if criteriaCopy.LoadConfigs {
 		ret = append(
 			ret,
 			fmt.Sprintf("%s.%s", networkConfigTable, nwcTypeCol),
@@ -49,14 +51,17 @@ func getNetworkQueryColumns(criteria NetworkLoadCriteria) []string {
 	return ret
 }
 
-func (store *sqlConfiguratorStorage) getLoadNetworksSelectBuilder(filter NetworkLoadFilter, criteria NetworkLoadCriteria) sq.SelectBuilder {
-	selectBuilder := store.builder.Select(getNetworkQueryColumns(criteria)...).From(networksTable)
-	if funk.NotEmpty(filter.Ids) {
+func (store *sqlConfiguratorStorage) getLoadNetworksSelectBuilder(filter *NetworkLoadFilter, criteria *NetworkLoadCriteria) sq.SelectBuilder {
+	filterCopy := proto.Clone(filter).(*NetworkLoadFilter)
+	criteriaCopy := proto.Clone(criteria).(*NetworkLoadCriteria)
+
+	selectBuilder := store.builder.Select(getNetworkQueryColumns(*criteriaCopy)...).From(networksTable)
+	if funk.NotEmpty(filterCopy.Ids) {
 		selectBuilder = selectBuilder.Where(sq.Eq{
-			fmt.Sprintf("%s.%s", networksTable, nwIDCol): filter.Ids,
+			fmt.Sprintf("%s.%s", networksTable, nwIDCol): filterCopy.Ids,
 		})
-	} else if funk.NotEmpty(filter.TypeFilter) {
-		selectBuilder = selectBuilder.Where(sq.Eq{fmt.Sprintf("%s.%s", networksTable, nwTypeCol): filter.TypeFilter.Value})
+	} else if funk.NotEmpty(filterCopy.TypeFilter) {
+		selectBuilder = selectBuilder.Where(sq.Eq{fmt.Sprintf("%s.%s", networksTable, nwTypeCol): filterCopy.TypeFilter.Value})
 	}
 	return selectBuilder
 }

@@ -123,7 +123,7 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter EntityL
 	// ORDER BY ent.key
 	// LIMIT $page_size ;
 
-	pageSize := store.getEntityLoadPageSize(criteria)
+	pageSize := store.getEntityLoadPageSize(&criteria)
 	pageToken, err := DeserializePageToken(criteria.PageToken)
 	if err != nil {
 		return sq.SelectBuilder{}, err
@@ -320,11 +320,12 @@ func getLoadAssocCols() []string {
 // getEntityLoadPageSize returns the maximum number of loadEntities to return based
 // on the EntityLoadCriteria specified. A page size of 0 will default to the
 // maximum load size.
-func (store *sqlConfiguratorStorage) getEntityLoadPageSize(loadCriteria EntityLoadCriteria) int {
-	if loadCriteria.PageSize == 0 {
+func (store *sqlConfiguratorStorage) getEntityLoadPageSize(loadCriteria *EntityLoadCriteria) int {
+	loadCriteriaCopy := proto.Clone(loadCriteria).(*EntityLoadCriteria)
+	if loadCriteriaCopy.PageSize == 0 {
 		return int(store.maxEntityLoadSize)
 	}
-	return util.MinInt(int(loadCriteria.PageSize), int(store.maxEntityLoadSize))
+	return util.MinInt(int(loadCriteriaCopy.PageSize), int(store.maxEntityLoadSize))
 }
 
 // updateEntitiesWithAssocs updates entsByTK in-place with the passed assocs.

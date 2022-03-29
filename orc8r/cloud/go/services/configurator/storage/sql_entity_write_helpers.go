@@ -20,6 +20,7 @@ import (
 	"sort"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/thoas/go-funk"
 
@@ -69,22 +70,23 @@ func (store *sqlConfiguratorStorage) doesPhysicalIDExist(physicalID string) (boo
 	return count > 0, nil
 }
 
-func (store *sqlConfiguratorStorage) insertIntoEntityTable(networkID string, ent NetworkEntity) (NetworkEntity, error) {
-	ent.Pk = store.idGenerator.New()
-	ent.GraphID = store.idGenerator.New() // potentially-temporary graph ID
+func (store *sqlConfiguratorStorage) insertIntoEntityTable(networkID string, ent *NetworkEntity) (NetworkEntity, error) {
+	entCopy := proto.Clone(ent).(*NetworkEntity)
+	entCopy.Pk = store.idGenerator.New()
+	entCopy.GraphID = store.idGenerator.New() // potentially-temporary graph ID
 
 	_, err := store.builder.Insert(entityTable).
 		Columns(entPkCol, entNidCol, entTypeCol, entKeyCol, entGidCol, entNameCol, entDescCol, entPidCol, entConfCol).
-		Values(ent.Pk, networkID, ent.Type, ent.Key, ent.GraphID, toNullable(ent.Name), toNullable(ent.Description), toNullable(ent.PhysicalID), toNullable(ent.Config)).
+		Values(entCopy.Pk, networkID, entCopy.Type, entCopy.Key, entCopy.GraphID, toNullable(entCopy.Name), toNullable(entCopy.Description), toNullable(entCopy.PhysicalID), toNullable(entCopy.Config)).
 		RunWith(store.tx).
 		Exec()
 	if err != nil {
-		return NetworkEntity{}, errors.Wrapf(err, "error creating entity %s", ent.GetTK())
+		return NetworkEntity{}, errors.Wrapf(err, "error creating entity %s", entCopy.GetTK())
 	}
-	return ent, nil
+	return *entCopy, nil
 }
 
-func (store *sqlConfiguratorStorage) createEdges(networkID string, entity NetworkEntity) (EntitiesByTK, error) {
+func (store *sqlConfiguratorStorage) createEdges(networkID string, entity *NetworkEntity) (EntitiesByTK, error) {
 	// Load the associated entities first because we need to know PKs
 	// This will also load graph ID on the entity because creating an edge can
 	// involve merging previously disjoint graphs.
@@ -93,7 +95,8 @@ func (store *sqlConfiguratorStorage) createEdges(networkID string, entity Networ
 	}
 
 	// Get assoc pks, since we don't trust the pks provided by the input ent
-	entsByTk, err := store.loadEntsFromEdges(networkID, entity)
+	entityCopy := proto.Clone(entity).(*NetworkEntity)
+	entsByTk, err := store.loadEntsFromEdges(networkID, *entityCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +104,7 @@ func (store *sqlConfiguratorStorage) createEdges(networkID string, entity Networ
 	insertBuilder := store.builder.Insert(entityAssocTable).
 		Columns(aFrCol, aToCol).
 		OnConflict(nil, aFrCol, aToCol)
-	for _, edge := range entity.GetGraphEdges() {
+	for _, edge := range entityCopy.GetGraphEdges() {
 		fromPk := entsByTk[edge.From.ToTK()].Pk
 		toPk := entsByTk[edge.To.ToTK()].Pk
 		insertBuilder = insertBuilder.Values(fromPk, toPk)
@@ -136,7 +139,7 @@ func (store *sqlConfiguratorStorage) loadEntitiesFromIDs(networkID string, idsTo
 	return loaded, nil
 }
 
-func (store *sqlConfiguratorStorage) mergeGraphs(createdEntity NetworkEntity, allAssociatedEntsByTk EntitiesByTK) (string, error) {
+func (store *sqlConfiguratorStorage) mergeGraphs(createdEntity *NetworkEntity, allAssociatedEntsByTk EntitiesByTK) (string, error) {
 	// If we create a node or edge which bridges 2 previously disjoint graphs,
 	// then we need to change the ID of one of the graphs to the joined one.
 
@@ -146,17 +149,18 @@ func (store *sqlConfiguratorStorage) mergeGraphs(createdEntity NetworkEntity, al
 	// Otherwise, we'll take the lexicographically smallest graph ID to keep
 	// and change the graph ID of every entity of the other graphs to this
 	// target graph ID.
-	adjacentGraphs := funk.Chain(createdEntity.Associations).
+	createdEntityCopy := proto.Clone(createdEntity).(*NetworkEntity)
+	adjacentGraphs := funk.Chain(createdEntityCopy.Associations).
 		Map(func(id *EntityID) string { return allAssociatedEntsByTk[id.ToTK()].GraphID }).
 		Uniq().
 		Value().([]string)
-	noMergeNecessary := funk.IsEmpty(adjacentGraphs) || (len(adjacentGraphs) == 1 && adjacentGraphs[0] == createdEntity.GraphID)
+	noMergeNecessary := funk.IsEmpty(adjacentGraphs) || (len(adjacentGraphs) == 1 && adjacentGraphs[0] == createdEntityCopy.GraphID)
 	if noMergeNecessary {
-		return createdEntity.GraphID, nil
+		return createdEntityCopy.GraphID, nil
 	}
 
-	if !funk.ContainsString(adjacentGraphs, createdEntity.GraphID) {
-		adjacentGraphs = append(adjacentGraphs, createdEntity.GraphID)
+	if !funk.ContainsString(adjacentGraphs, createdEntityCopy.GraphID) {
+		adjacentGraphs = append(adjacentGraphs, createdEntityCopy.GraphID)
 	}
 	sort.Strings(adjacentGraphs)
 	targetGraphID := adjacentGraphs[0]
@@ -254,14 +258,14 @@ func (store *sqlConfiguratorStorage) processEdgeUpdates(networkID string, update
 	// we'll just make the ent's Associations the edges we want to create
 	// If we want to set associations, we'll create those
 	entToUpdateOut.Associations = update.getEdgesToCreate()
-	newlyAssociatedEntsByTk, err := store.createEdges(networkID, *entToUpdateOut)
+	newlyAssociatedEntsByTk, err := store.createEdges(networkID, entToUpdateOut)
 	if err != nil {
 		entToUpdateOut.Associations = nil
 		return errors.WithStack(err)
 	}
 
 	// Just like entity creation, we might need to merge graphs after adding
-	newGraphID, err := store.mergeGraphs(*entToUpdateOut, newlyAssociatedEntsByTk)
+	newGraphID, err := store.mergeGraphs(entToUpdateOut, newlyAssociatedEntsByTk)
 	if err != nil {
 		return errors.WithStack(err)
 	}

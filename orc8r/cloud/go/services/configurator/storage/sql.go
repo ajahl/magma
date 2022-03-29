@@ -250,7 +250,7 @@ func (store *sqlConfiguratorStorage) LoadNetworks(filter NetworkLoadFilter, load
 		return emptyRet, nil
 	}
 
-	selectBuilder := store.getLoadNetworksSelectBuilder(filter, loadCriteria)
+	selectBuilder := store.getLoadNetworksSelectBuilder(&filter, &loadCriteria)
 	if loadCriteria.LoadConfigs {
 		selectBuilder = selectBuilder.LeftJoin(
 			fmt.Sprintf(
@@ -284,7 +284,7 @@ func (store *sqlConfiguratorStorage) LoadAllNetworks(loadCriteria NetworkLoadCri
 	emptyNetworks := []Network{}
 	idsToExclude := []string{InternalNetworkID}
 
-	selectBuilder := store.builder.Select(getNetworkQueryColumns(loadCriteria)...).
+	selectBuilder := store.builder.Select(getNetworkQueryColumns(&loadCriteria)...).
 		From(networksTable).
 		Where(sq.NotEq{
 			fmt.Sprintf("%s.%s", networksTable, nwIDCol): idsToExclude,
@@ -457,7 +457,7 @@ func (store *sqlConfiguratorStorage) LoadEntities(networkID string, filter Entit
 	res.EntitiesNotFound = calculateIDsNotFound(entsByTK, filter.IDs)
 
 	// Set next page token when there may be more pages to return
-	if len(res.Entities) == store.getEntityLoadPageSize(criteria) {
+	if len(res.Entities) == store.getEntityLoadPageSize(&criteria) {
 		res.NextPageToken, err = getNextPageToken(res.Entities)
 		if err != nil {
 			return EntityLoadResult{}, err
@@ -495,17 +495,17 @@ func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity Netwo
 	// shouldn't be a problem on the load side because we load graphs via
 	// graph ID, not by traversing edges.
 
-	createdEnt, err := store.insertIntoEntityTable(networkID, entity)
+	createdEnt, err := store.insertIntoEntityTable(networkID, &entity)
 	if err != nil {
 		return NetworkEntity{}, err
 	}
 
-	allAssociatedEntsByTk, err := store.createEdges(networkID, createdEnt)
+	allAssociatedEntsByTk, err := store.createEdges(networkID, &createdEnt)
 	if err != nil {
 		return NetworkEntity{}, err
 	}
 
-	newGraphID, err := store.mergeGraphs(createdEnt, allAssociatedEntsByTk)
+	newGraphID, err := store.mergeGraphs(&createdEnt, allAssociatedEntsByTk)
 	if err != nil {
 		return NetworkEntity{}, err
 	}
@@ -589,7 +589,7 @@ func (store *sqlConfiguratorStorage) LoadGraphForEntity(networkID string, entity
 		return EntityGraph{}, errors.Errorf("could not find requested entity (%s) for graph query", entityID.String())
 	}
 
-	internalGraph, err := store.loadGraphInternal(networkID, ent.GraphID, loadCriteria)
+	internalGraph, err := store.loadGraphInternal(networkID, ent.GraphID, &loadCriteria)
 	if err != nil {
 		return EntityGraph{}, errors.WithStack(err)
 	}
