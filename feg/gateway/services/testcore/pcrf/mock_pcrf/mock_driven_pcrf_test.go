@@ -21,7 +21,8 @@ import (
 
 	"github.com/fiorix/go-diameter/v4/diam"
 	"github.com/go-openapi/swag"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
+	//"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/stretchr/testify/assert"
 
@@ -209,46 +210,69 @@ func startServerWithExpectations(
 	return pcrf
 }
 
-// type struct1 struct {
-// 	a int
-// 	B int
-// 	C int
-// }
-//
-// type struct2 struct {
-// 	a int
-// 	B int
-// 	C int
-// }
-//
-// func Test(t *testing.T) {
-// 	str1 := struct1{a: 1, B: 2, C: 3}
-// 	str11 := struct1{a: 1, B: 2, C: 3}
-// 	// str2 := struct2{a: 1, B: 2, C: 4}
-// 	list1 := []struct1{str1, str11}
-// 	list2 := []struct1{str1, str1}
-// 	assert.ElementsMatch(t, list1, list2)
+// // playing with Go Generics. Fails when it reaches proto.Equal. Type doesn't implement certain interface etc. But works in non-generic version.
+// func equalProtoLists[S fegprotos.UsageMonitoringInformation | fegprotos.RuleDefinition](expect []*S, actual []*S) bool {
+// 	if len(expect) != len(actual) {
+// 		return false
+// 	}
+// 	for _, act := range actual {
+// 		var matched []int
+// 		for j, exp := range expect {
+// 			if contains(matched, j) {
+// 				continue
+// 			} else if proto.Equal(exp, act) {
+// 				matched = append(matched, j)
+// 				break
+// 			}
+// 		}
+// 	}
+// 	return true
 // }
 
-func equalProtoLists(expect []*fegprotos.RuleDefinition, actual []*fegprotos.RuleDefinition) bool {
+func contains(s []int, j int) bool {
+	for _ ,k := range s {
+		if j == k {
+			return true
+		}
+	}
+	return false
+}
+
+// compare two slices with *fegprotos.RuleDefinition message pointers. Slices do not have to be sorted and can
+// contain duplicates. Equality of elements is determined with proto.Equal
+func equalRDefSlices(expect []*fegprotos.RuleDefinition, actual []*fegprotos.RuleDefinition) bool {
 	if len(expect) != len(actual) {
 		return false
 	}
-	for i, ruleDef := range actual {
-		if proto.Equal(expect[i], ruleDef) == false {
-			return false
+	var matched []int
+	for _, act := range actual {
+		for j, exp := range expect {
+			if contains(matched, j) {
+				continue
+			} else if proto.Equal(exp, act) {
+				matched = append(matched, j)
+				break
+			}
 		}
 	}
 	return true
 }
 
-func equalProtoLists_REFACTOR(expect []*fegprotos.UsageMonitoringInformation, actual []*fegprotos.UsageMonitoringInformation) bool {
+// compare two slices with *fegprotos.UsageMonitoringInformation message pointers. Slices do not have to be sorted and can
+// contain duplicates. Equality of elements is determined with proto.Equal
+func equalUMISlices(expect []*fegprotos.UsageMonitoringInformation, actual []*fegprotos.UsageMonitoringInformation) bool {
 	if len(expect) != len(actual) {
 		return false
 	}
-	for i, ruleDef := range actual {
-		if proto.Equal(expect[i], ruleDef) == false {
-			return false
+	var matched []int
+	for _, act := range actual {
+		for j, exp := range expect {
+			if contains(matched, j) {
+				continue
+			} else if proto.Equal(exp, act) {
+				matched = append(matched, j)
+				break
+			}
 		}
 	}
 	return true
@@ -258,11 +282,11 @@ func assertCCAIsEqualToExpectedAnswer(t *testing.T, actual *gx.CreditControlAnsw
 	ruleNames, ruleBaseNames, ruleDefinitions := getRuleInstallsFromCCA(actual)
 	assert.ElementsMatch(t, expectation.GetRuleInstalls().GetRuleNames(), ruleNames)
 	assert.ElementsMatch(t, expectation.GetRuleInstalls().GetRuleBaseNames(), ruleBaseNames)
-	equal := equalProtoLists(expectation.GetRuleInstalls().GetRuleDefinitions(), ruleDefinitions)
+	equal := equalRDefSlices(expectation.GetRuleInstalls().GetRuleDefinitions(), ruleDefinitions)
 	assert.True(t, equal)
 	assertRuleInstallTimeStampsMatch(t, expectation.GetRuleInstalls(), actual.RuleInstallAVP)
 	usageMonitors := getUsageMonitorsFromCCA(actual)
-	equal = equalProtoLists_REFACTOR(expectation.GetUsageMonitoringInfos(), usageMonitors)
+	equal = equalUMISlices(expectation.GetUsageMonitoringInfos(), usageMonitors)
 	assert.True(t, equal)
 }
 
