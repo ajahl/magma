@@ -50,12 +50,12 @@ func setupTestStore() (*mocks.Store, Store) {
 func TestBlobstoreStore_CreateTenant(t *testing.T) {
 	txStore, s := setupTestStore()
 	txStore.On("Write", networkWildcard, blobstore.Blobs{sampleTenant0Blob}).Return(nil)
-	err := s.CreateTenant(0, sampleTenant0)
+	err := s.CreateTenant(0, &sampleTenant0)
 	assert.NoError(t, err)
 
 	txStore, s = setupTestStore()
 	txStore.On("Write", networkWildcard, blobstore.Blobs{sampleTenant0Blob}).Return(errors.New("error"))
-	err = s.CreateTenant(0, sampleTenant0)
+	err = s.CreateTenant(0, &sampleTenant0)
 	assert.EqualError(t, err, "error")
 }
 

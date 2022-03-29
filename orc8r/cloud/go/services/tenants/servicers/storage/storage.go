@@ -17,7 +17,7 @@ import (
 const networkWildcard = "*"
 
 type Store interface {
-	CreateTenant(tenantID int64, tenant tenant_protos.Tenant) error
+	CreateTenant(tenantID int64, tenant *tenant_protos.Tenant) error
 	GetTenant(tenantID int64) (*tenant_protos.Tenant, error)
 	GetAllTenants() (*tenant_protos.TenantList, error)
 	SetTenant(tenantID int64, tenant *tenant_protos.Tenant) error
@@ -34,8 +34,9 @@ func NewBlobstoreStore(factory blobstore.StoreFactory) Store {
 	return &blobstoreStore{factory}
 }
 
-func (b *blobstoreStore) CreateTenant(tenantID int64, tenant tenant_protos.Tenant) error {
-	return b.SetTenant(tenantID, &tenant)
+func (b *blobstoreStore) CreateTenant(tenantID int64, tenant *tenant_protos.Tenant) error {
+	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
+	return b.SetTenant(tenantID, tenantCopy)
 }
 
 func (b *blobstoreStore) GetTenant(tenantID int64) (*tenant_protos.Tenant, error) {
