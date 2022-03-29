@@ -77,7 +77,7 @@ func (s *tenantsServicer) SetTenant(c context.Context, request *tenant_protos.ID
 		return nil, err
 	}
 
-	err = s.store.SetTenant(request.Id, *request.Tenant)
+	err = s.store.SetTenant(request.Id, request.Tenant)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Error setting tenant %d: %v", request.Id, err)
 	}

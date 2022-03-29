@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/blobstore"
 	"magma/orc8r/cloud/go/services/tenants"
@@ -19,7 +20,7 @@ type Store interface {
 	CreateTenant(tenantID int64, tenant tenant_protos.Tenant) error
 	GetTenant(tenantID int64) (*tenant_protos.Tenant, error)
 	GetAllTenants() (*tenant_protos.TenantList, error)
-	SetTenant(tenantID int64, tenant tenant_protos.Tenant) error
+	SetTenant(tenantID int64, tenant *tenant_protos.Tenant) error
 	DeleteTenant(tenantID int64) error
 	GetControlProxy(tenantID int64) (string, error)
 	CreateOrUpdateControlProxy(tenantID int64, controlProxy string) error
@@ -34,7 +35,7 @@ func NewBlobstoreStore(factory blobstore.StoreFactory) Store {
 }
 
 func (b *blobstoreStore) CreateTenant(tenantID int64, tenant tenant_protos.Tenant) error {
-	return b.SetTenant(tenantID, tenant)
+	return b.SetTenant(tenantID, &tenant)
 }
 
 func (b *blobstoreStore) GetTenant(tenantID int64) (*tenant_protos.Tenant, error) {
@@ -100,14 +101,15 @@ func (b *blobstoreStore) GetAllTenants() (*tenant_protos.TenantList, error) {
 	return retTenants, nil
 }
 
-func (b *blobstoreStore) SetTenant(tenantID int64, tenant tenant_protos.Tenant) error {
+func (b *blobstoreStore) SetTenant(tenantID int64, tenant *tenant_protos.Tenant) error {
 	store, err := b.factory.StartTransaction(nil)
 	if err != nil {
 		return err
 	}
 	defer store.Rollback()
 
-	tenantBlob, err := tenantToBlob(tenantID, tenant)
+	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
+	tenantBlob, err := tenantToBlob(tenantID, tenantCopy)
 	if err != nil {
 		return err
 	}
@@ -175,8 +177,9 @@ func (b *blobstoreStore) CreateOrUpdateControlProxy(tenantID int64, controlProxy
 	return store.Commit()
 }
 
-func tenantToBlob(tenantID int64, tenant tenant_protos.Tenant) (blobstore.Blob, error) {
-	marshaledTenant, err := protos.Marshal(&tenant)
+func tenantToBlob(tenantID int64, tenant *tenant_protos.Tenant) (blobstore.Blob, error) {
+	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
+	marshaledTenant, err := protos.Marshal(tenantCopy)
 	if err != nil {
 		return blobstore.Blob{}, errors.Wrap(err, "Error marshaling protobuf")
 	}
