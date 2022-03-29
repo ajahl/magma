@@ -17,13 +17,13 @@ const (
 	PolicyType = "policy"
 )
 
-func UserFromBlob(blob blobstore.Blob) (User, error) {
+func UserFromBlob(blob blobstore.Blob) (*User, error) {
 	user := User{}
 	err := proto.Unmarshal(blob.Value, &user)
 	if err != nil {
-		return user, err
+		return &user, err
 	}
-	return user, nil
+	return &user, nil
 }
 
 func (u *User) UserToBlob(username string) (blobstore.Blob, error) {
@@ -35,13 +35,13 @@ func (u *User) UserToBlob(username string) (blobstore.Blob, error) {
 	return userBlob, nil
 }
 
-func PolicyFromBlob(blob blobstore.Blob) (PolicyList, error) {
+func PolicyFromBlob(blob blobstore.Blob) (*PolicyList, error) {
 	policy := PolicyList{}
 	err := proto.Unmarshal(blob.Value, &policy)
 	if err != nil {
-		return policy, err
+		return &policy, err
 	}
-	return policy, nil
+	return &policy, nil
 }
 
 func (p *PolicyList) PolicyToBlob(username string) (blobstore.Blob, error) {
