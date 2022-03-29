@@ -21,10 +21,9 @@ import (
 
 	"github.com/fiorix/go-diameter/v4/diam"
 	"github.com/go-openapi/swag"
-	"google.golang.org/protobuf/proto"
-	//"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 
 	fegprotos "magma/feg/cloud/go/protos"
 	"magma/feg/gateway/diameter"
