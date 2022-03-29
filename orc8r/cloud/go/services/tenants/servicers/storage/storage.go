@@ -58,7 +58,7 @@ func (b *blobstoreStore) GetTenant(tenantID int64) (*tenant_protos.Tenant, error
 	if err != nil {
 		return nil, err
 	}
-	return &retTenant, store.Commit()
+	return retTenant, store.Commit()
 }
 
 func (b *blobstoreStore) GetAllTenants() (*tenant_protos.TenantList, error) {
@@ -95,7 +95,7 @@ func (b *blobstoreStore) GetAllTenants() (*tenant_protos.TenantList, error) {
 		}
 		idAndTenant := &tenant_protos.IDAndTenant{
 			Id:     intID,
-			Tenant: &tenant,
+			Tenant: tenant,
 		}
 		retTenants.Tenants = append(retTenants.Tenants, idAndTenant)
 	}
@@ -191,11 +191,11 @@ func tenantToBlob(tenantID int64, tenant *tenant_protos.Tenant) (blobstore.Blob,
 	}, nil
 }
 
-func tenantFromBlob(blob blobstore.Blob) (tenant_protos.Tenant, error) {
+func tenantFromBlob(blob blobstore.Blob) (*tenant_protos.Tenant, error) {
 	tenant := tenant_protos.Tenant{}
 	err := protos.Unmarshal(blob.Value, &tenant)
 	if err != nil {
-		return tenant_protos.Tenant{}, errors.Wrap(err, "Error unmarshaling protobuf")
+		return &tenant_protos.Tenant{}, errors.Wrap(err, "Error unmarshaling protobuf")
 	}
-	return tenant, nil
+	return &tenant, nil
 }
