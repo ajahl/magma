@@ -73,7 +73,8 @@ func TestVLRServer_Reset(t *testing.T) {
 	client := protos.NewMockCoreConfiguratorClient(conn)
 	reply, err := client.Reset(context.Background(), &orcprotos.Void{})
 	assert.NoError(t, err)
-	assert.Equal(t, &orcprotos.Void{}, reply)
+	equal := proto.Equal(&orcprotos.Void{}, reply)
+	assert.True(t, equal)
 
 	assert.Equal(t, []*RequestReply{}, srv.requestReplyQueue)
 	assert.Equal(t, 0, srv.queueIndex)
