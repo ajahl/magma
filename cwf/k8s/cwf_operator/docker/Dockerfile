@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y bzr curl daemontools gcc
 
 # Install Golang 1.18
 WORKDIR /usr/local
-RUN curl https://go.dev/dl/go1.18.linux-amd64.tar.gz --remote-name --location && \
+RUN curl https://artifactory.magmacore.org/artifactory/generic/go1.18.linux-amd64.tar.gz --remote-name --location && \
     tar -xzf go1.18.linux-amd64.tar.gz && \
     cp -r go/bin/* /usr/local/bin/
 
