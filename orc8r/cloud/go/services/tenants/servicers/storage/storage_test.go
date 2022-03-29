@@ -18,10 +18,10 @@ import (
 
 var (
 	sampleTenant0        = tenant_protos.Tenant{Name: "tenant0", Networks: []string{"net1", "net2"}}
-	sampleTenant0Blob, _ = tenantToBlob(0, sampleTenant0)
+	sampleTenant0Blob, _ = tenantToBlob(0, &sampleTenant0)
 
 	sampleTenant1        = tenant_protos.Tenant{Name: "tenant1", Networks: []string{"net3", "net4"}}
-	sampleTenant1Blob, _ = tenantToBlob(1, sampleTenant1)
+	sampleTenant1Blob, _ = tenantToBlob(1, &sampleTenant1)
 
 	marshaledTenant0, _ = protos.Marshal(&sampleTenant0)
 	invalidBlob         = blobstore.Blob{
@@ -148,12 +148,12 @@ func TestBlobstoreStore_GetAllTenants(t *testing.T) {
 func TestBlobstoreStore_SetTenant(t *testing.T) {
 	txStore, s := setupTestStore()
 	txStore.On("Write", networkWildcard, blobstore.Blobs{sampleTenant0Blob}).Return(nil)
-	err := s.SetTenant(0, sampleTenant0)
+	err := s.SetTenant(0, &sampleTenant0)
 	assert.NoError(t, err)
 
 	txStore, s = setupTestStore()
 	txStore.On("Write", networkWildcard, blobstore.Blobs{sampleTenant0Blob}).Return(errors.New("error"))
-	err = s.SetTenant(0, sampleTenant0)
+	err = s.SetTenant(0, &sampleTenant0)
 	assert.EqualError(t, err, "error")
 }
 

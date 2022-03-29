@@ -131,7 +131,7 @@ func TestGetControlProxy(t *testing.T) {
 		Networks: []string{networkID},
 	}
 	id := addTenant(t, networkIDTenant)
-	err := tenants.CreateOrUpdateControlProxy(context.Background(), tenant_protos.CreateOrUpdateControlProxyRequest{
+	err := tenants.CreateOrUpdateControlProxy(context.Background(), &tenant_protos.CreateOrUpdateControlProxyRequest{
 		Id:           id,
 		ControlProxy: controlProxy,
 	})
