@@ -55,7 +55,7 @@ func (store *sqlConfiguratorStorage) getLoadNetworksSelectBuilder(filter *Networ
 	filterCopy := proto.Clone(filter).(*NetworkLoadFilter)
 	criteriaCopy := proto.Clone(criteria).(*NetworkLoadCriteria)
 
-	selectBuilder := store.builder.Select(getNetworkQueryColumns(*criteriaCopy)...).From(networksTable)
+	selectBuilder := store.builder.Select(getNetworkQueryColumns(criteriaCopy)...).From(networksTable)
 	if funk.NotEmpty(filterCopy.Ids) {
 		selectBuilder = selectBuilder.Where(sq.Eq{
 			fmt.Sprintf("%s.%s", networksTable, nwIDCol): filterCopy.Ids,
