@@ -265,7 +265,7 @@ func (store *sqlConfiguratorStorage) LoadNetworks(filter NetworkLoadFilter, load
 	}
 	defer sqorc.CloseRowsLogOnError(rows, "LoadNetworks")
 
-	loadedNetworksByID, loadedNetworkIDs, err := scanNetworkRows(rows, loadCriteria)
+	loadedNetworksByID, loadedNetworkIDs, err := scanNetworkRows(rows, &loadCriteria)
 	if err != nil {
 		return emptyRet, err
 	}
@@ -303,7 +303,7 @@ func (store *sqlConfiguratorStorage) LoadAllNetworks(loadCriteria NetworkLoadCri
 	}
 	defer sqorc.CloseRowsLogOnError(rows, "LoadAllNetworks")
 
-	loadedNetworksByID, loadedNetworkIDs, err := scanNetworkRows(rows, loadCriteria)
+	loadedNetworksByID, loadedNetworkIDs, err := scanNetworkRows(rows, &loadCriteria)
 	if err != nil {
 		return emptyNetworks, err
 	}
@@ -396,7 +396,7 @@ func (store *sqlConfiguratorStorage) UpdateNetworks(updates []NetworkUpdateCrite
 
 func (store *sqlConfiguratorStorage) CountEntities(networkID string, filter EntityLoadFilter) (EntityCountResult, error) {
 	ret := EntityCountResult{Count: 0}
-	count, err := store.countEntities(networkID, filter)
+	count, err := store.countEntities(networkID, &filter)
 	if err != nil {
 		return ret, err
 	}
@@ -405,7 +405,7 @@ func (store *sqlConfiguratorStorage) CountEntities(networkID string, filter Enti
 }
 
 func (store *sqlConfiguratorStorage) LoadEntities(networkID string, filter EntityLoadFilter, criteria EntityLoadCriteria) (EntityLoadResult, error) {
-	if err := validatePaginatedLoadParameters(filter, criteria); err != nil {
+	if err := validatePaginatedLoadParameters(&filter, &criteria); err != nil {
 		return EntityLoadResult{}, err
 	}
 
@@ -415,7 +415,7 @@ func (store *sqlConfiguratorStorage) LoadEntities(networkID string, filter Entit
 	}
 
 	if criteria.LoadAssocsFromThis {
-		assocs, err := store.loadAssocs(networkID, filter, criteria, loadChildren)
+		assocs, err := store.loadAssocs(networkID, &filter, &criteria, loadChildren)
 		if err != nil {
 			return EntityLoadResult{}, err
 		}
@@ -432,7 +432,7 @@ func (store *sqlConfiguratorStorage) LoadEntities(networkID string, filter Entit
 	}
 
 	if criteria.LoadAssocsToThis {
-		parentAssocs, err := store.loadAssocs(networkID, filter, criteria, loadParents)
+		parentAssocs, err := store.loadAssocs(networkID, &filter, &criteria, loadParents)
 		if err != nil {
 			return EntityLoadResult{}, err
 		}
@@ -526,7 +526,7 @@ func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity Netwo
 
 func (store *sqlConfiguratorStorage) UpdateEntity(networkID string, update EntityUpdateCriteria) (NetworkEntity, error) {
 	emptyRet := NetworkEntity{Type: update.Type, Key: update.Key}
-	entToUpdate, err := store.loadEntToUpdate(networkID, update)
+	entToUpdate, err := store.loadEntToUpdate(networkID, &update)
 	if err != nil && !update.DeleteEntity {
 		return emptyRet, errors.Wrap(err, "failed to load entity being updated")
 	}

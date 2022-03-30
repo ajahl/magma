@@ -66,11 +66,12 @@ func (store *sqlConfiguratorStorage) getLoadNetworksSelectBuilder(filter *Networ
 	return selectBuilder
 }
 
-func scanNetworkRows(rows *sql.Rows, loadCriteria NetworkLoadCriteria) (map[string]*Network, []string, error) {
+func scanNetworkRows(rows *sql.Rows, loadCriteria *NetworkLoadCriteria) (map[string]*Network, []string, error) {
+	loadCriteriaCopy := proto.Clone(loadCriteria).(*NetworkLoadCriteria)
 	// Pointer values because we're modifying .Config in-place
 	loadedNetworksByID := map[string]*Network{}
 	for rows.Next() {
-		nwResult, err := scanNextNetworkRow(rows, loadCriteria)
+		nwResult, err := scanNextNetworkRow(rows, loadCriteriaCopy)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -91,21 +92,22 @@ func scanNetworkRows(rows *sql.Rows, loadCriteria NetworkLoadCriteria) (map[stri
 	return loadedNetworksByID, loadedNetworkIDs, nil
 }
 
-func scanNextNetworkRow(rows *sql.Rows, criteria NetworkLoadCriteria) (Network, error) {
+func scanNextNetworkRow(rows *sql.Rows, criteria *NetworkLoadCriteria) (Network, error) {
 	var id string
 	var networkType, name, description sql.NullString
 	var cfgType sql.NullString
 	var cfgValue []byte
 	var version uint64
 
+	criteriaCopy := proto.Clone(criteria).(*NetworkLoadCriteria)
 	scanArgs := []interface{}{
 		&id,
 		&networkType,
 	}
-	if criteria.LoadMetadata {
+	if criteriaCopy.LoadMetadata {
 		scanArgs = append(scanArgs, &name, &description)
 	}
-	if criteria.LoadConfigs {
+	if criteriaCopy.LoadConfigs {
 		scanArgs = append(scanArgs, &cfgType, &cfgValue)
 	}
 	scanArgs = append(scanArgs, &version)
@@ -116,7 +118,7 @@ func scanNextNetworkRow(rows *sql.Rows, criteria NetworkLoadCriteria) (Network, 
 	}
 
 	ret := Network{ID: id, Type: nullStringToValue(networkType), Name: nullStringToValue(name), Description: nullStringToValue(description), Configs: map[string][]byte{}, Version: version}
-	if criteria.LoadConfigs && cfgType.Valid {
+	if criteriaCopy.LoadConfigs && cfgType.Valid {
 		ret.Configs[cfgType.String] = cfgValue
 	}
 	return ret, nil

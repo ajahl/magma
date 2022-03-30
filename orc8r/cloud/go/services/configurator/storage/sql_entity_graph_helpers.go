@@ -43,7 +43,7 @@ func (store *sqlConfiguratorStorage) loadGraphInternal(networkID string, graphID
 
 	// Just loading children is sufficient, since this will load all assocs
 	// in the graph
-	assocs, err := store.loadAssocs(networkID, loadFilter, *criteriaCopy, loadChildren)
+	assocs, err := store.loadAssocs(networkID, &loadFilter, criteriaCopy, loadChildren)
 	if err != nil {
 		return internalEntityGraph{}, errors.Wrap(err, "error loading child edges for graph")
 	}

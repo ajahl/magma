@@ -184,17 +184,18 @@ func (store *sqlConfiguratorStorage) mergeGraphs(createdEntity *NetworkEntity, a
 	return targetGraphID, nil
 }
 
-func (store *sqlConfiguratorStorage) loadEntToUpdate(networkID string, update EntityUpdateCriteria) (*NetworkEntity, error) {
+func (store *sqlConfiguratorStorage) loadEntToUpdate(networkID string, update *EntityUpdateCriteria) (*NetworkEntity, error) {
+	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
 	loaded, err := store.loadEntities(
 		networkID,
-		EntityLoadFilter{IDs: []*EntityID{update.GetID()}},
+		EntityLoadFilter{IDs: []*EntityID{updateCopy.GetID()}},
 		EntityLoadCriteria{},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load entity to update")
 	}
 	// don't error on deleting an entity which doesn't exist
-	if len(loaded) != 1 && !update.DeleteEntity {
+	if len(loaded) != 1 && !updateCopy.DeleteEntity {
 		return nil, errors.Errorf("expected to load 1 ent for update, got %d", len(loaded))
 	}
 
