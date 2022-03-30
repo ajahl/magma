@@ -82,7 +82,8 @@ func TestCreateMconfig(t *testing.T) {
 			CreatedAt: 1551916956,
 		},
 	}
-	assert.Equal(t, *expected, *actual)
+	equal := proto.Equal(expected, actual)
+	assert.True(t, equal)
 }
 
 func TestCreateMconfig_DuplicateKey(t *testing.T) {

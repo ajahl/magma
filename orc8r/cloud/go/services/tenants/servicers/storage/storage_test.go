@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/blobstore"
 	"magma/orc8r/cloud/go/blobstore/mocks"
@@ -64,7 +65,8 @@ func TestBlobstoreStore_GetTenant(t *testing.T) {
 	txStore.On("Get", networkWildcard, storage.TK{Type: tenants.TenantInfoType, Key: "0"}).Return(sampleTenant0Blob, nil)
 	tenant, err := s.GetTenant(0)
 	assert.NoError(t, err)
-	assert.Equal(t, sampleTenant0, *tenant)
+	equal := proto.Equal(&sampleTenant0, tenant)
+	assert.True(t, equal)
 
 	txStore, s = setupTestStore()
 	txStore.On("Get", networkWildcard, storage.TK{Type: tenants.TenantInfoType, Key: "0"}).Return(blobstore.Blob{}, errors.New("error"))

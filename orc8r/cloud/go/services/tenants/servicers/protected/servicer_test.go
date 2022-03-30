@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/orc8r"
 	"magma/orc8r/cloud/go/services/tenants"
@@ -111,7 +112,8 @@ func TestTenantsServicer(t *testing.T) {
 	// Delete "other" tenant
 	delResp, err := srv.DeleteTenant(context.Background(), &tenant_protos.GetTenantRequest{Id: 2})
 	assert.NoError(t, err)
-	assert.Equal(t, protos.Void{}, *delResp)
+	equal := proto.Equal(&protos.Void{}, delResp)
+	assert.True(t, equal)
 
 	_, err = srv.GetTenant(context.Background(), &tenant_protos.GetTenantRequest{Id: 2})
 	assert.Equal(t, codes.NotFound, status.Convert(err).Code())
@@ -151,7 +153,8 @@ func TestControlProxyTenantsServicer(t *testing.T) {
 	// get updated control_proxy
 	controlProxy, err := srv.GetControlProxy(context.Background(), &tenant_protos.GetControlProxyRequest{Id: sampleTenantID})
 	assert.NoError(t, err)
-	assert.Equal(t, *controlProxy, sampleGetControlProxyRes)
+	equal := proto.Equal(controlProxy, &sampleGetControlProxyRes)
+	assert.True(t, equal)
 
 	// Update control_proxy
 	_, err = srv.CreateOrUpdateControlProxy(context.Background(), &sampleCreateControlProxyReq2)
@@ -159,7 +162,8 @@ func TestControlProxyTenantsServicer(t *testing.T) {
 	// get updated control_proxy
 	controlProxy, err = srv.GetControlProxy(context.Background(), &tenant_protos.GetControlProxyRequest{Id: sampleTenantID})
 	assert.NoError(t, err)
-	assert.Equal(t, *controlProxy, sampleGetControlProxyRes2)
+	equal = proto.Equal(controlProxy, &sampleGetControlProxyRes2)
+	assert.True(t, equal)
 
 	// Get control_proxy not set
 	_, err = srv.GetControlProxy(context.Background(), &tenant_protos.GetControlProxyRequest{Id: sampleTenantID + 1})
