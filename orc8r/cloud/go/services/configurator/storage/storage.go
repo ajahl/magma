@@ -21,6 +21,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/thoas/go-funk"
+	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/storage"
 )
@@ -161,12 +162,13 @@ func (m *NetworkEntity) GetTK() storage.TK {
 	return m.GetID().ToTK()
 }
 
-func (m NetworkEntity) GetGraphEdges() []*GraphEdge {
-	myID := m.GetID()
+func (m *NetworkEntity) GetGraphEdges() []*GraphEdge {
+	mCopy := proto.Clone(m).(*NetworkEntity)
+	myID := mCopy.GetID()
 	existingAssocs := map[storage.TK]bool{}
 
-	edges := make([]*GraphEdge, 0, len(m.Associations))
-	for _, assoc := range m.Associations {
+	edges := make([]*GraphEdge, 0, len(mCopy.Associations))
+	for _, assoc := range mCopy.Associations {
 		if _, exists := existingAssocs[assoc.ToTK()]; exists {
 			continue
 		}
