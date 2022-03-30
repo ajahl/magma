@@ -277,18 +277,6 @@ func equalUMISlices(expect []*fegprotos.UsageMonitoringInformation, actual []*fe
 	return true
 }
 
-func TestEqualSlices(t *testing.T) {
-	var expectedUMIs []*fegprotos.UsageMonitoringInformation
-	var actualUMIs []*fegprotos.UsageMonitoringInformation
-
-	// empty slices
-	equal := equalUMISlices(expectedUMIs, actualUMIs)
-	assert.True(t, equal)
-
-	// slices of different length
-	actualUMIs
-}
-
 func assertCCAIsEqualToExpectedAnswer(t *testing.T, actual *gx.CreditControlAnswer, expectation *fegprotos.GxCreditControlAnswer) {
 	ruleNames, ruleBaseNames, ruleDefinitions := getRuleInstallsFromCCA(actual)
 	assert.ElementsMatch(t, expectation.GetRuleInstalls().GetRuleNames(), ruleNames)
