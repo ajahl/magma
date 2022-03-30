@@ -70,7 +70,7 @@ func (store *sqlConfiguratorStorage) loadEntities(networkID string, filter *Enti
 	defer sqorc.CloseRowsLogOnError(rows, "loadEntities")
 
 	for rows.Next() {
-		ent, err := scanEntityRow(rows, *criteriaCopy)
+		ent, err := scanEntityRow(rows, criteriaCopy)
 		if err != nil {
 			return nil, err
 		}
@@ -162,7 +162,7 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 	case countEntities:
 		cols = []string{"COUNT(1)"}
 	case loadEntities:
-		cols = getLoadEntitiesCols(*criteriaCopy)
+		cols = getLoadEntitiesCols(criteriaCopy)
 	case loadChildren, loadParents:
 		cols = getLoadAssocCols()
 	default:
@@ -235,7 +235,7 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 	return addSuffix(b), nil
 }
 
-func scanEntityRow(rows *sql.Rows, criteria EntityLoadCriteria) (NetworkEntity, error) {
+func scanEntityRow(rows *sql.Rows, criteria *EntityLoadCriteria) (NetworkEntity, error) {
 	var nid, key, entType, graphID, pk string
 	var physicalID sql.NullString
 	var name, description sql.NullString
@@ -243,12 +243,13 @@ func scanEntityRow(rows *sql.Rows, criteria EntityLoadCriteria) (NetworkEntity, 
 	var config []byte
 	var version uint64
 
+	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
 	// This corresponds with the order of the columns queried in the SELECT
 	scanArgs := []interface{}{&nid, &pk, &key, &entType, &physicalID, &version, &graphID}
-	if criteria.LoadMetadata {
+	if criteriaCopy.LoadMetadata {
 		scanArgs = append(scanArgs, &name, &description)
 	}
-	if criteria.LoadConfig {
+	if criteriaCopy.LoadConfig {
 		scanArgs = append(scanArgs, &config)
 	}
 
@@ -295,7 +296,8 @@ func scanAssocRow(rows *sql.Rows, loadTyp loadType) (loadedAssoc, error) {
 	return a, nil
 }
 
-func getLoadEntitiesCols(criteria EntityLoadCriteria) []string {
+func getLoadEntitiesCols(criteria *EntityLoadCriteria) []string {
+	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
 	cols := []string{
 		fmt.Sprintf("ent.%s", entNidCol),
 		fmt.Sprintf("ent.%s", entPkCol),
@@ -305,10 +307,10 @@ func getLoadEntitiesCols(criteria EntityLoadCriteria) []string {
 		fmt.Sprintf("ent.%s", entVerCol),
 		fmt.Sprintf("ent.%s", entGidCol),
 	}
-	if criteria.LoadMetadata {
+	if criteriaCopy.LoadMetadata {
 		cols = append(cols, fmt.Sprintf("ent.%s", entNameCol), fmt.Sprintf("ent.%s", entDescCol))
 	}
-	if criteria.LoadConfig {
+	if criteriaCopy.LoadConfig {
 		cols = append(cols, fmt.Sprintf("ent.%s", entConfCol))
 	}
 	return cols

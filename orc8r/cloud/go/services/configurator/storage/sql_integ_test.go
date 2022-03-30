@@ -653,7 +653,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			&expectedBarbazEnt,
 			&expectedBazquzEnt,
 			&expectedFoobarEnt,
-			&expectedHelloWorldEnt,
+			expectedHelloWorldEnt,
 		},
 		RootEntities: []*storage.EntityID{{Type: "hello", Key: "world"}},
 		Edges: []*storage.GraphEdge{

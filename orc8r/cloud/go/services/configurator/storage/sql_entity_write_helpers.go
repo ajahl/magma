@@ -122,7 +122,7 @@ func (store *sqlConfiguratorStorage) loadEntsFromEdges(networkID string, targetE
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	loadedEntsByTk[targetEntity.GetTK()] = targetEntityCopy
+	loadedEntsByTk[targetEntityCopy.GetTK()] = targetEntityCopy
 	return loadedEntsByTk, nil
 }
 
