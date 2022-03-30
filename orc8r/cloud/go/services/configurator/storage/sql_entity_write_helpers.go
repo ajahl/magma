@@ -188,8 +188,8 @@ func (store *sqlConfiguratorStorage) loadEntToUpdate(networkID string, update *E
 	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
 	loaded, err := store.loadEntities(
 		networkID,
-		EntityLoadFilter{IDs: []*EntityID{updateCopy.GetID()}},
-		EntityLoadCriteria{},
+		&EntityLoadFilter{IDs: []*EntityID{updateCopy.GetID()}},
+		&EntityLoadCriteria{},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load entity to update")
