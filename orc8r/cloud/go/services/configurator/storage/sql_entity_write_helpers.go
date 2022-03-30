@@ -96,7 +96,7 @@ func (store *sqlConfiguratorStorage) createEdges(networkID string, entity *Netwo
 
 	// Get assoc pks, since we don't trust the pks provided by the input ent
 	entityCopy := proto.Clone(entity).(*NetworkEntity)
-	entsByTk, err := store.loadEntsFromEdges(networkID, *entityCopy)
+	entsByTk, err := store.loadEntsFromEdges(networkID, entityCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -116,12 +116,13 @@ func (store *sqlConfiguratorStorage) createEdges(networkID string, entity *Netwo
 	return entsByTk, nil
 }
 
-func (store *sqlConfiguratorStorage) loadEntsFromEdges(networkID string, targetEntity NetworkEntity) (EntitiesByTK, error) {
-	loadedEntsByTk, err := store.loadEntitiesFromIDs(networkID, targetEntity.Associations)
+func (store *sqlConfiguratorStorage) loadEntsFromEdges(networkID string, targetEntity *NetworkEntity) (EntitiesByTK, error) {
+	targetEntityCopy := proto.Clone(targetEntity).(*NetworkEntity)
+	loadedEntsByTk, err := store.loadEntitiesFromIDs(networkID, targetEntityCopy.Associations)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	loadedEntsByTk[targetEntity.GetTK()] = &targetEntity
+	loadedEntsByTk[targetEntity.GetTK()] = targetEntityCopy
 	return loadedEntsByTk, nil
 }
 
@@ -213,7 +214,7 @@ func (store *sqlConfiguratorStorage) loadEntToUpdate(networkID string, update *E
 // entOut is an output parameter
 func (store *sqlConfiguratorStorage) processEntityFieldsUpdate(pk string, update *EntityUpdateCriteria, entOut *NetworkEntity) error {
 	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
-	_, err := store.getEntityUpdateQueryBuilder(pk, *updateCopy).
+	_, err := store.getEntityUpdateQueryBuilder(pk, updateCopy).
 		RunWith(store.tx).
 		Exec()
 	if err != nil {
@@ -299,21 +300,22 @@ func (store *sqlConfiguratorStorage) processEdgeUpdates(networkID string, update
 	return nil
 }
 
-func (store *sqlConfiguratorStorage) getEntityUpdateQueryBuilder(pk string, update EntityUpdateCriteria) sq.UpdateBuilder {
+func (store *sqlConfiguratorStorage) getEntityUpdateQueryBuilder(pk string, update *EntityUpdateCriteria) sq.UpdateBuilder {
 	// UPDATE cfg_entities SET (name, description, physical_id, config, version) = ($1, $2, $3, $4, cfg_entities.version + 1)
 	// WHERE pk = $5
+	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
 	updateBuilder := store.builder.Update(entityTable).Where(sq.Eq{entPkCol: pk})
-	if update.NewName != nil {
-		updateBuilder = updateBuilder.Set(entNameCol, update.NewName.Value)
+	if updateCopy.NewName != nil {
+		updateBuilder = updateBuilder.Set(entNameCol, updateCopy.NewName.Value)
 	}
-	if update.NewDescription != nil {
-		updateBuilder = updateBuilder.Set(entDescCol, update.NewDescription.Value)
+	if updateCopy.NewDescription != nil {
+		updateBuilder = updateBuilder.Set(entDescCol, updateCopy.NewDescription.Value)
 	}
-	if update.NewPhysicalID != nil {
-		updateBuilder = updateBuilder.Set(entPidCol, update.NewPhysicalID.Value)
+	if updateCopy.NewPhysicalID != nil {
+		updateBuilder = updateBuilder.Set(entPidCol, updateCopy.NewPhysicalID.Value)
 	}
-	if update.NewConfig != nil {
-		updateBuilder = updateBuilder.Set(entConfCol, update.NewConfig.Value)
+	if updateCopy.NewConfig != nil {
+		updateBuilder = updateBuilder.Set(entConfCol, updateCopy.NewConfig.Value)
 	}
 	updateBuilder = updateBuilder.Set(entVerCol, sq.Expr(fmt.Sprintf("%s+1", entVerCol)))
 	return updateBuilder
