@@ -147,7 +147,7 @@ func setupMockRegistrationServicer(t *testing.T) *registration.RegistrationServi
 		GetGatewayDeviceInfo: func(ctx context.Context, token string) (*protos.GatewayDeviceInfo, error) {
 			return gatewayDeviceInfo, nil
 		},
-		RegisterDevice: func(deviceInfo protos.GatewayDeviceInfo, hwid *protos.AccessGatewayID, challengeKey *protos.ChallengeKey) error {
+		RegisterDevice: func(deviceInfo *protos.GatewayDeviceInfo, hwid *protos.AccessGatewayID, challengeKey *protos.ChallengeKey) error {
 			return nil
 		},
 		GetControlProxy: func(networkID string) (string, error) {
