@@ -211,25 +211,26 @@ func (store *sqlConfiguratorStorage) loadEntToUpdate(networkID string, update *E
 }
 
 // entOut is an output parameter
-func (store *sqlConfiguratorStorage) processEntityFieldsUpdate(pk string, update EntityUpdateCriteria, entOut *NetworkEntity) error {
-	_, err := store.getEntityUpdateQueryBuilder(pk, update).
+func (store *sqlConfiguratorStorage) processEntityFieldsUpdate(pk string, update *EntityUpdateCriteria, entOut *NetworkEntity) error {
+	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
+	_, err := store.getEntityUpdateQueryBuilder(pk, *updateCopy).
 		RunWith(store.tx).
 		Exec()
 	if err != nil {
 		return errors.Wrap(err, "failed to update entity fields")
 	}
 
-	if update.NewName != nil {
-		entOut.Name = (*update.NewName).Value
+	if updateCopy.NewName != nil {
+		entOut.Name = (*updateCopy.NewName).Value
 	}
-	if update.NewDescription != nil {
-		entOut.Description = (*update.NewDescription).Value
+	if updateCopy.NewDescription != nil {
+		entOut.Description = (*updateCopy.NewDescription).Value
 	}
-	if update.NewPhysicalID != nil {
-		entOut.PhysicalID = (*update.NewPhysicalID).Value
+	if updateCopy.NewPhysicalID != nil {
+		entOut.PhysicalID = (*updateCopy.NewPhysicalID).Value
 	}
-	if update.NewConfig != nil {
-		entOut.Config = (*update.NewConfig).Value
+	if updateCopy.NewConfig != nil {
+		entOut.Config = (*updateCopy.NewConfig).Value
 	}
 	entOut.Version++
 
@@ -237,9 +238,10 @@ func (store *sqlConfiguratorStorage) processEntityFieldsUpdate(pk string, update
 }
 
 // entToUpdateOut is an output parameter
-func (store *sqlConfiguratorStorage) processEdgeUpdates(networkID string, update EntityUpdateCriteria, entToUpdateOut *NetworkEntity) error {
-	assocsToSetSpecified := update.AssociationsToSet != nil
-	if !assocsToSetSpecified && funk.IsEmpty(update.AssociationsToAdd) && funk.IsEmpty(update.AssociationsToDelete) {
+func (store *sqlConfiguratorStorage) processEdgeUpdates(networkID string, update *EntityUpdateCriteria, entToUpdateOut *NetworkEntity) error {
+	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
+	assocsToSetSpecified := updateCopy.AssociationsToSet != nil
+	if !assocsToSetSpecified && funk.IsEmpty(updateCopy.AssociationsToAdd) && funk.IsEmpty(updateCopy.AssociationsToDelete) {
 		return nil
 	}
 
@@ -258,7 +260,7 @@ func (store *sqlConfiguratorStorage) processEdgeUpdates(networkID string, update
 	// First, create edges. Because createEdges expects an ent with its pk set,
 	// we'll just make the ent's Associations the edges we want to create
 	// If we want to set associations, we'll create those
-	entToUpdateOut.Associations = update.getEdgesToCreate()
+	entToUpdateOut.Associations = updateCopy.getEdgesToCreate()
 	newlyAssociatedEntsByTk, err := store.createEdges(networkID, entToUpdateOut)
 	if err != nil {
 		entToUpdateOut.Associations = nil
@@ -273,7 +275,7 @@ func (store *sqlConfiguratorStorage) processEdgeUpdates(networkID string, update
 	entToUpdateOut.GraphID = newGraphID
 
 	// Now delete edges
-	err = store.deleteEdges(networkID, update.AssociationsToDelete, entToUpdateOut)
+	err = store.deleteEdges(networkID, updateCopy.AssociationsToDelete, entToUpdateOut)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -285,7 +287,7 @@ func (store *sqlConfiguratorStorage) processEdgeUpdates(networkID string, update
 	// we need to do a connected component search. If we come up with multiple
 	// components, then each new component needs to be updated with a new
 	// graph ID.
-	if funk.IsEmpty(update.AssociationsToDelete) && update.AssociationsToSet == nil {
+	if funk.IsEmpty(updateCopy.AssociationsToDelete) && updateCopy.AssociationsToSet == nil {
 		return nil
 	}
 

@@ -60,7 +60,7 @@ func (srv *sbConfiguratorServicer) GetMconfigInternal(ctx context.Context, req *
 	}
 
 	// Network ID isn't used in a physical ID query
-	loadResult, err := store.LoadEntities("", storage.EntityLoadFilter{PhysicalID: &wrappers.StringValue{Value: req.HardwareID}}, storage.EntityLoadCriteria{})
+	loadResult, err := store.LoadEntities("", &storage.EntityLoadFilter{PhysicalID: &wrappers.StringValue{Value: req.HardwareID}}, &storage.EntityLoadCriteria{})
 	if err != nil {
 		storage.RollbackLogOnError(store)
 		return nil, status.Errorf(codes.Internal, "failed to load entity for gateway %s: %s", req.HardwareID, err)
@@ -97,7 +97,7 @@ func (srv *sbConfiguratorServicer) getMconfigImpl(networkID string, gatewayID st
 		return nil, status.Errorf(codes.Internal, "failed to load entity graph: %s", err)
 	}
 
-	nwLoad, err := store.LoadNetworks(storage.NetworkLoadFilter{Ids: []string{networkID}}, storage.FullNetworkLoadCriteria)
+	nwLoad, err := store.LoadNetworks(&storage.NetworkLoadFilter{Ids: []string{networkID}}, &storage.FullNetworkLoadCriteria)
 	if err != nil {
 		storage.RollbackLogOnError(store)
 		return nil, status.Errorf(codes.Internal, "failed to load network: %s", err)

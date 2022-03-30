@@ -54,7 +54,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	store, err := factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
 
-	loadNetworksActual, err := store.LoadNetworks(storage.NetworkLoadFilter{Ids: []string{"n1", "n2"}}, storage.FullNetworkLoadCriteria)
+	loadNetworksActual, err := store.LoadNetworks(&storage.NetworkLoadFilter{Ids: []string{"n1", "n2"}}, &storage.FullNetworkLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -75,12 +75,12 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 
 	expectedn1 := storage.Network{ID: "n1", Type: "type1", Name: "Network 1", Description: "foo", Configs: map[string][]byte{"hello": []byte("world"), "goodbye": []byte("alsoworld")}}
-	actualNetwork, err := store.CreateNetwork(expectedn1)
+	actualNetwork, err := store.CreateNetwork(&expectedn1)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedn1, actualNetwork)
 
 	expectedn2 := storage.Network{ID: "n2", Type: "type2"}
-	actualNetwork, err = store.CreateNetwork(expectedn2)
+	actualNetwork, err = store.CreateNetwork(&expectedn2)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedn2, actualNetwork)
 	expectedn2.Configs = map[string][]byte{}
@@ -90,7 +90,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	loadNetworksActual, err = store.LoadNetworks(storage.NetworkLoadFilter{Ids: []string{"n1", "n2", "n3"}}, storage.FullNetworkLoadCriteria)
+	loadNetworksActual, err = store.LoadNetworks(&storage.NetworkLoadFilter{Ids: []string{"n1", "n2", "n3"}}, &storage.FullNetworkLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -109,7 +109,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	loadedNetworks, err := store.LoadAllNetworks(storage.FullNetworkLoadCriteria)
+	loadedNetworks, err := store.LoadAllNetworks(&storage.FullNetworkLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(t, "n1", loadedNetworks[0].ID)
 	assert.Equal(t, "n2", loadedNetworks[1].ID)
@@ -122,7 +122,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	_, err = store.CreateNetwork(storage.Network{ID: "n3"})
+	_, err = store.CreateNetwork(&storage.Network{ID: "n3"})
 	assert.NoError(t, err)
 
 	updates := []storage.NetworkUpdateCriteria{
@@ -145,7 +145,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	store, err = factory.StartTransaction(context.Background(), &orc8r_storage.TxOptions{ReadOnly: true})
 	assert.NoError(t, err)
-	loadNetworksActual, err = store.LoadNetworks(storage.NetworkLoadFilter{Ids: []string{"n1", "n2", "n3"}}, storage.FullNetworkLoadCriteria)
+	loadNetworksActual, err = store.LoadNetworks(&storage.NetworkLoadFilter{Ids: []string{"n1", "n2", "n3"}}, &storage.FullNetworkLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -165,12 +165,12 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 
 	expectedn3 := storage.Network{ID: "n3", Type: "type1"}
-	actualNetwork, err = store.CreateNetwork(expectedn3)
+	actualNetwork, err = store.CreateNetwork(&expectedn3)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedn3, actualNetwork)
 
 	expectedn4 := storage.Network{ID: "n4", Type: "type2"}
-	actualNetwork, err = store.CreateNetwork(expectedn4)
+	actualNetwork, err = store.CreateNetwork(&expectedn4)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedn4, actualNetwork)
 
@@ -179,7 +179,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	expectedn4.Configs = map[string][]uint8{}
 
-	loadNetworksActual, err = store.LoadNetworks(storage.NetworkLoadFilter{TypeFilter: stringPointer("type2")}, storage.NetworkLoadCriteria{})
+	loadNetworksActual, err = store.LoadNetworks(&storage.NetworkLoadFilter{TypeFilter: stringPointer("type2")}, &storage.NetworkLoadCriteria{})
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -198,7 +198,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
 
-	actualEntityLoad, err := store.LoadEntities("n1", storage.EntityLoadFilter{}, storage.FullEntityLoadCriteria)
+	actualEntityLoad, err := store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -208,13 +208,13 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	actualEntityLoad, err = store.LoadEntities(
 		"n1",
-		storage.EntityLoadFilter{
+		&storage.EntityLoadFilter{
 			IDs: []*storage.EntityID{
 				{Type: "foo", Key: "bar"},
 				{Type: "baz", Key: "quz"},
 			},
 		},
-		storage.EntityLoadCriteria{},
+		&storage.EntityLoadCriteria{},
 	)
 	assert.NoError(t, err)
 	assert.Equal(
@@ -236,7 +236,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	// Create 3 entities, read them back
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	expectedFoobarEnt, err := store.CreateEntity("n1", storage.NetworkEntity{
+	expectedFoobarEnt, err := store.CreateEntity("n1", &storage.NetworkEntity{
 		Type: "foo",
 		Key:  "bar",
 
@@ -255,7 +255,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "2", expectedFoobarEnt.GraphID)
 
-	expectedBarbazEnt, err := store.CreateEntity("n1", storage.NetworkEntity{
+	expectedBarbazEnt, err := store.CreateEntity("n1", &storage.NetworkEntity{
 		Type: "bar",
 		Key:  "baz",
 
@@ -269,7 +269,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	// bazquz should link foobar and barbaz into 1 graph
 	// that graph ID should be 2
-	expectedBazquzEnt, err := store.CreateEntity("n1", storage.NetworkEntity{
+	expectedBazquzEnt, err := store.CreateEntity("n1", &storage.NetworkEntity{
 		Type: "baz",
 		Key:  "quz",
 
@@ -284,7 +284,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Try and fail to create ent with physical ID that already exists
-	_, err = store.CreateEntity("n1", storage.NetworkEntity{
+	_, err = store.CreateEntity("n1", &storage.NetworkEntity{
 		Type:       "apple_type",
 		Key:        "apple_key",
 		PhysicalID: "1",
@@ -311,7 +311,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	actualEntityLoad, err = store.LoadEntities("n1", storage.EntityLoadFilter{}, storage.FullEntityLoadCriteria)
+	actualEntityLoad, err = store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -331,7 +331,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 	// network ID shouldn't matter in this query, since searching on
 	// physical ID intentionally doesn't scope to a particular network
-	actualEntityLoad, err = store.LoadEntities("placeholder", storage.EntityLoadFilter{PhysicalID: stringPointer("1")}, storage.FullEntityLoadCriteria)
+	actualEntityLoad, err = store.LoadEntities("placeholder", &storage.EntityLoadFilter{PhysicalID: stringPointer("1")}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -359,7 +359,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	_, err = store.CreateEntity("n1", storage.NetworkEntity{
+	_, err = store.CreateEntity("n1", &storage.NetworkEntity{
 		Type: "hello",
 		Key:  "world",
 
@@ -464,8 +464,8 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	actualEntityLoad, err = store.LoadEntities(
 		"n1",
-		storage.EntityLoadFilter{IDs: []*storage.EntityID{{Type: "hello", Key: "world"}}},
-		storage.FullEntityLoadCriteria,
+		&storage.EntityLoadFilter{IDs: []*storage.EntityID{{Type: "hello", Key: "world"}}},
+		&storage.FullEntityLoadCriteria,
 	)
 	assert.NoError(t, err)
 	assert.Equal(
@@ -714,7 +714,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	_, err = store.UpdateEntity("n1", storage.EntityUpdateCriteria{Type: "baz", Key: "quz", DeleteEntity: true})
 	assert.NoError(t, err)
 
-	allEnts, err := store.LoadEntities("n1", storage.EntityLoadFilter{}, storage.FullEntityLoadCriteria)
+	allEnts, err := store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.NotNil(t, allEnts)
 
@@ -768,7 +768,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	expectedFoobarEnt.GraphID = "11"
 	expectedHelloWorldEnt.Version = 6
 
-	allEnts, err = store.LoadEntities("n1", storage.EntityLoadFilter{}, storage.FullEntityLoadCriteria)
+	allEnts, err = store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.NotNil(t, allEnts)
 
@@ -804,7 +804,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	expectedFoobarEnt.GraphID = "11"
 	expectedHelloWorldEnt.Version = 7
 
-	allEnts, err = store.LoadEntities("n1", storage.EntityLoadFilter{}, storage.FullEntityLoadCriteria)
+	allEnts, err = store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.NotNil(t, allEnts)
 
@@ -829,7 +829,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create two more entities of type foo for paginated load
-	expectedFoozedEnt, err := store.CreateEntity("n1", storage.NetworkEntity{
+	expectedFoozedEnt, err := store.CreateEntity("n1", &storage.NetworkEntity{
 		Type: "foo",
 		Key:  "zed",
 
@@ -843,7 +843,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "14", expectedFoozedEnt.GraphID)
 
-	expectedFoohueEnt, err := store.CreateEntity("n1", storage.NetworkEntity{
+	expectedFoohueEnt, err := store.CreateEntity("n1", &storage.NetworkEntity{
 		Type: "foo",
 		Key:  "hue",
 
@@ -865,7 +865,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	paginatedLoadCriteria := storage.FullEntityLoadCriteria
 	paginatedLoadCriteria.PageToken = ""
 	paginatedLoadCriteria.PageSize = 2
-	actualEntityLoad, err = store.LoadEntities("n1", storage.EntityLoadFilter{TypeFilter: &wrappers.StringValue{Value: "foo"}}, paginatedLoadCriteria)
+	actualEntityLoad, err = store.LoadEntities("n1", &storage.EntityLoadFilter{TypeFilter: &wrappers.StringValue{Value: "foo"}}, &paginatedLoadCriteria)
 	assert.NoError(t, err)
 	nextToken := &storage.EntityPageToken{
 		LastIncludedEntity: "hue",
@@ -889,7 +889,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
 	paginatedLoadCriteria.PageToken = expectedNextToken
-	actualEntityLoad, err = store.LoadEntities("n1", storage.EntityLoadFilter{TypeFilter: &wrappers.StringValue{Value: "foo"}}, paginatedLoadCriteria)
+	actualEntityLoad, err = store.LoadEntities("n1", &storage.EntityLoadFilter{TypeFilter: &wrappers.StringValue{Value: "foo"}}, &paginatedLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -907,7 +907,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	paginatedLoadCriteria.PageToken = ""
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	_, err = store.LoadEntities("n1", storage.EntityLoadFilter{}, paginatedLoadCriteria)
+	_, err = store.LoadEntities("n1", &storage.EntityLoadFilter{}, &paginatedLoadCriteria)
 	assert.Error(t, err)
 	assert.NoError(t, store.Commit())
 
@@ -915,7 +915,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	paginatedLoadCriteria.PageSize = 0
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
-	_, err = store.LoadEntities("n1", storage.EntityLoadFilter{}, paginatedLoadCriteria)
+	_, err = store.LoadEntities("n1", &storage.EntityLoadFilter{}, &paginatedLoadCriteria)
 	assert.Error(t, err)
 	assert.NoError(t, store.Commit())
 }

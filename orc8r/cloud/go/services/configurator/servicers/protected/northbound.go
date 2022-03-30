@@ -45,7 +45,7 @@ func (srv *nbConfiguratorServicer) LoadNetworks(context context.Context, req *pr
 		return res, err
 	}
 
-	result, err := store.LoadNetworks(*req.Filter, *req.Criteria)
+	result, err := store.LoadNetworks(req.Filter, req.Criteria)
 	if err != nil {
 		storage.RollbackLogOnError(store)
 		return res, err
@@ -60,7 +60,7 @@ func (srv *nbConfiguratorServicer) ListNetworkIDs(context context.Context, void 
 		return res, err
 	}
 
-	networks, err := store.LoadAllNetworks(storage.FullNetworkLoadCriteria)
+	networks, err := store.LoadAllNetworks(&storage.FullNetworkLoadCriteria)
 	if err != nil {
 		storage.RollbackLogOnError(store)
 		return res, err
@@ -81,7 +81,7 @@ func (srv *nbConfiguratorServicer) CreateNetworks(context context.Context, req *
 
 	createdNetworks := make([]*storage.Network, 0, len(req.Networks))
 	for _, network := range req.Networks {
-		createdNetwork, err := store.CreateNetwork(*network)
+		createdNetwork, err := store.CreateNetwork(network)
 		if err != nil {
 			storage.RollbackLogOnError(store)
 			return emptyRes, err
@@ -136,7 +136,7 @@ func (srv *nbConfiguratorServicer) LoadEntities(context context.Context, req *pr
 		return emptyRes, err
 	}
 
-	loadResult, err := store.LoadEntities(req.NetworkID, *req.Filter, *req.Criteria)
+	loadResult, err := store.LoadEntities(req.NetworkID, req.Filter, req.Criteria)
 	if err != nil {
 		storage.RollbackLogOnError(store)
 		return emptyRes, err
@@ -150,7 +150,7 @@ func (srv *nbConfiguratorServicer) CountEntities(context context.Context, req *p
 	if err != nil {
 		return emptyRes, nil
 	}
-	countResult, err := store.CountEntities(req.NetworkID, *req.Filter)
+	countResult, err := store.CountEntities(req.NetworkID, req.Filter)
 	if err != nil {
 		storage.RollbackLogOnError(store)
 		return emptyRes, err
@@ -171,7 +171,7 @@ func (srv *nbConfiguratorServicer) WriteEntities(context context.Context, req *p
 	for _, write := range req.Writes {
 		switch op := write.Request.(type) {
 		case *protos.WriteEntityRequest_Create:
-			createdEnt, err := store.CreateEntity(req.NetworkID, *op.Create)
+			createdEnt, err := store.CreateEntity(req.NetworkID, op.Create)
 			if err != nil {
 				storage.RollbackLogOnError(store)
 				return emptyRes, status.Error(codes.Internal, err.Error())
@@ -201,7 +201,7 @@ func (srv *nbConfiguratorServicer) CreateEntities(context context.Context, req *
 
 	createdEntities := []*storage.NetworkEntity{}
 	for _, entity := range req.Entities {
-		createdEntity, err := store.CreateEntity(req.NetworkID, *entity)
+		createdEntity, err := store.CreateEntity(req.NetworkID, entity)
 		if err != nil {
 			storage.RollbackLogOnError(store)
 			return emptyRes, err

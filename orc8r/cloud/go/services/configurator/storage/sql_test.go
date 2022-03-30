@@ -43,7 +43,7 @@ var mockResult = sqlmock.NewResult(1, 1)
 func TestSqlConfiguratorStorage_LoadNetworks(t *testing.T) {
 	runFactory := func(ids []string, loadCriteria storage.NetworkLoadCriteria) func(store storage.ConfiguratorStorage) (interface{}, error) {
 		return func(store storage.ConfiguratorStorage) (interface{}, error) {
-			return store.LoadNetworks(storage.NetworkLoadFilter{Ids: ids}, loadCriteria)
+			return store.LoadNetworks(&storage.NetworkLoadFilter{Ids: ids}, &loadCriteria)
 		}
 	}
 
@@ -203,7 +203,7 @@ func TestSqlConfiguratorStorage_LoadNetworks(t *testing.T) {
 func TestSqlConfiguratorStorage_CreateNetwork(t *testing.T) {
 	runFactory := func(network storage.Network) func(store storage.ConfiguratorStorage) (interface{}, error) {
 		return func(store storage.ConfiguratorStorage) (interface{}, error) {
-			return store.CreateNetwork(network)
+			return store.CreateNetwork(&network)
 		}
 	}
 
@@ -429,7 +429,7 @@ func TestSqlConfiguratorStorage_UpdateNetworks(t *testing.T) {
 func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 	runFactory := func(networkID string, filter storage.EntityLoadFilter, loadCriteria storage.EntityLoadCriteria) func(store storage.ConfiguratorStorage) (interface{}, error) {
 		return func(store storage.ConfiguratorStorage) (interface{}, error) {
-			return store.LoadEntities(networkID, filter, loadCriteria)
+			return store.LoadEntities(networkID, &filter, &loadCriteria)
 		}
 	}
 
@@ -940,7 +940,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 func TestSqlConfiguratorStorage_CreateEntity(t *testing.T) {
 	runFactory := func(networkID string, entity storage.NetworkEntity) func(store storage.ConfiguratorStorage) (interface{}, error) {
 		return func(store storage.ConfiguratorStorage) (interface{}, error) {
-			return store.CreateEntity(networkID, entity)
+			return store.CreateEntity(networkID, &entity)
 		}
 	}
 
