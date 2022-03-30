@@ -21,6 +21,7 @@ import (
 	"sort"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/thoas/go-funk"
 
@@ -373,7 +374,7 @@ func (store *sqlConfiguratorStorage) UpdateNetworks(updates []NetworkUpdateCrite
 
 	// Update networks first
 	for _, update := range networksToUpdate {
-		err := store.updateNetwork(update, stmtCache)
+		err := store.updateNetwork(&update, stmtCache)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -409,7 +410,7 @@ func (store *sqlConfiguratorStorage) LoadEntities(networkID string, filter Entit
 		return EntityLoadResult{}, err
 	}
 
-	entsByTK, err := store.loadEntities(networkID, filter, criteria)
+	entsByTK, err := store.loadEntities(networkID, &filter, &criteria)
 	if err != nil {
 		return EntityLoadResult{}, err
 	}
@@ -467,23 +468,24 @@ func (store *sqlConfiguratorStorage) LoadEntities(networkID string, filter Entit
 	return res, nil
 }
 
-func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity NetworkEntity) (NetworkEntity, error) {
-	exists, err := store.doesEntExist(networkID, entity.GetTK())
+func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity *NetworkEntity) (NetworkEntity, error) {
+	entityCopy := proto.Clone(entity).(*NetworkEntity)
+	exists, err := store.doesEntExist(networkID, entityCopy.GetTK())
 	if err != nil {
 		return NetworkEntity{}, err
 	}
 	if exists {
-		return NetworkEntity{}, errors.Errorf("an entity '%s' already exists", entity.GetTK())
+		return NetworkEntity{}, errors.Errorf("an entity '%s' already exists", entityCopy.GetTK())
 	}
 
 	// Physical ID must be unique across all networks, since we use a gateway's
 	// physical ID to search for its network (and ent)
-	physicalIDExists, err := store.doesPhysicalIDExist(entity.GetPhysicalID())
+	physicalIDExists, err := store.doesPhysicalIDExist(entityCopy.GetPhysicalID())
 	if err != nil {
 		return NetworkEntity{}, err
 	}
 	if physicalIDExists {
-		return NetworkEntity{}, errors.Errorf("an entity with physical ID '%s' already exists", entity.GetPhysicalID())
+		return NetworkEntity{}, errors.Errorf("an entity with physical ID '%s' already exists", entityCopy.GetPhysicalID())
 	}
 
 	// First insert the associations as graph edges. This step involves a
@@ -495,7 +497,7 @@ func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity Netwo
 	// shouldn't be a problem on the load side because we load graphs via
 	// graph ID, not by traversing edges.
 
-	createdEnt, err := store.insertIntoEntityTable(networkID, &entity)
+	createdEnt, err := store.insertIntoEntityTable(networkID, entityCopy)
 	if err != nil {
 		return NetworkEntity{}, err
 	}
@@ -576,7 +578,7 @@ func (store *sqlConfiguratorStorage) UpdateEntity(networkID string, update Entit
 func (store *sqlConfiguratorStorage) LoadGraphForEntity(networkID string, entityID EntityID, loadCriteria EntityLoadCriteria) (EntityGraph, error) {
 	// We just care about getting the graph ID off this entity so use an empty
 	// load criteria
-	singleEnt, err := store.loadEntities(networkID, EntityLoadFilter{IDs: []*EntityID{&entityID}}, EntityLoadCriteria{})
+	singleEnt, err := store.loadEntities(networkID, &EntityLoadFilter{IDs: []*EntityID{&entityID}}, &EntityLoadCriteria{})
 	if err != nil {
 		return EntityGraph{}, errors.Wrap(err, "failed to load entity for graph query")
 	}

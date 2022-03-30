@@ -52,10 +52,13 @@ func (store *sqlConfiguratorStorage) countEntities(networkID string, filter *Ent
 	return count, nil
 }
 
-func (store *sqlConfiguratorStorage) loadEntities(networkID string, filter EntityLoadFilter, criteria EntityLoadCriteria) (EntitiesByTK, error) {
+func (store *sqlConfiguratorStorage) loadEntities(networkID string, filter *EntityLoadFilter, criteria *EntityLoadCriteria) (EntitiesByTK, error) {
 	entsByTK := EntitiesByTK{}
 
-	builder, err := store.getBuilder(networkID, &filter, &criteria, loadEntities)
+	filterCopy := proto.Clone(filter).(*EntityLoadFilter)
+	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
+
+	builder, err := store.getBuilder(networkID, filterCopy, criteriaCopy, loadEntities)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +70,7 @@ func (store *sqlConfiguratorStorage) loadEntities(networkID string, filter Entit
 	defer sqorc.CloseRowsLogOnError(rows, "loadEntities")
 
 	for rows.Next() {
-		ent, err := scanEntityRow(rows, criteria)
+		ent, err := scanEntityRow(rows, *criteriaCopy)
 		if err != nil {
 			return nil, err
 		}

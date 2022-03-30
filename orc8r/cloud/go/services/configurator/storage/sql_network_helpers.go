@@ -158,35 +158,36 @@ func validateNetworkUpdates(updates []NetworkUpdateCriteria) error {
 	return nil
 }
 
-func (store *sqlConfiguratorStorage) updateNetwork(update NetworkUpdateCriteria, stmtCache *sq.StmtCache) error {
+func (store *sqlConfiguratorStorage) updateNetwork(update *NetworkUpdateCriteria, stmtCache *sq.StmtCache) error {
+	updateCopy := proto.Clone(update).(*NetworkUpdateCriteria)
 	// Update the network table first
-	updateBuilder := store.builder.Update(networksTable).Where(sq.Eq{nwIDCol: update.ID})
-	if update.NewName != nil {
-		updateBuilder = updateBuilder.Set(nwNameCol, stringPtrToVal(update.NewName))
+	updateBuilder := store.builder.Update(networksTable).Where(sq.Eq{nwIDCol: updateCopy.ID})
+	if updateCopy.NewName != nil {
+		updateBuilder = updateBuilder.Set(nwNameCol, stringPtrToVal(updateCopy.NewName))
 	}
-	if update.NewDescription != nil {
-		updateBuilder = updateBuilder.Set(nwDescCol, stringPtrToVal(update.NewDescription))
+	if updateCopy.NewDescription != nil {
+		updateBuilder = updateBuilder.Set(nwDescCol, stringPtrToVal(updateCopy.NewDescription))
 	}
-	if update.NewType != nil {
-		updateBuilder = updateBuilder.Set(nwTypeCol, stringPtrToVal(update.NewType))
+	if updateCopy.NewType != nil {
+		updateBuilder = updateBuilder.Set(nwTypeCol, stringPtrToVal(updateCopy.NewType))
 	}
 	updateBuilder = updateBuilder.Set(nwVerCol, sq.Expr(fmt.Sprintf("%s.%s+1", networksTable, nwVerCol)))
 	_, err := updateBuilder.RunWith(stmtCache).Exec()
 	if err != nil {
-		return errors.Wrapf(err, "error updating network %s", update.ID)
+		return errors.Wrapf(err, "error updating network %s", updateCopy.ID)
 	}
 
 	// Sort config keys for deterministic behavior on upserts
-	configUpdateTypes := funk.Keys(update.ConfigsToAddOrUpdate).([]string)
+	configUpdateTypes := funk.Keys(updateCopy.ConfigsToAddOrUpdate).([]string)
 	sort.Strings(configUpdateTypes)
 	for _, configType := range configUpdateTypes {
-		configValue := update.ConfigsToAddOrUpdate[configType]
+		configValue := updateCopy.ConfigsToAddOrUpdate[configType]
 
 		// INSERT INTO %s (network_id, type, value) VALUES ($1, $2, $3)
 		// ON CONFLICT (network_id, type) DO UPDATE SET value = $4
 		_, err := store.builder.Insert(networkConfigTable).
 			Columns(nwcIDCol, nwcTypeCol, nwcValCol).
-			Values(update.ID, configType, configValue).
+			Values(updateCopy.ID, configType, configValue).
 			OnConflict(
 				[]sqorc.UpsertValue{{Column: nwcValCol, Value: configValue}},
 				nwcIDCol, nwcTypeCol,
@@ -194,22 +195,22 @@ func (store *sqlConfiguratorStorage) updateNetwork(update NetworkUpdateCriteria,
 			RunWith(stmtCache).
 			Exec()
 		if err != nil {
-			return errors.Wrapf(err, "error updating config %s on network %s", configType, update.ID)
+			return errors.Wrapf(err, "error updating config %s on network %s", configType, updateCopy.ID)
 		}
 	}
 
 	// Finally delete configs
-	if funk.IsEmpty(update.ConfigsToDelete) {
+	if funk.IsEmpty(updateCopy.ConfigsToDelete) {
 		return nil
 	}
 
-	orClause := make(sq.Or, 0, len(update.ConfigsToDelete))
-	for _, configType := range update.ConfigsToDelete {
-		orClause = append(orClause, sq.Eq{nwcIDCol: update.ID, nwcTypeCol: configType})
+	orClause := make(sq.Or, 0, len(updateCopy.ConfigsToDelete))
+	for _, configType := range updateCopy.ConfigsToDelete {
+		orClause = append(orClause, sq.Eq{nwcIDCol: updateCopy.ID, nwcTypeCol: configType})
 	}
 	_, err = store.builder.Delete(networkConfigTable).Where(orClause).RunWith(store.tx).Exec()
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete configs for network %s", update.ID)
+		return errors.Wrapf(err, "failed to delete configs for network %s", updateCopy.ID)
 	}
 
 	return nil

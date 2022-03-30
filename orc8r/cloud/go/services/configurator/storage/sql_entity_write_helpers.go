@@ -126,7 +126,7 @@ func (store *sqlConfiguratorStorage) loadEntsFromEdges(networkID string, targetE
 }
 
 func (store *sqlConfiguratorStorage) loadEntitiesFromIDs(networkID string, idsToLoad []*EntityID) (EntitiesByTK, error) {
-	loaded, err := store.loadEntities(networkID, EntityLoadFilter{IDs: idsToLoad}, EntityLoadCriteria{})
+	loaded, err := store.loadEntities(networkID, &EntityLoadFilter{IDs: idsToLoad}, &EntityLoadCriteria{})
 	if err != nil {
 		return nil, err
 	}

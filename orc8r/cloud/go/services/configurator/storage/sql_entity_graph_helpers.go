@@ -33,7 +33,7 @@ type internalEntityGraph struct {
 func (store *sqlConfiguratorStorage) loadGraphInternal(networkID string, graphID string, criteria *EntityLoadCriteria) (internalEntityGraph, error) {
 	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
 	loadFilter := EntityLoadFilter{GraphID: &wrappers.StringValue{Value: graphID}}
-	ents, err := store.loadEntities(networkID, loadFilter, *criteriaCopy)
+	ents, err := store.loadEntities(networkID, &loadFilter, criteriaCopy)
 	if err != nil {
 		return internalEntityGraph{}, errors.Wrap(err, "failed to load entities for graph")
 	}
