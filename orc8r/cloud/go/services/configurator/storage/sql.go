@@ -583,10 +583,12 @@ func (store *sqlConfiguratorStorage) UpdateEntity(networkID string, update *Enti
 	return *entToUpdate, nil
 }
 
-func (store *sqlConfiguratorStorage) LoadGraphForEntity(networkID string, entityID EntityID, loadCriteria EntityLoadCriteria) (EntityGraph, error) {
+func (store *sqlConfiguratorStorage) LoadGraphForEntity(networkID string, entityID *EntityID, loadCriteria *EntityLoadCriteria) (EntityGraph, error) {
+	entityIDCopy := proto.Clone(entityID).(*EntityID)
+	loadCriteriaCopy := proto.Clone(loadCriteria).(*EntityLoadCriteria)
 	// We just care about getting the graph ID off this entity so use an empty
 	// load criteria
-	singleEnt, err := store.loadEntities(networkID, &EntityLoadFilter{IDs: []*EntityID{&entityID}}, &EntityLoadCriteria{})
+	singleEnt, err := store.loadEntities(networkID, &EntityLoadFilter{IDs: []*EntityID{entityIDCopy}}, &EntityLoadCriteria{})
 	if err != nil {
 		return EntityGraph{}, errors.Wrap(err, "failed to load entity for graph query")
 	}
@@ -596,10 +598,10 @@ func (store *sqlConfiguratorStorage) LoadGraphForEntity(networkID string, entity
 		ent = e
 	}
 	if ent == nil {
-		return EntityGraph{}, errors.Errorf("could not find requested entity (%s) for graph query", entityID.String())
+		return EntityGraph{}, errors.Errorf("could not find requested entity (%s) for graph query", entityIDCopy.String())
 	}
 
-	internalGraph, err := store.loadGraphInternal(networkID, ent.GraphID, &loadCriteria)
+	internalGraph, err := store.loadGraphInternal(networkID, ent.GraphID, loadCriteriaCopy)
 	if err != nil {
 		return EntityGraph{}, errors.WithStack(err)
 	}

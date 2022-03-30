@@ -1333,7 +1333,7 @@ func TestSqlConfiguratorStorage_UpdateEntity(t *testing.T) {
 func TestSqlConfiguratorStorage_LoadGraphForEntity(t *testing.T) {
 	runFactory := func(networkID string, entityID storage.EntityID, loadCriteria storage.EntityLoadCriteria) func(store storage.ConfiguratorStorage) (interface{}, error) {
 		return func(store storage.ConfiguratorStorage) (interface{}, error) {
-			return store.LoadGraphForEntity(networkID, entityID, loadCriteria)
+			return store.LoadGraphForEntity(networkID, &entityID, &loadCriteria)
 		}
 	}
 

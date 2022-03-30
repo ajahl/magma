@@ -100,7 +100,7 @@ type ConfiguratorStorage interface {
 	// LoadGraphForEntity returns the full DAG which contains the requested
 	// entity. The load criteria fields on associations are ignored, and the
 	// returned entities will always have both association fields filled out.
-	LoadGraphForEntity(networkID string, entityID EntityID, loadCriteria EntityLoadCriteria) (EntityGraph, error)
+	LoadGraphForEntity(networkID string, entityID *EntityID, loadCriteria *EntityLoadCriteria) (EntityGraph, error)
 }
 
 // RollbackLogOnError calls Rollback on the provided ConfiguratorStorage and

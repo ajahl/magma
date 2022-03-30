@@ -486,7 +486,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Load a graph directly via ID
-	actualGraph2, err := store.LoadGraphForEntity("n1", storage.EntityID{Type: "hello", Key: "world"}, storage.EntityLoadCriteria{})
+	actualGraph2, err := store.LoadGraphForEntity("n1", &storage.EntityID{Type: "hello", Key: "world"}, &storage.EntityLoadCriteria{})
 	assert.NoError(t, err)
 
 	expectedFoobarEnt.ParentAssociations = append(expectedFoobarEnt.ParentAssociations, &storage.EntityID{Type: "hello", Key: "world"})
@@ -567,12 +567,12 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.Equal(t, expectedGraph2, actualGraph2)
 
 	// Load a graph from the ID of a node in the middle
-	actualGraph2, err = store.LoadGraphForEntity("n1", storage.EntityID{Type: "baz", Key: "quz"}, storage.EntityLoadCriteria{})
+	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "baz", Key: "quz"}, &storage.EntityLoadCriteria{})
 	assert.NoError(t, err)
 	assert.Equal(t, expectedGraph2, actualGraph2)
 
 	// Load a graph with full load criteria
-	actualGraph2, err = store.LoadGraphForEntity("n1", storage.EntityID{Type: "foo", Key: "bar"}, storage.FullEntityLoadCriteria)
+	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "foo", Key: "bar"}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 
 	expectedFoobarEnt.Name = "foobar"
@@ -659,7 +659,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			{From: &storage.EntityID{Type: "hello", Key: "world"}, To: &storage.EntityID{Type: "baz", Key: "quz"}},
 		},
 	}
-	actualGraph2, err = store.LoadGraphForEntity("n1", storage.EntityID{Type: "hello", Key: "world"}, storage.FullEntityLoadCriteria)
+	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "hello", Key: "world"}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedGraph2, actualGraph2)
 
@@ -693,7 +693,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			{From: &storage.EntityID{Type: "baz", Key: "quz"}, To: &storage.EntityID{Type: "foo", Key: "bar"}},
 		},
 	}
-	actualGraph2, err = store.LoadGraphForEntity("n1", storage.EntityID{Type: "foo", Key: "bar"}, storage.FullEntityLoadCriteria)
+	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "foo", Key: "bar"}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedGraph2, actualGraph2)
 
@@ -705,7 +705,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 		RootEntities: []*storage.EntityID{{Type: "hello", Key: "world"}},
 		Edges:        []*storage.GraphEdge{},
 	}
-	actualGraph9, err := store.LoadGraphForEntity("n1", storage.EntityID{Type: "hello", Key: "world"}, storage.FullEntityLoadCriteria)
+	actualGraph9, err := store.LoadGraphForEntity("n1", &storage.EntityID{Type: "hello", Key: "world"}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedGraph9, actualGraph9)
 

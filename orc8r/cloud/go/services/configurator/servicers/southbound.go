@@ -89,8 +89,8 @@ func (srv *sbConfiguratorServicer) getMconfigImpl(networkID string, gatewayID st
 
 	graph, err := store.LoadGraphForEntity(
 		networkID,
-		storage.EntityID{Type: orc8r.MagmadGatewayType, Key: gatewayID},
-		storage.FullEntityLoadCriteria,
+		&storage.EntityID{Type: orc8r.MagmadGatewayType, Key: gatewayID},
+		&storage.FullEntityLoadCriteria,
 	)
 	if err != nil {
 		storage.RollbackLogOnError(store)
