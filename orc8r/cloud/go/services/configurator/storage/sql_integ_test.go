@@ -376,7 +376,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	newDesc := "helloworld2 ent"
 	newPhysID := "asdf"
 	newConfig := []byte("second config")
-	updateHelloWorldEntResult, err := store.UpdateEntity("n1", storage.EntityUpdateCriteria{
+	updateHelloWorldEntResult, err := store.UpdateEntity("n1", &storage.EntityUpdateCriteria{
 		Type: "hello",
 		Key:  "world",
 
@@ -423,7 +423,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	//                        |           /      \           |
 	//                        v          /        \          v
 	//                      (foo, bar)  <          >  (bar, baz)
-	updateHelloWorldEntResult, err = store.UpdateEntity("n1", storage.EntityUpdateCriteria{
+	updateHelloWorldEntResult, err = store.UpdateEntity("n1", &storage.EntityUpdateCriteria{
 		Type: "hello",
 		Key:  "world",
 
@@ -630,7 +630,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	// delete assocs to foobar and barbaz, helloworld's graph ID should still be 2
 	_, err = store.UpdateEntity(
 		"n1",
-		storage.EntityUpdateCriteria{
+		&storage.EntityUpdateCriteria{
 			Type: "hello", Key: "world",
 			AssociationsToDelete: []*storage.EntityID{
 				{Type: "foo", Key: "bar"},
@@ -666,7 +666,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	// delete assoc to bazquz, helloworld should have a new graph ID
 	_, err = store.UpdateEntity(
 		"n1",
-		storage.EntityUpdateCriteria{
+		&storage.EntityUpdateCriteria{
 			Type: "hello", Key: "world",
 			AssociationsToDelete: []*storage.EntityID{
 				{Type: "baz", Key: "quz"},
@@ -711,7 +711,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	// now, delete bazquz. this should partition the network into 3 different
 	// graphs each with a single element
-	_, err = store.UpdateEntity("n1", storage.EntityUpdateCriteria{Type: "baz", Key: "quz", DeleteEntity: true})
+	_, err = store.UpdateEntity("n1", &storage.EntityUpdateCriteria{Type: "baz", Key: "quz", DeleteEntity: true})
 	assert.NoError(t, err)
 
 	allEnts, err := store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
@@ -738,7 +738,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	// just -> barbaz
 	_, err = store.UpdateEntity(
 		"n1",
-		storage.EntityUpdateCriteria{
+		&storage.EntityUpdateCriteria{
 			Type: "hello",
 			Key:  "world",
 			AssociationsToAdd: []*storage.EntityID{
@@ -749,7 +749,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = store.UpdateEntity(
 		"n1",
-		storage.EntityUpdateCriteria{
+		&storage.EntityUpdateCriteria{
 			Type: "hello",
 			Key:  "world",
 			AssociationsToSet: &storage.EntityAssociationsToSet{
@@ -787,7 +787,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	// Clear associations using AssociationsToSet field
 	_, err = store.UpdateEntity(
 		"n1",
-		storage.EntityUpdateCriteria{
+		&storage.EntityUpdateCriteria{
 			Type: "hello",
 			Key:  "world",
 			AssociationsToSet: &storage.EntityAssociationsToSet{

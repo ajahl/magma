@@ -91,7 +91,7 @@ type ConfiguratorStorage interface {
 	// The updates to the specified entity will be returned as a NetworkEntity
 	// object. Apart from identity fields, only fields which were updated will
 	// be filled out, with system-generated IDs included.
-	UpdateEntity(networkID string, update EntityUpdateCriteria) (NetworkEntity, error)
+	UpdateEntity(networkID string, update *EntityUpdateCriteria) (NetworkEntity, error)
 
 	// =======================================================================
 	// Graph Operations

@@ -533,28 +533,29 @@ func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity *Netw
 	return createdEnt, nil
 }
 
-func (store *sqlConfiguratorStorage) UpdateEntity(networkID string, update EntityUpdateCriteria) (NetworkEntity, error) {
+func (store *sqlConfiguratorStorage) UpdateEntity(networkID string, update *EntityUpdateCriteria) (NetworkEntity, error) {
+	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
 	emptyRet := NetworkEntity{Type: update.Type, Key: update.Key}
-	entToUpdate, err := store.loadEntToUpdate(networkID, &update)
-	if err != nil && !update.DeleteEntity {
+	entToUpdate, err := store.loadEntToUpdate(networkID, updateCopy)
+	if err != nil && !updateCopy.DeleteEntity {
 		return emptyRet, errors.Wrap(err, "failed to load entity being updated")
 	}
 	if entToUpdate == nil {
 		return emptyRet, nil
 	}
 
-	if update.DeleteEntity {
+	if updateCopy.DeleteEntity {
 		// Cascading FK relations in the schema will handle the other tables
 		_, err := store.builder.Delete(entityTable).
 			Where(sq.And{
 				sq.Eq{entNidCol: networkID},
-				sq.Eq{entTypeCol: update.Type},
-				sq.Eq{entKeyCol: update.Key},
+				sq.Eq{entTypeCol: updateCopy.Type},
+				sq.Eq{entKeyCol: updateCopy.Key},
 			}).
 			RunWith(store.tx).
 			Exec()
 		if err != nil {
-			return emptyRet, errors.Wrapf(err, "failed to delete entity (%s, %s)", update.Type, update.Key)
+			return emptyRet, errors.Wrapf(err, "failed to delete entity (%s, %s)", updateCopy.Type, updateCopy.Key)
 		}
 
 		// Deleting a node could partition its graph
@@ -568,13 +569,13 @@ func (store *sqlConfiguratorStorage) UpdateEntity(networkID string, update Entit
 
 	// Then, update the fields on the entity table
 	entToUpdate.NetworkID = networkID
-	err = store.processEntityFieldsUpdate(entToUpdate.Pk, &update, entToUpdate)
+	err = store.processEntityFieldsUpdate(entToUpdate.Pk, updateCopy, entToUpdate)
 	if err != nil {
 		return *entToUpdate, errors.WithStack(err)
 	}
 
 	// Finally, process edge updates for the graph
-	err = store.processEdgeUpdates(networkID, &update, entToUpdate)
+	err = store.processEdgeUpdates(networkID, updateCopy, entToUpdate)
 	if err != nil {
 		return *entToUpdate, errors.WithStack(err)
 	}

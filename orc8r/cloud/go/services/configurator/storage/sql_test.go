@@ -1058,7 +1058,7 @@ func TestSqlConfiguratorStorage_CreateEntity(t *testing.T) {
 func TestSqlConfiguratorStorage_UpdateEntity(t *testing.T) {
 	runFactory := func(networkID string, update storage.EntityUpdateCriteria) func(store storage.ConfiguratorStorage) (interface{}, error) {
 		return func(store storage.ConfiguratorStorage) (interface{}, error) {
-			return store.UpdateEntity(networkID, update)
+			return store.UpdateEntity(networkID, &update)
 		}
 	}
 
@@ -1745,7 +1745,7 @@ func getTestCaseForEntityUpdate(
 			}
 		},
 		run: func(store storage.ConfiguratorStorage) (interface{}, error) {
-			return store.UpdateEntity("network", update)
+			return store.UpdateEntity("network", &update)
 		},
 		expectedResult: expectedResult,
 	}

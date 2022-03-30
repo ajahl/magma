@@ -178,7 +178,7 @@ func (srv *nbConfiguratorServicer) WriteEntities(context context.Context, req *p
 			}
 			ret.CreatedEntities = append(ret.CreatedEntities, &createdEnt)
 		case *protos.WriteEntityRequest_Update:
-			updatedEnt, err := store.UpdateEntity(req.NetworkID, *op.Update)
+			updatedEnt, err := store.UpdateEntity(req.NetworkID, op.Update)
 			if err != nil {
 				storage.RollbackLogOnError(store)
 				return emptyRes, status.Error(codes.Internal, err.Error())
@@ -220,7 +220,7 @@ func (srv *nbConfiguratorServicer) UpdateEntities(context context.Context, req *
 
 	updatedEntities := map[string]*storage.NetworkEntity{}
 	for _, update := range req.Updates {
-		updatedEntity, err := store.UpdateEntity(req.NetworkID, *update)
+		updatedEntity, err := store.UpdateEntity(req.NetworkID, update)
 		if err != nil {
 			storage.RollbackLogOnError(store)
 			return emptyRes, err
@@ -243,7 +243,7 @@ func (srv *nbConfiguratorServicer) DeleteEntities(context context.Context, req *
 			Key:          entityID.Key,
 			DeleteEntity: true,
 		}
-		_, err = store.UpdateEntity(req.NetworkID, request)
+		_, err = store.UpdateEntity(req.NetworkID, &request)
 		if err != nil {
 			storage.RollbackLogOnError(store)
 			return void, err
