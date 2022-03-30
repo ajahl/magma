@@ -31,7 +31,6 @@ package tracing
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"magma/orc8r/cloud/go/storage"
@@ -79,11 +78,9 @@ func parseKeyValue(key string, text string) string {
 func (th *TracingHook) Before(ctx context.Context, query string, args ...interface{}) (context.Context, error) {
 
 	if trace.SpanFromContext(ctx).IsRecording() {
-		fmt.Printf("Before:: Record is ongoing\n")
 		return ctx, nil
 	}
-	ctx, span := th.tracer.Start(ctx, SpanName)
-	_ = span
+	ctx, _ = th.tracer.Start(ctx, SpanName)
 	return ctx, nil
 }
 
