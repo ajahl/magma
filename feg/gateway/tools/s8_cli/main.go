@@ -521,5 +521,8 @@ func main() {
 	}
 	args := os.Args[2:]
 	cmd.Flags().Parse(args)
-	os.Exit(cmd.Handle(args))
+	// "If a test calls os.Exit, the test binary will exit, and go test will report a failure." https://github.com/golang/go/issues/45619
+	if i := cmd.Handle(args); i != 0 {
+		os.Exit(i)
+	}
 }
