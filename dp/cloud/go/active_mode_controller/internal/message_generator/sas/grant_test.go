@@ -86,11 +86,11 @@ func TestGrantRequestGenerator(t *testing.T) {
 			HighFrequencyHz: 3553 * 1e6,
 		}},
 		preferences: new(active_mode.FrequencyPreferences),
-		expected: nil,
+		expected:    nil,
 	}, {
 		name:         "Should not generate anything if there are no channels",
 		capabilities: getDefaultCapabilities(),
-		preferences: new(active_mode.FrequencyPreferences),
+		preferences:  new(active_mode.FrequencyPreferences),
 		expected:     nil,
 	}}
 	for _, tt := range data {
