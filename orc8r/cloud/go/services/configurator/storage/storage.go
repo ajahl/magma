@@ -82,7 +82,7 @@ type ConfiguratorStorage interface {
 
 	// CountEntities returns the count of entities corresponding to the provided
 	// load filter.
-	CountEntities(networkID string, filter *EntityLoadFilter) (EntityCountResult, error)
+	CountEntities(networkID string, filter *EntityLoadFilter) (*EntityCountResult, error)
 
 	// CreateEntity creates a new entity. The created entity is returned
 	// with system-generated fields filled in.

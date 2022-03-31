@@ -399,9 +399,9 @@ func (store *sqlConfiguratorStorage) UpdateNetworks(updates []*NetworkUpdateCrit
 	return nil
 }
 
-func (store *sqlConfiguratorStorage) CountEntities(networkID string, filter *EntityLoadFilter) (EntityCountResult, error) {
+func (store *sqlConfiguratorStorage) CountEntities(networkID string, filter *EntityLoadFilter) (*EntityCountResult, error) {
 	filterCopy := proto.Clone(filter).(*EntityLoadFilter)
-	ret := EntityCountResult{Count: 0}
+	ret := &EntityCountResult{Count: 0}
 	count, err := store.countEntities(networkID, filterCopy)
 	if err != nil {
 		return ret, err

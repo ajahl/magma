@@ -1998,7 +1998,7 @@ func TestAPNPolicyProfile(t *testing.T) {
 		ParamNames:             []string{"network_id"},
 		ParamValues:            []string{"n0"},
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"apn"  key:"apnXXX"]`,
+		ExpectedErrorSubstring: `could not find entities matching [type:"apn" key:"apnXXX"]`,
 	}
 	tests.RunUnitTest(t, e, tc)
 

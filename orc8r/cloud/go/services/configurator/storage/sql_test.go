@@ -335,7 +335,7 @@ func TestSqlConfiguratorStorage_CreateNetwork(t *testing.T) {
 }
 
 func TestSqlConfiguratorStorage_UpdateNetworks(t *testing.T) {
-	runFactory := func(updates []storage.NetworkUpdateCriteria) func(store storage.ConfiguratorStorage) (interface{}, error) {
+	runFactory := func(updates []*storage.NetworkUpdateCriteria) func(store storage.ConfiguratorStorage) (interface{}, error) {
 		return func(store storage.ConfiguratorStorage) (interface{}, error) {
 			return nil, store.UpdateNetworks(updates)
 		}
@@ -370,7 +370,7 @@ func TestSqlConfiguratorStorage_UpdateNetworks(t *testing.T) {
 			m.ExpectExec("DELETE FROM cfg_networks").WithArgs("n1").WillReturnResult(mockResult)
 		},
 		run: runFactory(
-			[]storage.NetworkUpdateCriteria{
+			[]*storage.NetworkUpdateCriteria{
 				{ID: "n1", DeleteNetwork: true, NewName: &wrappers.StringValue{Value: names[0]}, NewDescription: &wrappers.StringValue{Value: descs[0]}},
 				{ID: "n2", NewName: &wrappers.StringValue{Value: names[1]}, NewDescription: &wrappers.StringValue{Value: descs[1]}},
 				{
@@ -401,7 +401,7 @@ func TestSqlConfiguratorStorage_UpdateNetworks(t *testing.T) {
 			updateStmt.ExpectExec().WithArgs("name2", "desc2", "n2").WillReturnError(errors.New("mock update error"))
 		},
 		run: runFactory(
-			[]storage.NetworkUpdateCriteria{
+			[]*storage.NetworkUpdateCriteria{
 				{ID: "n1", DeleteNetwork: true},
 				{ID: "n2", NewName: &wrappers.StringValue{Value: names[1]}, NewDescription: &wrappers.StringValue{Value: descs[1]}},
 			},
@@ -414,7 +414,7 @@ func TestSqlConfiguratorStorage_UpdateNetworks(t *testing.T) {
 		setup: func(m sqlmock.Sqlmock) {},
 
 		run: runFactory(
-			[]storage.NetworkUpdateCriteria{
+			[]*storage.NetworkUpdateCriteria{
 				{ID: "n1", DeleteNetwork: true},
 				{ID: "n1", NewName: &wrappers.StringValue{Value: names[1]}},
 			},

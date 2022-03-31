@@ -99,9 +99,7 @@ func (srv *nbConfiguratorServicer) UpdateNetworks(context context.Context, req *
 	}
 
 	updates := []*storage.NetworkUpdateCriteria{}
-	for _, update := range req.Updates {
-		updates = append(updates, update)
-	}
+	updates = append(updates, req.Updates...)
 	err = store.UpdateNetworks(updates)
 	if err != nil {
 		storage.RollbackLogOnError(store)
@@ -155,7 +153,7 @@ func (srv *nbConfiguratorServicer) CountEntities(context context.Context, req *p
 		storage.RollbackLogOnError(store)
 		return emptyRes, err
 	}
-	return &countResult, store.Commit()
+	return countResult, store.Commit()
 }
 
 func (srv *nbConfiguratorServicer) WriteEntities(context context.Context, req *protos.WriteEntitiesRequest) (*protos.WriteEntitiesResponse, error) {
