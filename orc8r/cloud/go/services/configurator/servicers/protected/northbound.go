@@ -98,9 +98,9 @@ func (srv *nbConfiguratorServicer) UpdateNetworks(context context.Context, req *
 		return void, err
 	}
 
-	updates := []storage.NetworkUpdateCriteria{}
+	updates := []*storage.NetworkUpdateCriteria{}
 	for _, update := range req.Updates {
-		updates = append(updates, *update)
+		updates = append(updates, update)
 	}
 	err = store.UpdateNetworks(updates)
 	if err != nil {
@@ -117,9 +117,9 @@ func (srv *nbConfiguratorServicer) DeleteNetworks(context context.Context, req *
 		return void, err
 	}
 
-	deleteRequests := []storage.NetworkUpdateCriteria{}
+	deleteRequests := []*storage.NetworkUpdateCriteria{}
 	for _, networkID := range req.NetworkIDs {
-		deleteRequests = append(deleteRequests, storage.NetworkUpdateCriteria{ID: networkID, DeleteNetwork: true})
+		deleteRequests = append(deleteRequests, &storage.NetworkUpdateCriteria{ID: networkID, DeleteNetwork: true})
 	}
 	err = store.UpdateNetworks(deleteRequests)
 	if err != nil {

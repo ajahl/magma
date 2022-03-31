@@ -283,8 +283,8 @@ func (store *sqlConfiguratorStorage) LoadNetworks(filter *NetworkLoadFilter, loa
 	return ret, nil
 }
 
-func (store *sqlConfiguratorStorage) LoadAllNetworks(loadCriteria *NetworkLoadCriteria) ([]Network, error) {
-	emptyNetworks := []Network{}
+func (store *sqlConfiguratorStorage) LoadAllNetworks(loadCriteria *NetworkLoadCriteria) ([]*Network, error) {
+	emptyNetworks := []*Network{}
 	idsToExclude := []string{InternalNetworkID}
 
 	loadCriteriaCopy := proto.Clone(loadCriteria).(*NetworkLoadCriteria)
@@ -312,9 +312,9 @@ func (store *sqlConfiguratorStorage) LoadAllNetworks(loadCriteria *NetworkLoadCr
 		return emptyNetworks, err
 	}
 
-	networks := make([]Network, 0, len(loadedNetworksByID))
+	networks := make([]*Network, 0, len(loadedNetworksByID))
 	for _, nid := range loadedNetworkIDs {
-		networks = append(networks, *loadedNetworksByID[nid])
+		networks = append(networks, loadedNetworksByID[nid])
 	}
 	return networks, nil
 }
@@ -358,13 +358,13 @@ func (store *sqlConfiguratorStorage) CreateNetwork(network *Network) (*Network, 
 	return networkCopy, nil
 }
 
-func (store *sqlConfiguratorStorage) UpdateNetworks(updates []NetworkUpdateCriteria) error {
+func (store *sqlConfiguratorStorage) UpdateNetworks(updates []*NetworkUpdateCriteria) error {
 	if err := validateNetworkUpdates(updates); err != nil {
 		return err
 	}
 
 	networksToDelete := []string{}
-	networksToUpdate := []NetworkUpdateCriteria{}
+	networksToUpdate := []*NetworkUpdateCriteria{}
 	for _, update := range updates {
 		if update.DeleteNetwork {
 			networksToDelete = append(networksToDelete, update.ID)
@@ -378,7 +378,7 @@ func (store *sqlConfiguratorStorage) UpdateNetworks(updates []NetworkUpdateCrite
 
 	// Update networks first
 	for _, update := range networksToUpdate {
-		err := store.updateNetwork(&update, stmtCache)
+		err := store.updateNetwork(update, stmtCache)
 		if err != nil {
 			return errors.WithStack(err)
 		}

@@ -82,7 +82,7 @@ func scanNetworkRows(rows *sql.Rows, loadCriteria *NetworkLoadCriteria) (map[str
 				existingNetwork.Configs[k] = v
 			}
 		} else {
-			loadedNetworksByID[nwResult.ID] = &nwResult
+			loadedNetworksByID[nwResult.ID] = nwResult
 		}
 	}
 
@@ -92,7 +92,7 @@ func scanNetworkRows(rows *sql.Rows, loadCriteria *NetworkLoadCriteria) (map[str
 	return loadedNetworksByID, loadedNetworkIDs, nil
 }
 
-func scanNextNetworkRow(rows *sql.Rows, criteria *NetworkLoadCriteria) (Network, error) {
+func scanNextNetworkRow(rows *sql.Rows, criteria *NetworkLoadCriteria) (*Network, error) {
 	var id string
 	var networkType, name, description sql.NullString
 	var cfgType sql.NullString
@@ -114,10 +114,10 @@ func scanNextNetworkRow(rows *sql.Rows, criteria *NetworkLoadCriteria) (Network,
 
 	err := rows.Scan(scanArgs...)
 	if err != nil {
-		return Network{}, fmt.Errorf("error while scanning network row: %s", err)
+		return &Network{}, fmt.Errorf("error while scanning network row: %s", err)
 	}
 
-	ret := Network{ID: id, Type: nullStringToValue(networkType), Name: nullStringToValue(name), Description: nullStringToValue(description), Configs: map[string][]byte{}, Version: version}
+	ret := &Network{ID: id, Type: nullStringToValue(networkType), Name: nullStringToValue(name), Description: nullStringToValue(description), Configs: map[string][]byte{}, Version: version}
 	if criteriaCopy.LoadConfigs && cfgType.Valid {
 		ret.Configs[cfgType.String] = cfgValue
 	}
@@ -150,8 +150,8 @@ func (store *sqlConfiguratorStorage) doesNetworkExist(id string) (bool, error) {
 	return count > 0, nil
 }
 
-func validateNetworkUpdates(updates []NetworkUpdateCriteria) error {
-	updatesByID := funk.ToMap(updates, "ID").(map[string]NetworkUpdateCriteria)
+func validateNetworkUpdates(updates []*NetworkUpdateCriteria) error {
+	updatesByID := funk.ToMap(updates, "ID").(map[string]*NetworkUpdateCriteria)
 	if len(updatesByID) < len(updates) {
 		return errors.New("multiple updates for a single network are not allowed")
 	}

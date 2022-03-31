@@ -59,13 +59,13 @@ type ConfiguratorStorage interface {
 	LoadNetworks(filter *NetworkLoadFilter, loadCriteria *NetworkLoadCriteria) (*NetworkLoadResult, error)
 
 	// LoadAllNetworks returns all networks registered
-	LoadAllNetworks(loadCriteria *NetworkLoadCriteria) ([]Network, error)
+	LoadAllNetworks(loadCriteria *NetworkLoadCriteria) ([]*Network, error)
 
 	// CreateNetwork creates a new network. The created network is returned.
 	CreateNetwork(network *Network) (*Network, error)
 
 	// UpdateNetworks updates a set of networks.
-	UpdateNetworks(updates []NetworkUpdateCriteria) error
+	UpdateNetworks(updates []*NetworkUpdateCriteria) error
 
 	// =======================================================================
 	// Entity Operations
