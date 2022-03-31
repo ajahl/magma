@@ -70,7 +70,7 @@ func (store *sqlConfiguratorStorage) doesPhysicalIDExist(physicalID string) (boo
 	return count > 0, nil
 }
 
-func (store *sqlConfiguratorStorage) insertIntoEntityTable(networkID string, ent *NetworkEntity) (NetworkEntity, error) {
+func (store *sqlConfiguratorStorage) insertIntoEntityTable(networkID string, ent *NetworkEntity) (*NetworkEntity, error) {
 	entCopy := proto.Clone(ent).(*NetworkEntity)
 	entCopy.Pk = store.idGenerator.New()
 	entCopy.GraphID = store.idGenerator.New() // potentially-temporary graph ID
@@ -81,9 +81,9 @@ func (store *sqlConfiguratorStorage) insertIntoEntityTable(networkID string, ent
 		RunWith(store.tx).
 		Exec()
 	if err != nil {
-		return NetworkEntity{}, errors.Wrapf(err, "error creating entity %s", entCopy.GetTK())
+		return &NetworkEntity{}, errors.Wrapf(err, "error creating entity %s", entCopy.GetTK())
 	}
-	return *entCopy, nil
+	return entCopy, nil
 }
 
 func (store *sqlConfiguratorStorage) createEdges(networkID string, entity *NetworkEntity) (EntitiesByTK, error) {

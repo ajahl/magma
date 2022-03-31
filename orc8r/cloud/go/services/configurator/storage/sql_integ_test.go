@@ -570,6 +570,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	// Load a graph from the ID of a node in the middle
 	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "baz", Key: "quz"}, &storage.EntityLoadCriteria{})
+	assert.NoError(t, err)
 	equal = proto.Equal(expectedGraph2, actualGraph2)
 	assert.True(t, equal)
 

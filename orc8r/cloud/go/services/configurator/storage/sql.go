@@ -509,12 +509,12 @@ func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity *Netw
 		return &NetworkEntity{}, err
 	}
 
-	allAssociatedEntsByTk, err := store.createEdges(networkID, &createdEnt)
+	allAssociatedEntsByTk, err := store.createEdges(networkID, createdEnt)
 	if err != nil {
 		return &NetworkEntity{}, err
 	}
 
-	newGraphID, err := store.mergeGraphs(&createdEnt, allAssociatedEntsByTk)
+	newGraphID, err := store.mergeGraphs(createdEnt, allAssociatedEntsByTk)
 	if err != nil {
 		return &NetworkEntity{}, err
 	}
@@ -530,7 +530,7 @@ func (store *sqlConfiguratorStorage) CreateEntity(networkID string, entity *Netw
 	}
 
 	createdEnt.NetworkID = networkID
-	return &createdEnt, nil
+	return createdEnt, nil
 }
 
 func (store *sqlConfiguratorStorage) UpdateEntity(networkID string, update *EntityUpdateCriteria) (*NetworkEntity, error) {

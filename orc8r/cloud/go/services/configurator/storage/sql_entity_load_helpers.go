@@ -74,7 +74,7 @@ func (store *sqlConfiguratorStorage) loadEntities(networkID string, filter *Enti
 		if err != nil {
 			return nil, err
 		}
-		entsByTK[ent.GetTK()] = &ent
+		entsByTK[ent.GetTK()] = ent
 	}
 	err = rows.Err()
 	if err != nil {
@@ -235,7 +235,7 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 	return addSuffix(b), nil
 }
 
-func scanEntityRow(rows *sql.Rows, criteria *EntityLoadCriteria) (NetworkEntity, error) {
+func scanEntityRow(rows *sql.Rows, criteria *EntityLoadCriteria) (*NetworkEntity, error) {
 	var nid, key, entType, graphID, pk string
 	var physicalID sql.NullString
 	var name, description sql.NullString
@@ -255,10 +255,10 @@ func scanEntityRow(rows *sql.Rows, criteria *EntityLoadCriteria) (NetworkEntity,
 
 	err := rows.Scan(scanArgs...)
 	if err != nil {
-		return NetworkEntity{}, errors.Wrap(err, "error while scanning entity row")
+		return &NetworkEntity{}, errors.Wrap(err, "error while scanning entity row")
 	}
 
-	ent := NetworkEntity{
+	ent := &NetworkEntity{
 		NetworkID: nid,
 		Key:       key,
 		Type:      entType,
