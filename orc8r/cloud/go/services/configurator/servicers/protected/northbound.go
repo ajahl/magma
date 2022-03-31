@@ -50,7 +50,7 @@ func (srv *nbConfiguratorServicer) LoadNetworks(context context.Context, req *pr
 		storage.RollbackLogOnError(store)
 		return res, err
 	}
-	return &result, store.Commit()
+	return result, store.Commit()
 }
 
 func (srv *nbConfiguratorServicer) ListNetworkIDs(context context.Context, void *commonProtos.Void) (*protos.ListNetworkIDsResponse, error) {
@@ -86,7 +86,7 @@ func (srv *nbConfiguratorServicer) CreateNetworks(context context.Context, req *
 			storage.RollbackLogOnError(store)
 			return emptyRes, err
 		}
-		createdNetworks = append(createdNetworks, &createdNetwork)
+		createdNetworks = append(createdNetworks, createdNetwork)
 	}
 	return &protos.CreateNetworksResponse{CreatedNetworks: createdNetworks}, store.Commit()
 }
@@ -141,7 +141,7 @@ func (srv *nbConfiguratorServicer) LoadEntities(context context.Context, req *pr
 		storage.RollbackLogOnError(store)
 		return emptyRes, err
 	}
-	return &loadResult, store.Commit()
+	return loadResult, store.Commit()
 }
 
 func (srv *nbConfiguratorServicer) CountEntities(context context.Context, req *protos.LoadEntitiesRequest) (*storage.EntityCountResult, error) {
@@ -176,14 +176,14 @@ func (srv *nbConfiguratorServicer) WriteEntities(context context.Context, req *p
 				storage.RollbackLogOnError(store)
 				return emptyRes, status.Error(codes.Internal, err.Error())
 			}
-			ret.CreatedEntities = append(ret.CreatedEntities, &createdEnt)
+			ret.CreatedEntities = append(ret.CreatedEntities, createdEnt)
 		case *protos.WriteEntityRequest_Update:
 			updatedEnt, err := store.UpdateEntity(req.NetworkID, op.Update)
 			if err != nil {
 				storage.RollbackLogOnError(store)
 				return emptyRes, status.Error(codes.Internal, err.Error())
 			}
-			ret.UpdatedEntities[updatedEnt.Key] = &updatedEnt
+			ret.UpdatedEntities[updatedEnt.Key] = updatedEnt
 		default:
 			storage.RollbackLogOnError(store)
 			return emptyRes, status.Error(codes.InvalidArgument, fmt.Sprintf("write request %T not recognized", write))
@@ -206,7 +206,7 @@ func (srv *nbConfiguratorServicer) CreateEntities(context context.Context, req *
 			storage.RollbackLogOnError(store)
 			return emptyRes, err
 		}
-		createdEntities = append(createdEntities, &createdEntity)
+		createdEntities = append(createdEntities, createdEntity)
 	}
 	return &protos.CreateEntitiesResponse{CreatedEntities: createdEntities}, store.Commit()
 }
@@ -225,7 +225,7 @@ func (srv *nbConfiguratorServicer) UpdateEntities(context context.Context, req *
 			storage.RollbackLogOnError(store)
 			return emptyRes, err
 		}
-		updatedEntities[update.Key] = &updatedEntity
+		updatedEntities[update.Key] = updatedEntity
 	}
 	return &protos.UpdateEntitiesResponse{UpdatedEntities: updatedEntities}, store.Commit()
 }

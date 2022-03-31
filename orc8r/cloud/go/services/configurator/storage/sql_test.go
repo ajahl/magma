@@ -23,10 +23,10 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/stretchr/testify/assert"
 	"github.com/thoas/go-funk"
+	"google.golang.org/protobuf/proto"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
 	"magma/orc8r/cloud/go/services/configurator/storage"
@@ -59,7 +59,7 @@ func TestSqlConfiguratorStorage_LoadNetworks(t *testing.T) {
 		},
 		run: runFactory([]string{"hello", "world"}, &storage.NetworkLoadCriteria{}),
 
-		expectedResult: storage.NetworkLoadResult{
+		expectedResult: &storage.NetworkLoadResult{
 			NetworkIDsNotFound: []string{},
 			Networks: []*storage.Network{
 				{ID: "hello", Configs: map[string][]byte{}, Version: 1},
@@ -79,7 +79,7 @@ func TestSqlConfiguratorStorage_LoadNetworks(t *testing.T) {
 		},
 		run: runFactory([]string{"hello", "world"}, &storage.NetworkLoadCriteria{LoadMetadata: true}),
 
-		expectedResult: storage.NetworkLoadResult{
+		expectedResult: &storage.NetworkLoadResult{
 			NetworkIDsNotFound: []string{},
 			Networks: []*storage.Network{
 				{
@@ -113,7 +113,7 @@ func TestSqlConfiguratorStorage_LoadNetworks(t *testing.T) {
 		},
 		run: runFactory([]string{"hello", "world", "foobar"}, &storage.NetworkLoadCriteria{LoadConfigs: true}),
 
-		expectedResult: storage.NetworkLoadResult{
+		expectedResult: &storage.NetworkLoadResult{
 			NetworkIDsNotFound: []string{"foobar"},
 			Networks: []*storage.Network{
 				{
@@ -146,7 +146,7 @@ func TestSqlConfiguratorStorage_LoadNetworks(t *testing.T) {
 		},
 		run: runFactory([]string{"hello", "world", "foobar"}, &storage.NetworkLoadCriteria{LoadMetadata: true, LoadConfigs: true}),
 
-		expectedResult: storage.NetworkLoadResult{
+		expectedResult: &storage.NetworkLoadResult{
 			NetworkIDsNotFound: []string{"foobar"},
 			Networks: []*storage.Network{
 				{
@@ -177,7 +177,7 @@ func TestSqlConfiguratorStorage_LoadNetworks(t *testing.T) {
 		},
 		run: runFactory([]string{"hello", "world"}, &storage.NetworkLoadCriteria{}),
 
-		expectedResult: storage.NetworkLoadResult{
+		expectedResult: &storage.NetworkLoadResult{
 			NetworkIDsNotFound: []string{"hello", "world"},
 			Networks:           []*storage.Network{},
 		},
@@ -221,7 +221,7 @@ func TestSqlConfiguratorStorage_CreateNetwork(t *testing.T) {
 		},
 		run: runFactory(&storage.Network{ID: "n1"}),
 
-		expectedResult: storage.Network{ID: "n1"},
+		expectedResult: &storage.Network{ID: "n1"},
 	}
 
 	allMetadata := &testCase{
@@ -236,10 +236,10 @@ func TestSqlConfiguratorStorage_CreateNetwork(t *testing.T) {
 		},
 		run: runFactory(&storage.Network{ID: "n2", Name: "hello", Description: "world"}),
 
-		expectedResult: storage.Network{ID: "n2", Name: "hello", Description: "world"},
+		expectedResult: &storage.Network{ID: "n2", Name: "hello", Description: "world"},
 	}
 
-	everythingNw := storage.Network{
+	everythingNw := &storage.Network{
 		ID:          "n3",
 		Type:        "lte",
 		Name:        "hello",
@@ -266,7 +266,7 @@ func TestSqlConfiguratorStorage_CreateNetwork(t *testing.T) {
 				).
 				WillReturnResult(mockResult)
 		},
-		run: runFactory(&everythingNw),
+		run: runFactory(everythingNw),
 
 		expectedResult: everythingNw,
 	}
@@ -464,7 +464,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{NetworkID: "network", Type: "baz", Key: "quz", GraphID: "42", Version: 1, Pk: "def"},
 				{NetworkID: "network", Type: "foo", Key: "bar", GraphID: "42", Version: 2, Pk: "abc"},
@@ -502,7 +502,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{LoadMetadata: true, LoadConfig: true},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "baz", Key: "quz", GraphID: "42", Version: 1, Pk: "def",
@@ -551,7 +551,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{LoadMetadata: true, LoadConfig: true, PageSize: 2, PageToken: ""},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "foo", Key: "bar", GraphID: "42", Version: 2, Pk: "abc",
@@ -587,7 +587,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{LoadMetadata: true, LoadConfig: true, PageSize: 2, PageToken: expectedNextToken},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "foo", Key: "zed", GraphID: "42", Version: 2, Pk: "abc",
@@ -625,7 +625,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{LoadMetadata: true, LoadConfig: true, PageSize: 10, PageToken: ""},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "foo", Key: "aaa", GraphID: "42", Version: 2, Pk: "aaa",
@@ -706,7 +706,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{LoadAssocsToThis: true},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "baz", Key: "quz", GraphID: "42", Version: 1, Pk: "def",
@@ -772,7 +772,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{LoadAssocsFromThis: true},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "baz", Key: "quz", GraphID: "42", Version: 1, Pk: "def",
@@ -847,7 +847,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.FullEntityLoadCriteria,
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "foo", Key: "bar", GraphID: "42", Version: 1, Pk: "foobar",
@@ -897,7 +897,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{NetworkID: "network", Type: "foo", Key: "bar", GraphID: "42", Version: 2, Pk: "abc"},
 			},
@@ -922,7 +922,7 @@ func TestSqlConfiguratorStorage_LoadEntities(t *testing.T) {
 			&storage.EntityLoadCriteria{},
 		),
 
-		expectedResult: storage.EntityLoadResult{
+		expectedResult: &storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
 				{NetworkID: "network", Type: "foo", Key: "bar", GraphID: "42", PhysicalID: "p1", Version: 2, Pk: "abc"},
 			},
@@ -970,7 +970,7 @@ func TestSqlConfiguratorStorage_CreateEntity(t *testing.T) {
 			},
 		),
 
-		expectedResult: storage.NetworkEntity{
+		expectedResult: &storage.NetworkEntity{
 			NetworkID:   "network",
 			Type:        "foo",
 			Key:         "bar",
@@ -1019,7 +1019,7 @@ func TestSqlConfiguratorStorage_CreateEntity(t *testing.T) {
 		),
 
 		// Merged graphs
-		expectedResult: storage.NetworkEntity{
+		expectedResult: &storage.NetworkEntity{
 			NetworkID:   "network",
 			Type:        "foo",
 			Key:         "bar",
@@ -1051,7 +1051,7 @@ func TestSqlConfiguratorStorage_CreateEntity(t *testing.T) {
 			},
 		),
 
-		expectedResult: storage.NetworkEntity{},
+		expectedResult: &storage.NetworkEntity{},
 		expectedError:  errors.New("an entity 'foo-bar' already exists"),
 	}
 
@@ -1078,7 +1078,7 @@ func TestSqlConfiguratorStorage_UpdateEntity(t *testing.T) {
 		},
 		run: runFactory("network", &storage.EntityUpdateCriteria{Type: "foo", Key: "bar", DeleteEntity: true}),
 
-		expectedResult: storage.NetworkEntity{Type: "foo", Key: "bar"},
+		expectedResult: &storage.NetworkEntity{Type: "foo", Key: "bar"},
 	}
 	runCase(t, deleteCase)
 
@@ -1119,7 +1119,7 @@ func TestSqlConfiguratorStorage_UpdateEntity(t *testing.T) {
 			m.ExpectExec("UPDATE cfg_entities").WithArgs("2", "bazbar").WillReturnResult(mockResult)
 		},
 		run:            runFactory("network", &storage.EntityUpdateCriteria{Type: "foo", Key: "bar", DeleteEntity: true}),
-		expectedResult: storage.NetworkEntity{Type: "foo", Key: "bar"},
+		expectedResult: &storage.NetworkEntity{Type: "foo", Key: "bar"},
 	}
 	runCase(t, deleteWithPartition)
 
@@ -1301,7 +1301,7 @@ func TestSqlConfiguratorStorage_UpdateEntity(t *testing.T) {
 			m.ExpectExec("UPDATE cfg_entities").WithArgs("2", "barfoo", "bazbar").WillReturnResult(mockResult)
 		},
 		run:            runFactory("network", &storage.EntityUpdateCriteria{Type: "baz", Key: "quz", AssociationsToDelete: []*storage.EntityID{{Type: "quz", Key: "baz"}, {Type: "baz", Key: "bar"}}}),
-		expectedResult: storage.NetworkEntity{NetworkID: "network", Type: "baz", Key: "quz", GraphID: "g1", Pk: "bazquz", Version: 1},
+		expectedResult: &storage.NetworkEntity{NetworkID: "network", Type: "baz", Key: "quz", GraphID: "g1", Pk: "bazquz", Version: 1},
 	}
 	runCase(t, partitionCase)
 
@@ -1330,7 +1330,7 @@ func TestSqlConfiguratorStorage_UpdateEntity(t *testing.T) {
 			m.ExpectExec("UPDATE cfg_entities").WithArgs("1", "barbaz").WillReturnResult(mockResult)
 		},
 		run:            runFactory("network", &storage.EntityUpdateCriteria{Type: "foo", Key: "bar", AssociationsToSet: &storage.EntityAssociationsToSet{}}),
-		expectedResult: storage.NetworkEntity{NetworkID: "network", Type: "foo", Key: "bar", GraphID: "g1", Pk: "foobar", Version: 1},
+		expectedResult: &storage.NetworkEntity{NetworkID: "network", Type: "foo", Key: "bar", GraphID: "g1", Pk: "foobar", Version: 1},
 	}
 	runCase(t, clearEdgesCase)
 
@@ -1373,7 +1373,7 @@ func TestSqlConfiguratorStorage_LoadGraphForEntity(t *testing.T) {
 			)
 		},
 
-		expectedResult: storage.EntityGraph{
+		expectedResult: &storage.EntityGraph{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "bar", Key: "baz",
@@ -1426,7 +1426,7 @@ func TestSqlConfiguratorStorage_LoadGraphForEntity(t *testing.T) {
 			)
 		},
 
-		expectedResult: storage.EntityGraph{
+		expectedResult: &storage.EntityGraph{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "bar", Key: "baz",
@@ -1478,7 +1478,7 @@ func TestSqlConfiguratorStorage_LoadGraphForEntity(t *testing.T) {
 			)
 		},
 
-		expectedResult: storage.EntityGraph{
+		expectedResult: &storage.EntityGraph{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "bar", Key: "baz",
@@ -1531,7 +1531,7 @@ func TestSqlConfiguratorStorage_LoadGraphForEntity(t *testing.T) {
 			)
 		},
 
-		expectedResult: storage.EntityGraph{
+		expectedResult: &storage.EntityGraph{
 			Entities: []*storage.NetworkEntity{
 				{
 					NetworkID: "network", Type: "bar", Key: "baz",
@@ -1638,7 +1638,8 @@ func runCase(t *testing.T, test *testCase) {
 	}
 
 	if test.expectedResult != nil {
-		assert.Equal(t, test.expectedResult, actual)
+		equal := proto.Equal(test.expectedResult.(proto.Message), actual.(proto.Message))
+		assert.True(t, equal)
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -1655,7 +1656,7 @@ func getTestCaseForEntityUpdate(
 	expectedGraphMerges ...[2]string,
 ) *testCase {
 	updateCopy := proto.Clone(update).(*storage.EntityUpdateCriteria)
-	expectedResult := storage.NetworkEntity{
+	expectedResult := &storage.NetworkEntity{
 		NetworkID: "network",
 		Type:      entToUpdate.entType,
 		Key:       entToUpdate.key,

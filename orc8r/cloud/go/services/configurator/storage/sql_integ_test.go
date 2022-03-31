@@ -62,7 +62,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			Networks:           []*storage.Network{},
 			NetworkIDsNotFound: []string{"n1", "n2"},
 		},
-		&loadNetworksActual,
+		loadNetworksActual,
 	)
 	assert.True(t, equal)
 	err = store.Commit()
@@ -75,16 +75,16 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
 
-	expectedn1 := storage.Network{ID: "n1", Type: "type1", Name: "Network 1", Description: "foo", Configs: map[string][]byte{"hello": []byte("world"), "goodbye": []byte("alsoworld")}}
-	actualNetwork, err := store.CreateNetwork(&expectedn1)
+	expectedn1 := &storage.Network{ID: "n1", Type: "type1", Name: "Network 1", Description: "foo", Configs: map[string][]byte{"hello": []byte("world"), "goodbye": []byte("alsoworld")}}
+	actualNetwork, err := store.CreateNetwork(expectedn1)
 	assert.NoError(t, err)
-	equal = proto.Equal(&expectedn1, &actualNetwork)
+	equal = proto.Equal(expectedn1, actualNetwork)
 	assert.True(t, equal)
 
-	expectedn2 := storage.Network{ID: "n2", Type: "type2"}
-	actualNetwork, err = store.CreateNetwork(&expectedn2)
+	expectedn2 := &storage.Network{ID: "n2", Type: "type2"}
+	actualNetwork, err = store.CreateNetwork(expectedn2)
 	assert.NoError(t, err)
-	equal = proto.Equal(&expectedn2, &actualNetwork)
+	equal = proto.Equal(expectedn2, actualNetwork)
 	assert.True(t, equal)
 	expectedn2.Configs = map[string][]byte{}
 
@@ -97,10 +97,10 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 	equal = proto.Equal(
 		&storage.NetworkLoadResult{
-			Networks:           []*storage.Network{&expectedn1, &expectedn2},
+			Networks:           []*storage.Network{expectedn1, expectedn2},
 			NetworkIDsNotFound: []string{"n3"},
 		},
-		&loadNetworksActual,
+		loadNetworksActual,
 	)
 	assert.True(t, equal)
 	err = store.Commit()
@@ -152,10 +152,10 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 	equal = proto.Equal(
 		&storage.NetworkLoadResult{
-			Networks:           []*storage.Network{&expectedn1, &expectedn2},
+			Networks:           []*storage.Network{expectedn1, expectedn2},
 			NetworkIDsNotFound: []string{"n3"},
 		},
-		&loadNetworksActual,
+		loadNetworksActual,
 	)
 	assert.True(t, equal)
 	assert.NoError(t, store.Commit())
@@ -167,16 +167,16 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	store, err = factory.StartTransaction(context.Background(), nil)
 	assert.NoError(t, err)
 
-	expectedn3 := storage.Network{ID: "n3", Type: "type1"}
-	actualNetwork, err = store.CreateNetwork(&expectedn3)
+	expectedn3 := &storage.Network{ID: "n3", Type: "type1"}
+	actualNetwork, err = store.CreateNetwork(expectedn3)
 	assert.NoError(t, err)
-	equal = proto.Equal(&expectedn3, &actualNetwork)
+	equal = proto.Equal(expectedn3, actualNetwork)
 	assert.True(t, equal)
 
-	expectedn4 := storage.Network{ID: "n4", Type: "type2"}
-	actualNetwork, err = store.CreateNetwork(&expectedn4)
+	expectedn4 := &storage.Network{ID: "n4", Type: "type2"}
+	actualNetwork, err = store.CreateNetwork(expectedn4)
 	assert.NoError(t, err)
-	equal = proto.Equal(&expectedn4, &actualNetwork)
+	equal = proto.Equal(expectedn4, actualNetwork)
 	assert.True(t, equal)
 
 	expectedn2.Configs = map[string][]uint8{}
@@ -188,10 +188,10 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	assert.NoError(t, err)
 	equal = proto.Equal(
 		&storage.NetworkLoadResult{
-			Networks:           []*storage.Network{&expectedn2, &expectedn4},
+			Networks:           []*storage.Network{expectedn2, expectedn4},
 			NetworkIDsNotFound: []string{},
 		},
-		&loadNetworksActual,
+		loadNetworksActual,
 	)
 	assert.True(t, equal)
 	assert.NoError(t, store.Commit())
@@ -205,7 +205,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	actualEntityLoad, err := store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
-	equal = proto.Equal(&storage.EntityLoadResult{}, &actualEntityLoad)
+	equal = proto.Equal(&storage.EntityLoadResult{}, actualEntityLoad)
 	assert.True(t, equal)
 
 	actualEntityLoad, err = store.LoadEntities(
@@ -226,7 +226,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 				{Type: "foo", Key: "bar"},
 			},
 		},
-		&actualEntityLoad,
+		actualEntityLoad,
 	)
 	assert.True(t, equal)
 	assert.NoError(t, store.Commit())
@@ -318,12 +318,12 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	equal = proto.Equal(
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
-				&expectedBarbazEnt,
-				&expectedBazquzEnt,
-				&expectedFoobarEnt,
+				expectedBarbazEnt,
+				expectedBazquzEnt,
+				expectedFoobarEnt,
 			},
 		},
-		&actualEntityLoad,
+		actualEntityLoad,
 	)
 	assert.True(t, equal)
 	assert.NoError(t, store.Commit())
@@ -338,10 +338,10 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	equal = proto.Equal(
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
-				&expectedFoobarEnt,
+				expectedFoobarEnt,
 			},
 		},
-		&actualEntityLoad,
+		actualEntityLoad,
 	)
 	assert.True(t, equal)
 	assert.NoError(t, store.Commit())
@@ -406,10 +406,10 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			Config:      newConfig,
 			Version:     1,
 		},
-		&updateHelloWorldEntResult,
+		updateHelloWorldEntResult,
 	)
 	assert.True(t, equal)
-	expectedHelloWorldEnt := proto.Clone(&updateHelloWorldEntResult).(*storage.NetworkEntity)
+	expectedHelloWorldEnt := updateHelloWorldEntResult
 
 	// create assocs to each of the previous 3 ents, helloworld's graph ID should be 2
 	// At this point, the graph should look like
@@ -451,7 +451,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			},
 			Version: 2,
 		},
-		&updateHelloWorldEntResult,
+		updateHelloWorldEntResult,
 	)
 	assert.True(t, equal)
 
@@ -474,7 +474,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{expectedHelloWorldEnt},
 		},
-		&actualEntityLoad,
+		actualEntityLoad,
 	)
 	assert.True(t, equal)
 	assert.NoError(t, store.Commit())
@@ -494,7 +494,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	expectedBarbazEnt.ParentAssociations = append(expectedBarbazEnt.ParentAssociations, &storage.EntityID{Type: "hello", Key: "world"})
 	expectedBazquzEnt.ParentAssociations = []*storage.EntityID{{Type: "hello", Key: "world"}}
 
-	expectedFoobarEnt = storage.NetworkEntity{
+	expectedFoobarEnt = &storage.NetworkEntity{
 		NetworkID:  "n1",
 		Type:       "foo",
 		Key:        "bar",
@@ -507,7 +507,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 		},
 	}
 
-	expectedBarbazEnt = storage.NetworkEntity{
+	expectedBarbazEnt = &storage.NetworkEntity{
 		NetworkID: "n1",
 		Type:      "bar",
 		Key:       "baz",
@@ -519,7 +519,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 		},
 	}
 
-	expectedBazquzEnt = storage.NetworkEntity{
+	expectedBazquzEnt = &storage.NetworkEntity{
 		NetworkID: "n1",
 		Type:      "baz",
 		Key:       "quz",
@@ -549,11 +549,11 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 		Version: 2,
 	}
 
-	expectedGraph2 := storage.EntityGraph{
+	expectedGraph2 := &storage.EntityGraph{
 		Entities: []*storage.NetworkEntity{
-			&expectedBarbazEnt,
-			&expectedBazquzEnt,
-			&expectedFoobarEnt,
+			expectedBarbazEnt,
+			expectedBazquzEnt,
+			expectedFoobarEnt,
 			expectedHelloWorldEnt,
 		},
 		RootEntities: []*storage.EntityID{{Type: "hello", Key: "world"}},
@@ -565,12 +565,12 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			{From: &storage.EntityID{Type: "hello", Key: "world"}, To: &storage.EntityID{Type: "foo", Key: "bar"}},
 		},
 	}
-	equal = proto.Equal(&expectedGraph2, &actualGraph2)
+	equal = proto.Equal(expectedGraph2, actualGraph2)
 	assert.True(t, equal)
 
 	// Load a graph from the ID of a node in the middle
 	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "baz", Key: "quz"}, &storage.EntityLoadCriteria{})
-	equal = proto.Equal(&expectedGraph2, &actualGraph2)
+	equal = proto.Equal(expectedGraph2, actualGraph2)
 	assert.True(t, equal)
 
 	// Load a graph with full load criteria
@@ -592,11 +592,11 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	expectedHelloWorldEnt.Description = "helloworld2 ent"
 	expectedHelloWorldEnt.Config = []byte("second config")
 
-	expectedGraph2 = storage.EntityGraph{
+	expectedGraph2 = &storage.EntityGraph{
 		Entities: []*storage.NetworkEntity{
-			&expectedBarbazEnt,
-			&expectedBazquzEnt,
-			&expectedFoobarEnt,
+			expectedBarbazEnt,
+			expectedBazquzEnt,
+			expectedFoobarEnt,
 			expectedHelloWorldEnt,
 		},
 		RootEntities: []*storage.EntityID{{Type: "hello", Key: "world"}},
@@ -608,7 +608,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 			{From: &storage.EntityID{Type: "hello", Key: "world"}, To: &storage.EntityID{Type: "foo", Key: "bar"}},
 		},
 	}
-	equal = proto.Equal(&expectedGraph2, &actualGraph2)
+	equal = proto.Equal(expectedGraph2, actualGraph2)
 	assert.True(t, equal)
 	assert.NoError(t, store.Commit())
 
@@ -648,11 +648,11 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	expectedFoobarEnt.ParentAssociations = []*storage.EntityID{{Type: "baz", Key: "quz"}}
 	expectedBarbazEnt.ParentAssociations = []*storage.EntityID{{Type: "baz", Key: "quz"}}
 
-	expectedGraph2 = storage.EntityGraph{
+	expectedGraph2 = &storage.EntityGraph{
 		Entities: []*storage.NetworkEntity{
-			&expectedBarbazEnt,
-			&expectedBazquzEnt,
-			&expectedFoobarEnt,
+			expectedBarbazEnt,
+			expectedBazquzEnt,
+			expectedFoobarEnt,
 			expectedHelloWorldEnt,
 		},
 		RootEntities: []*storage.EntityID{{Type: "hello", Key: "world"}},
@@ -664,7 +664,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	}
 	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "hello", Key: "world"}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
-	equal = proto.Equal(&expectedGraph2, &actualGraph2)
+	equal = proto.Equal(expectedGraph2, actualGraph2)
 	assert.True(t, equal)
 
 	// delete assoc to bazquz, helloworld should have a new graph ID
@@ -685,11 +685,11 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	expectedBazquzEnt.ParentAssociations = nil
 
 	// first, check graph of foobar which should be unchanged
-	expectedGraph2 = storage.EntityGraph{
+	expectedGraph2 = &storage.EntityGraph{
 		Entities: []*storage.NetworkEntity{
-			&expectedBarbazEnt,
-			&expectedBazquzEnt,
-			&expectedFoobarEnt,
+			expectedBarbazEnt,
+			expectedBazquzEnt,
+			expectedFoobarEnt,
 		},
 		RootEntities: []*storage.EntityID{{Type: "baz", Key: "quz"}},
 		Edges: []*storage.GraphEdge{
@@ -699,11 +699,11 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	}
 	actualGraph2, err = store.LoadGraphForEntity("n1", &storage.EntityID{Type: "foo", Key: "bar"}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
-	equal = proto.Equal(&expectedGraph2, &actualGraph2)
+	equal = proto.Equal(expectedGraph2, actualGraph2)
 	assert.True(t, equal)
 
 	// helloworld should be in its own graph now. ID generator was at 9.
-	expectedGraph9 := storage.EntityGraph{
+	expectedGraph9 := &storage.EntityGraph{
 		Entities: []*storage.NetworkEntity{
 			expectedHelloWorldEnt,
 		},
@@ -712,7 +712,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	}
 	actualGraph9, err := store.LoadGraphForEntity("n1", &storage.EntityID{Type: "hello", Key: "world"}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
-	equal = proto.Equal(&expectedGraph9, &actualGraph9)
+	equal = proto.Equal(expectedGraph9, actualGraph9)
 	assert.True(t, equal)
 
 	// now, delete bazquz. this should partition the network into 3 different
@@ -722,7 +722,8 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	allEnts, err := store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
-	assert.NotNil(t, proto.Clone(&allEnts).(*storage.EntityLoadResult))
+	equal = proto.Equal(&storage.EntityLoadResult{}, allEnts)
+	assert.False(t, equal)
 
 	expectedBarbazEnt.ParentAssociations = nil
 	expectedFoobarEnt.GraphID = "10"
@@ -731,12 +732,12 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	equal = proto.Equal(
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
-				&expectedBarbazEnt,
-				&expectedFoobarEnt,
+				expectedBarbazEnt,
+				expectedFoobarEnt,
 				expectedHelloWorldEnt,
 			},
 		},
-		&allEnts,
+		allEnts,
 	)
 	assert.True(t, equal)
 
@@ -776,17 +777,18 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	allEnts, err = store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
-	assert.NotNil(t, proto.Clone(&allEnts).(*storage.EntityLoadResult))
+	equal = proto.Equal(&storage.EntityLoadResult{}, allEnts)
+	assert.False(t, equal)
 
 	equal = proto.Equal(
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
-				&expectedBarbazEnt,
-				&expectedFoobarEnt,
+				expectedBarbazEnt,
+				expectedFoobarEnt,
 				expectedHelloWorldEnt,
 			},
 		},
-		&allEnts,
+		allEnts,
 	)
 	assert.True(t, equal)
 
@@ -812,17 +814,18 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 
 	allEnts, err = store.LoadEntities("n1", &storage.EntityLoadFilter{}, &storage.FullEntityLoadCriteria)
 	assert.NoError(t, err)
-	assert.NotNil(t, proto.Clone(&allEnts).(*storage.EntityLoadResult))
+	equal = proto.Equal(&storage.EntityLoadResult{}, allEnts)
+	assert.False(t, equal)
 
-	proto.Equal(
+	equal = proto.Equal(
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
-				&expectedBarbazEnt,
-				&expectedFoobarEnt,
+				expectedBarbazEnt,
+				expectedFoobarEnt,
 				expectedHelloWorldEnt,
 			},
 		},
-		&allEnts,
+		allEnts,
 	)
 	assert.True(t, equal)
 
@@ -882,12 +885,12 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	equal = proto.Equal(
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
-				&expectedFoobarEnt, // type: foo, key: bar
-				&expectedFoohueEnt, // type: foo, key: hue
+				expectedFoobarEnt, // type: foo, key: bar
+				expectedFoohueEnt, // type: foo, key: hue
 			},
 			NextPageToken: expectedNextToken,
 		},
-		&actualEntityLoad,
+		actualEntityLoad,
 	)
 	assert.True(t, equal)
 
@@ -902,11 +905,11 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	equal = proto.Equal(
 		&storage.EntityLoadResult{
 			Entities: []*storage.NetworkEntity{
-				&expectedFoozedEnt, // type: foo, key: zed
+				expectedFoozedEnt, // type: foo, key: zed
 			},
 			NextPageToken: "",
 		},
-		&actualEntityLoad,
+		actualEntityLoad,
 	)
 	assert.True(t, equal)
 
