@@ -128,7 +128,7 @@ func TestSqlConfiguratorStorage_Integration(t *testing.T) {
 	_, err = store.CreateNetwork(&storage.Network{ID: "n3"})
 	assert.NoError(t, err)
 
-	updates := []storage.NetworkUpdateCriteria{
+	updates := []*storage.NetworkUpdateCriteria{
 		{ID: "n1", NewName: &wrappers.StringValue{Value: "New Network 1"}, NewDescription: &wrappers.StringValue{Value: "New Network 1 description"}, ConfigsToDelete: []string{"goodbye"}, ConfigsToAddOrUpdate: map[string][]byte{"foo": []byte("bar")}},
 		{ID: "n2", ConfigsToDelete: []string{"dne"}, ConfigsToAddOrUpdate: map[string][]byte{"baz": []byte("quz")}},
 		{ID: "n3", DeleteNetwork: true},
