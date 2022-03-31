@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"magma/dp/cloud/go/active_mode_controller/internal/message_generator/sas"
@@ -17,7 +16,7 @@ func TestGrantRequestGenerator(t *testing.T) {
 		capabilities  *active_mode.EirpCapabilities
 		channels      []*active_mode.Channel
 		grantAttempts int
-		preferences   active_mode.FrequencyPreferences
+		preferences   *active_mode.FrequencyPreferences
 		expected      *grantParams
 	}{{
 		name:         "Should generate grant request with default max eirp",
@@ -26,6 +25,7 @@ func TestGrantRequestGenerator(t *testing.T) {
 			LowFrequencyHz:  3620 * 1e6,
 			HighFrequencyHz: 3630 * 1e6,
 		}},
+		preferences: new(active_mode.FrequencyPreferences),
 		expected: &grantParams{
 			maxEirp:       37,
 			lowFrequency:  3620 * 1e6,
@@ -39,6 +39,7 @@ func TestGrantRequestGenerator(t *testing.T) {
 			HighFrequencyHz: 3635 * 1e6,
 			MaxEirp:         wrapperspb.Float(15),
 		}},
+		preferences: new(active_mode.FrequencyPreferences),
 		expected: &grantParams{
 			maxEirp:       15,
 			lowFrequency:  3625 * 1e6,
@@ -55,6 +56,7 @@ func TestGrantRequestGenerator(t *testing.T) {
 			LowFrequencyHz:  3625 * 1e6,
 			HighFrequencyHz: 3635 * 1e6,
 		}},
+		preferences: new(active_mode.FrequencyPreferences),
 		expected: &grantParams{
 			maxEirp:       28,
 			lowFrequency:  3625 * 1e6,
@@ -70,6 +72,7 @@ func TestGrantRequestGenerator(t *testing.T) {
 			LowFrequencyHz:  3560 * 1e6,
 			HighFrequencyHz: 3570 * 1e6,
 		}},
+		preferences: new(active_mode.FrequencyPreferences),
 		expected: &grantParams{
 			maxEirp:       37,
 			lowFrequency:  3550 * 1e6,
@@ -82,26 +85,22 @@ func TestGrantRequestGenerator(t *testing.T) {
 			LowFrequencyHz:  3550 * 1e6,
 			HighFrequencyHz: 3553 * 1e6,
 		}},
+		preferences: new(active_mode.FrequencyPreferences),
 		expected: nil,
 	}, {
 		name:         "Should not generate anything if there are no channels",
 		capabilities: getDefaultCapabilities(),
+		preferences: new(active_mode.FrequencyPreferences),
 		expected:     nil,
 	}}
 	for _, tt := range data {
 		t.Run(tt.name, func(t *testing.T) {
-			capabilities := proto.Clone(tt.capabilities).(*active_mode.EirpCapabilities)
-			preferences := proto.Clone(&tt.preferences).(*active_mode.FrequencyPreferences)
-			var channels []*active_mode.Channel
-			for _, ch := range tt.channels {
-				channels = append(channels, proto.Clone(ch).(*active_mode.Channel))
-			}
 			cbsd := &active_mode.Cbsd{
 				Id:               "some_cbsd_id",
-				Channels:         channels,
-				EirpCapabilities: capabilities,
+				Channels:         tt.channels,
+				EirpCapabilities: tt.capabilities,
 				GrantAttempts:    int32(tt.grantAttempts),
-				Preferences:      preferences,
+				Preferences:      tt.preferences,
 			}
 			g := sas.NewGrantRequestGenerator(stubRNG{})
 			actual := g.GenerateRequests(cbsd)
