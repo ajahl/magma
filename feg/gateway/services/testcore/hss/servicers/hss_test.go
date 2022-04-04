@@ -18,9 +18,9 @@ import (
 	"net"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 
 	fegprotos "magma/feg/cloud/go/protos"
 	"magma/feg/gateway/services/testcore/hss/servicers/test_utils"

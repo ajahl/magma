@@ -18,9 +18,9 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/ishidawataru/sctp"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 
 	"magma/feg/cloud/go/protos"
 	"magma/feg/gateway/services/csfb/servicers"

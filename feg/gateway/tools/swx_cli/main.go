@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 
 	"magma/feg/cloud/go/protos"
 	"magma/feg/gateway/diameter"

@@ -13,7 +13,7 @@ limitations under the License.
 package radius
 
 import (
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 
 	"magma/feg/cloud/go/protos/mconfig"
 )

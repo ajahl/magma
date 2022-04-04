@@ -21,11 +21,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/wmnsk/go-gtp/gtpv2"
 	"github.com/wmnsk/go-gtp/gtpv2/ie"
+	"google.golang.org/protobuf/proto"
 
 	"magma/feg/cloud/go/protos"
 	"magma/feg/gateway/gtp"

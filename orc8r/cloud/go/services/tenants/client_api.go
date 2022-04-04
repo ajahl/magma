@@ -17,9 +17,9 @@ import (
 	"context"
 
 	"github.com/golang/glog"
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	tenant_protos "magma/orc8r/cloud/go/services/tenants/protos"
 	"magma/orc8r/lib/go/merrors"

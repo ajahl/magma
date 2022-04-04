@@ -20,9 +20,9 @@ import (
 	"sort"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/thoas/go-funk"
+	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/sqorc"
 	"magma/orc8r/cloud/go/storage"
