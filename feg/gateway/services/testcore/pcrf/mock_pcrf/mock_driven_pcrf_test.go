@@ -379,4 +379,3 @@ func TestEqualSlices(t *testing.T) {
 	equal = equalRDefSlices(slice1, slice2)
 	assert.False(t, equal)
 }
-
