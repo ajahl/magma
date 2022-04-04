@@ -301,10 +301,9 @@ func getMockReAuthHandler() gx.PolicyReAuthHandler {
 	}
 }
 
-// Only for testing purposes.
-
-// compare two slices with *fegprotos.RuleDefinition message pointers. Slices can be unsorted and
-// contain duplicates. Equality of elements is determined with proto.Equal
+// compare two slices with *fegprotos.RuleDefinition message pointers. Slices can be unsorted.
+// If duplicates exist, each has to appear the same number of times in both lists.
+// Equality of elements is determined with proto.Equal
 func equalRDefSlices(expect []*fegprotos.RuleDefinition, actual []*fegprotos.RuleDefinition) bool {
 	if len(expect) != len(actual) {
 		return false
@@ -320,14 +319,12 @@ func equalRDefSlices(expect []*fegprotos.RuleDefinition, actual []*fegprotos.Rul
 			}
 		}
 	}
-	if len(matched) != len(expect) {
-		return false
-	}
-	return true
+	return len(matched) == len(expect)
 }
 
-// compare two slices with *fegprotos.UsageMonitoringInformation message pointers. Slices can be unsorted and
-// contain duplicates. Equality of elements is determined with proto.Equal
+// compare two slices with *fegprotos.UsageMonitoringInformation message pointers. Slices can be unsorted.
+// If duplicates exist, each has to appear the same number of times in both lists.
+// Equality of elements is determined with proto.Equal
 func equalUMISlices(expect []*fegprotos.UsageMonitoringInformation, actual []*fegprotos.UsageMonitoringInformation) bool {
 	if len(expect) != len(actual) {
 		return false
@@ -343,10 +340,7 @@ func equalUMISlices(expect []*fegprotos.UsageMonitoringInformation, actual []*fe
 			}
 		}
 	}
-	if len(matched) != len(expect) {
-		return false
-	}
-	return true
+	return len(matched) == len(expect)
 }
 
 func contains(s []int, j int) bool {
@@ -360,7 +354,7 @@ func contains(s []int, j int) bool {
 
 func TestEqualSlices(t *testing.T) {
 	msg1 := &fegprotos.RuleDefinition{RuleName: "rule1", RatingGroup: 1, Precedence: 2}
-	msg2 := &fegprotos.RuleDefinition{RuleName: "rule1", RatingGroup: 1, Precedence: 3}
+	msg2 := &fegprotos.RuleDefinition{RuleName: "rule2", RatingGroup: 1, Precedence: 2}
 
 	// empty slices
 	var slice1 []*fegprotos.RuleDefinition
