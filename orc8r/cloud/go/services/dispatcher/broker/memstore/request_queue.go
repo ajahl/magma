@@ -115,6 +115,6 @@ func (queues *requestQueueImpl) Enqueue(gwReq *protos.SyncRPCRequest) error {
 	case reqQueue <- gwReq:
 		return nil
 	case <-time.After(queueingTimeout):
-		return fmt.Errorf("Failed to enqueue %v because queue for gwId %v is full\n", gwReq, gwId)
+		return fmt.Errorf("Failed to enqueue %v because queue for gwId %v is full\n", gwReq.String(), gwId)
 	}
 }
