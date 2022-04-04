@@ -80,7 +80,7 @@ func RunUnitTest(t *testing.T, e *echo.Echo, test Test) {
 		// that off before comparing
 		if httpErr, ok := handlerErr.(*echo.HTTPError); ok {
 			// Coerce returned message to string, to avoid type mismatches
-			assert.Equal(t, test.ExpectedError, fmt.Sprintf("%s", httpErr.Message))
+			assert.Equal(t, test.ExpectedError, strings.Replace(fmt.Sprintf("%s", httpErr.Message), "  ", " ", -1))
 		} else {
 			assert.EqualError(t, handlerErr, test.ExpectedError)
 		}
