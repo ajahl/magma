@@ -209,74 +209,6 @@ func startServerWithExpectations(
 	return pcrf
 }
 
-// // playing with Go Generics. Fails when it reaches proto.Equal. Type doesn't implement certain interface etc. But works in non-generic version.
-// func equalProtoLists[S fegprotos.UsageMonitoringInformation | fegprotos.RuleDefinition](expect []*S, actual []*S) bool {
-// 	if len(expect) != len(actual) {
-// 		return false
-// 	}
-// 	for _, act := range actual {
-// 		var matched []int
-// 		for j, exp := range expect {
-// 			if contains(matched, j) {
-// 				continue
-// 			} else if proto.Equal(exp, act) {
-// 				matched = append(matched, j)
-// 				break
-// 			}
-// 		}
-// 	}
-// 	return true
-// }
-
-func contains(s []int, j int) bool {
-	for _, k := range s {
-		if j == k {
-			return true
-		}
-	}
-	return false
-}
-
-// compare two slices with *fegprotos.RuleDefinition message pointers. Slices do not have to be sorted and can
-// contain duplicates. Equality of elements is determined with proto.Equal
-func equalRDefSlices(expect []*fegprotos.RuleDefinition, actual []*fegprotos.RuleDefinition) bool {
-	if len(expect) != len(actual) {
-		return false
-	}
-	var matched []int
-	for _, act := range actual {
-		for j, exp := range expect {
-			if contains(matched, j) {
-				continue
-			} else if proto.Equal(exp, act) {
-				matched = append(matched, j)
-				break
-			}
-		}
-	}
-	return true
-}
-
-// compare two slices with *fegprotos.UsageMonitoringInformation message pointers. Slices do not have to be sorted and can
-// contain duplicates. Equality of elements is determined with proto.Equal
-func equalUMISlices(expect []*fegprotos.UsageMonitoringInformation, actual []*fegprotos.UsageMonitoringInformation) bool {
-	if len(expect) != len(actual) {
-		return false
-	}
-	var matched []int
-	for _, act := range actual {
-		for j, exp := range expect {
-			if contains(matched, j) {
-				continue
-			} else if proto.Equal(exp, act) {
-				matched = append(matched, j)
-				break
-			}
-		}
-	}
-	return true
-}
-
 func assertCCAIsEqualToExpectedAnswer(t *testing.T, actual *gx.CreditControlAnswer, expectation *fegprotos.GxCreditControlAnswer) {
 	ruleNames, ruleBaseNames, ruleDefinitions := getRuleInstallsFromCCA(actual)
 	assert.ElementsMatch(t, expectation.GetRuleInstalls().GetRuleNames(), ruleNames)
@@ -368,3 +300,89 @@ func getMockReAuthHandler() gx.PolicyReAuthHandler {
 		}
 	}
 }
+
+// Only for testing purposes.
+
+// compare two slices with *fegprotos.RuleDefinition message pointers. Slices can be unsorted and
+// contain duplicates. Equality of elements is determined with proto.Equal
+func equalRDefSlices(expect []*fegprotos.RuleDefinition, actual []*fegprotos.RuleDefinition) bool {
+	if len(expect) != len(actual) {
+		return false
+	}
+	var matched []int
+	for _, act := range actual {
+		for j, exp := range expect {
+			if contains(matched, j) {
+				continue
+			} else if proto.Equal(exp, act) {
+				matched = append(matched, j)
+				break
+			}
+		}
+	}
+	if len(matched) != len(expect) {
+		return false
+	}
+	return true
+}
+
+// compare two slices with *fegprotos.UsageMonitoringInformation message pointers. Slices can be unsorted and
+// contain duplicates. Equality of elements is determined with proto.Equal
+func equalUMISlices(expect []*fegprotos.UsageMonitoringInformation, actual []*fegprotos.UsageMonitoringInformation) bool {
+	if len(expect) != len(actual) {
+		return false
+	}
+	var matched []int
+	for _, act := range actual {
+		for j, exp := range expect {
+			if contains(matched, j) {
+				continue
+			} else if proto.Equal(exp, act) {
+				matched = append(matched, j)
+				break
+			}
+		}
+	}
+	if len(matched) != len(expect) {
+		return false
+	}
+	return true
+}
+
+func contains(s []int, j int) bool {
+	for _, k := range s {
+		if j == k {
+			return true
+		}
+	}
+	return false
+}
+
+func TestEqualSlices(t *testing.T) {
+	msg1 := &fegprotos.RuleDefinition{RuleName: "rule1", RatingGroup: 1, Precedence: 2}
+	msg2 := &fegprotos.RuleDefinition{RuleName: "rule1", RatingGroup: 1, Precedence: 3}
+
+	// empty slices
+	var slice1 []*fegprotos.RuleDefinition
+	var slice2 []*fegprotos.RuleDefinition
+	equal := equalRDefSlices(slice1, slice2)
+	assert.True(t, equal)
+
+	// slices of different length
+	slice1 = append(slice1, msg1)
+	equal = equalRDefSlices(slice1, slice2)
+	assert.False(t, equal)
+
+	// matching slices of equal length
+	slice1 = append(slice1, msg2, msg1)
+	slice2 = append(slice2, msg1, msg1, msg2)
+	equal = equalRDefSlices(slice1, slice2)
+	assert.True(t, equal)
+
+	// non-matching slices of equal length
+	slice1 = append(slice1, msg1)
+	slice2 = append(slice2, msg2)
+	equal = equalRDefSlices(slice1, slice2)
+	assert.False(t, equal)
+}
+
