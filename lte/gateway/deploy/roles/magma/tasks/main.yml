@@ -329,6 +329,13 @@
     - gmock
   when: preburn
 
+- name: Remove existing golang installation
+  # TODO: make golang installation preburn and delete this step
+  # it is necessary because the old golang installation has to be removed
+  # before installing the new one (https://go.dev/doc/install)
+  shell: rm -rf /usr/local/go
+  when: full_provision
+
 - name: Download golang tar
   # TODO: make this preburn again
   get_url:
