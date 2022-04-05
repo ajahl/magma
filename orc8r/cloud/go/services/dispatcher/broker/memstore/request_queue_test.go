@@ -55,7 +55,7 @@ func TestRequestQueueImpl_EnqueueFullQueue(t *testing.T) {
 	err := queue.Enqueue(&req)
 	assert.NoError(t, err)
 	err = queue.Enqueue(&req)
-	expectedError := "Failed to enqueue$$reqId:3" + tests.Separator + "reqBody:{gwId:\"gwId1\"}" + tests.Separator + "because queue for gwId" + tests.Separator + "gwId1" + tests.Separator + "is full\n"
+	expectedError := "Failed to enqueue" + tests.Separator + "reqId:3" + tests.Separator + "reqBody:{gwId:\"gwId1\"}" + tests.Separator + "because queue for gwId" + tests.Separator + "gwId1" + tests.Separator + "is full\n"
 	errCompare := tests.CompareErrors(expectedError, err.Error())
 	assert.NoError(t, errCompare)
 	// should still be able to enqueue for other gateways
