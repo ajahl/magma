@@ -16,8 +16,6 @@ package servicers_test
 import (
 	"testing"
 
-	"magma/orc8r/cloud/go/obsidian/tests"
-
 	"github.com/go-openapi/swag"
 	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
@@ -28,6 +26,7 @@ import (
 	feg_service "magma/feg/cloud/go/services/feg"
 	"magma/feg/cloud/go/services/feg/obsidian/models"
 	feg_test_init "magma/feg/cloud/go/services/feg/test_init"
+	"magma/orc8r/cloud/go/obsidian/tests"
 	"magma/orc8r/cloud/go/orc8r"
 	"magma/orc8r/cloud/go/services/configurator"
 	"magma/orc8r/cloud/go/services/configurator/mconfig"
