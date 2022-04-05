@@ -1648,7 +1648,7 @@ func TestSubscriberBasename(t *testing.T) {
 		ParamNames:             []string{"network_id"},
 		ParamValues:            []string{"n0"},
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `code=500, message=could not find entities matching [type:"base_name" key:"baseXXX"]`,
+		ExpectedErrorSubstring: "code=500, message=could not find entities matching" + tests.Separator + "[type:\"base_name\"" + tests.Separator + "key:\"baseXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -1694,7 +1694,7 @@ func TestSubscriberBasename(t *testing.T) {
 		ParamValues:            []string{"n0", imsi},
 		Handler:                putSubscriber,
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"base_name" key:"baseXXX"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"base_name\"" + tests.Separator + "key:\"baseXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -1766,7 +1766,7 @@ func TestSubscriberPolicy(t *testing.T) {
 		ParamNames:             []string{"network_id"},
 		ParamValues:            []string{"n0"},
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `code=500, message=could not find entities matching [type:"policy" key:"ruleXXX"]`,
+		ExpectedErrorSubstring: "code=500, message=could not find entities matching" + tests.Separator + "[type:\"policy\"" + tests.Separator + "key:\"ruleXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -1812,7 +1812,7 @@ func TestSubscriberPolicy(t *testing.T) {
 		ParamValues:            []string{"n0", imsi},
 		Handler:                putSubscriber,
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"policy" key:"ruleXXX"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"policy\"" + tests.Separator + "key:\"ruleXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -1998,7 +1998,7 @@ func TestAPNPolicyProfile(t *testing.T) {
 		ParamNames:             []string{"network_id"},
 		ParamValues:            []string{"n0"},
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"apn" key:"apnXXX"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"apn\"" + tests.Separator + "key:\"apnXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -2012,7 +2012,7 @@ func TestAPNPolicyProfile(t *testing.T) {
 		ParamNames:             []string{"network_id"},
 		ParamValues:            []string{"n0"},
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"policy" key:"ruleXXX"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"policy\"" + tests.Separator + "key:\"ruleXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -2065,7 +2065,7 @@ func TestAPNPolicyProfile(t *testing.T) {
 		ParamValues:            []string{"n0", imsi},
 		Handler:                putSubscriber,
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"apn" key:"apnXXX"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"apn\"" + tests.Separator + "key:\"apnXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -2079,7 +2079,7 @@ func TestAPNPolicyProfile(t *testing.T) {
 		ParamValues:            []string{"n0", imsi},
 		Handler:                putSubscriber,
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"policy" key:"ruleXXX"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"policy\"" + tests.Separator + "key:\"ruleXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 

@@ -1248,7 +1248,7 @@ func TestCreateGateway(t *testing.T) {
 		ParamNames:     []string{"network_id"},
 		ParamValues:    []string{"n1"},
 		ExpectedStatus: 500,
-		ExpectedError:  "error creating gateway: rpc error: code = Internal desc = could not find entities matching [type:\"cellular_enodeb\"  key:\"dne\"]",
+		ExpectedError:  "error creating gateway: rpc error: code = Internal desc = could not find entities matching" + tests.Separator + "[type:\"cellular_enodeb\"" + tests.Separator + "key:\"dne\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -3351,7 +3351,7 @@ func TestAPNResource(t *testing.T) {
 		ParamNames:             []string{"network_id"},
 		ParamValues:            []string{"n0"},
 		ExpectedStatus:         500, // this would actually make more sense as a 400, but it's a non-trivial fix
-		ExpectedErrorSubstring: `could not find entities matching [type:"apn"  key:"apn0"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"apn\"" + tests.Separator + "key:\"apn0\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 
@@ -3425,7 +3425,7 @@ func TestAPNResource(t *testing.T) {
 		ParamValues:            []string{"n0", "gw0"},
 		Handler:                putGateway,
 		ExpectedStatus:         500, // would make more sense as 400
-		ExpectedErrorSubstring: `could not find entities matching [type:"apn"  key:"apnXXX"]`,
+		ExpectedErrorSubstring: "could not find entities matching" + tests.Separator + "[type:\"apn\"" + tests.Separator + "key:\"apnXXX\"]",
 	}
 	tests.RunUnitTest(t, e, tc)
 

@@ -89,7 +89,8 @@ func RunUnitTest(t *testing.T, e *echo.Echo, test Test) {
 		if handlerErr == nil {
 			assert.Fail(t, "unexpected nil error", "error was nil but was expecting %s", test.ExpectedErrorSubstring)
 		} else {
-			assert.Contains(t, handlerErr.Error(), test.ExpectedErrorSubstring)
+			err := CompareErrors(test.ExpectedErrorSubstring, handlerErr.Error())
+			assert.NoError(t, err)
 		}
 	} else {
 		if assert.NoError(t, handlerErr) && test.ExpectedResult != nil {
