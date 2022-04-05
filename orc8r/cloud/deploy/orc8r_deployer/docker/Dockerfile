@@ -49,7 +49,7 @@ RUN wget https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/lin
 ARG HELM_VERSION="3.5.1"
 RUN HELM_TARBALL="helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
  && wget --no-verbose https://get.helm.sh/${HELM_TARBALL} \
- && tar --strip-components=1 -C /user/local/bin -xzf ${HELM_TARBALL} linux-amd64/helm \
+ && tar --strip-components=1 -C /usr/local/bin -xzf ${HELM_TARBALL} linux-amd64/helm \
  && rm ${HELM_TARBALL}
 
 # Install terraform
