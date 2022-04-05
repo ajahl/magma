@@ -16,6 +16,8 @@ package servicers_test
 import (
 	"testing"
 
+	"magma/orc8r/cloud/go/obsidian/tests"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/golang/protobuf/proto"
@@ -208,7 +210,7 @@ func TestBuilder_Build(t *testing.T) {
 	// Happy path
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// Break with non-allowed network service
 	setEPCNetworkServices([]string{"0xdeadbeef"}, &nw)
@@ -233,7 +235,7 @@ func TestBuilder_Build(t *testing.T) {
 	}
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// verify restricted plmns
 	setEpcNetworkRestrictedPlmns(&nw, []*lte_models.PlmnConfig{
@@ -260,7 +262,7 @@ func TestBuilder_Build(t *testing.T) {
 
 	actual, err = buildLTEFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// verify restricted imei
 	setEpcNetworkRestrictedImeis(&nw, []*lte_models.Imei{
@@ -286,7 +288,7 @@ func TestBuilder_Build(t *testing.T) {
 
 	actual, err = buildLTEFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// verify service area map
 	setEpcNetworkServiceAreaMap(&nw, map[string]lte_models.TacList{
@@ -303,7 +305,7 @@ func TestBuilder_Build(t *testing.T) {
 	}
 	actual, err = buildLTEFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func TestBuilder_Build_NonNat(t *testing.T) {
@@ -424,7 +426,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 	}
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	setEPCNetworkIPAllocator(&nw, lte_models.DHCPBroadcastAllocationMode, false, false)
 	expected["mobilityd"] = &lte_mconfig.MobilityD{
@@ -435,7 +437,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 	}
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	setEPCNetworkIPAllocator(&nw, lte_models.NATAllocationMode, false, false)
 	expected["mobilityd"] = &lte_mconfig.MobilityD{
@@ -446,7 +448,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 	}
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	setEPCNetworkIPAllocator(&nw, lte_models.NATAllocationMode, true, false)
 	expected["mobilityd"] = &lte_mconfig.MobilityD{
@@ -457,7 +459,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 	}
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	setEPCNetworkIPAllocator(&nw, lte_models.DHCPBroadcastAllocationMode, true, false)
 	expected["mobilityd"] = &lte_mconfig.MobilityD{
@@ -468,7 +470,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 	}
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// validate multi apn mconfig
 	setEPCNetworkIPAllocator(&nw, lte_models.DHCPBroadcastAllocationMode, true, true)
@@ -481,7 +483,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 	}
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// validate SGi vlan tag mconfig
 	lteGW = configurator.NetworkEntity{
@@ -512,7 +514,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// validate SGi ip address
 	// validate SGi vlan tag mconfig
@@ -545,7 +547,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// validate SGi ip address and gateway
 	// validate SGi vlan tag mconfig
@@ -579,7 +581,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// validate SGi ipv6 address and gateway
 	// validate SGi vlan tag mconfig
@@ -613,7 +615,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// validate SGi ipv4 and ipv6 address and gateway
 	// validate SGi vlan tag mconfig
@@ -649,7 +651,7 @@ func TestBuilder_Build_NonNat(t *testing.T) {
 
 	actual, err = buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func TestBuilder_Build_NgcConfig(t *testing.T) {
@@ -774,7 +776,7 @@ func TestBuilder_Build_NgcConfig(t *testing.T) {
 
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func TestBuilder_Build_BaseCase(t *testing.T) {
@@ -912,7 +914,7 @@ func TestBuilder_Build_BaseCase(t *testing.T) {
 
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func TestBuilder_Build_ConfigOverride(t *testing.T) {
@@ -1148,7 +1150,7 @@ func TestBuilder_Build_FederatedBaseCase(t *testing.T) {
 	// Use LTE FEG NETWORK parser for this case
 	actual, err := buildLTEFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 // Minimal configuration of enodeB, inherit rest of props from nw/gw configs
@@ -1299,7 +1301,7 @@ func TestBuilder_BuildInheritedProperties(t *testing.T) {
 
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func TestBuilder_BuildUnmanagedEnbConfig(t *testing.T) {
@@ -1436,7 +1438,7 @@ func TestBuilder_BuildUnmanagedEnbConfig(t *testing.T) {
 
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func TestBuilder_BuildCongestionControlConfig(t *testing.T) {
@@ -1579,7 +1581,7 @@ func TestBuilder_BuildCongestionControlConfig(t *testing.T) {
 
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func TestBuilder_Build_MMEPool(t *testing.T) {
@@ -1717,7 +1719,7 @@ func TestBuilder_Build_MMEPool(t *testing.T) {
 
 	actual, err := buildNonFederated(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 // buildLTEFederated builds a Federated_LTE network that comes from swagger feg_lte_network model
@@ -1927,11 +1929,4 @@ func setEpcNetworkServiceAreaMap(nw *configurator.Network, serviceAreaMaps map[s
 	cellularNwConfig := inwConfig.(*lte_models.NetworkCellularConfigs)
 	cellularNwConfig.Epc.ServiceAreaMaps = serviceAreaMaps
 	nw.Configs[lte.CellularNetworkConfigType] = cellularNwConfig
-}
-
-func assertMapsEqual(t *testing.T, expected map[string]proto.Message, actual map[string]proto.Message) {
-	assert.Equal(t, len(expected), len(actual))
-	for key := range actual {
-		assert.Equal(t, expected[key].String(), actual[key].String())
-	}
 }

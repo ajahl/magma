@@ -16,6 +16,10 @@ package tests
 import (
 	"fmt"
 	"strings"
+	"testing"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -35,4 +39,12 @@ func CompareErrors(expectedError string, actualError string) error {
 		}
 	}
 	return nil
+}
+
+// AssertMapsEqual compares two maps of with proto messages.
+func AssertMapsEqual(t *testing.T, expected map[string]proto.Message, actual map[string]proto.Message) {
+	assert.Equal(t, len(expected), len(actual))
+	for key := range actual {
+		assert.Equal(t, expected[key].String(), actual[key].String())
+	}
 }

@@ -16,6 +16,8 @@ package servicers_test
 import (
 	"testing"
 
+	"magma/orc8r/cloud/go/obsidian/tests"
+
 	"github.com/go-openapi/swag"
 	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
@@ -162,7 +164,7 @@ func TestBuilder_Build(t *testing.T) {
 
 		actual, err := build(&nw, &graph, "gw1")
 		assert.NoError(t, err)
-		assertMapsEqual(t, expected, actual)
+		tests.AssertMapsEqual(t, expected, actual)
 	})
 }
 
@@ -224,11 +226,4 @@ var defaultgwConfig = &models.GatewayCwfConfigs{
 		IP:   "192.168.128.88",
 		Port: 2040,
 	},
-}
-
-func assertMapsEqual(t *testing.T, expected map[string]proto.Message, actual map[string]proto.Message) {
-	assert.Equal(t, len(expected), len(actual))
-	for key := range actual {
-		assert.Equal(t, expected[key].String(), actual[key].String())
-	}
 }

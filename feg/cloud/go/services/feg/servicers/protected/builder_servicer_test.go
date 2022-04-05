@@ -16,6 +16,8 @@ package servicers_test
 import (
 	"testing"
 
+	"magma/orc8r/cloud/go/obsidian/tests"
+
 	"github.com/go-openapi/swag"
 	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
@@ -234,7 +236,7 @@ func TestBuilder_Build(t *testing.T) {
 
 	actual, err = build(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 
 	// Put a config on the gw, erase the network config
 	nw.Configs = map[string]interface{}{}
@@ -243,7 +245,7 @@ func TestBuilder_Build(t *testing.T) {
 
 	actual, err = build(&nw, &graph, "gw1")
 	assert.NoError(t, err)
-	assertMapsEqual(t, expected, actual)
+	tests.AssertMapsEqual(t, expected, actual)
 }
 
 func build(network *configurator.Network, graph *configurator.EntityGraph, gatewayID string) (map[string]proto.Message, error) {
@@ -425,11 +427,4 @@ var defaultConfig = &models.NetworkFederationConfigs{
 			ServerAddress: "",
 		},
 	},
-}
-
-func assertMapsEqual(t *testing.T, expected map[string]proto.Message, actual map[string]proto.Message) {
-	assert.Equal(t, len(expected), len(actual))
-	for key := range actual {
-		assert.Equal(t, expected[key].String(), actual[key].String())
-	}
 }
