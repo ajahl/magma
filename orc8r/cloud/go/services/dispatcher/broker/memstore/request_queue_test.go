@@ -17,6 +17,8 @@ import (
 	"sync"
 	"testing"
 
+	"magma/orc8r/cloud/go/obsidian/tests"
+
 	"github.com/stretchr/testify/assert"
 
 	"magma/orc8r/cloud/go/services/dispatcher/broker/memstore"
@@ -53,7 +55,9 @@ func TestRequestQueueImpl_EnqueueFullQueue(t *testing.T) {
 	err := queue.Enqueue(&req)
 	assert.NoError(t, err)
 	err = queue.Enqueue(&req)
-	assert.EqualError(t, err, "Failed to enqueue reqId:3 reqBody:{gwId:\"gwId1\"} because queue for gwId gwId1 is full\n")
+	expectedError := "Failed to enqueue$$reqId:3" + tests.Separator + "reqBody:{gwId:\"gwId1\"}" + tests.Separator + "because queue for gwId" + tests.Separator + "gwId1" + tests.Separator + "is full\n"
+	errCompare := tests.CompareErrors(expectedError, err.Error())
+	assert.NoError(t, errCompare)
 	// should still be able to enqueue for other gateways
 	req = protos.SyncRPCRequest{ReqId: 4, ReqBody: &protos.GatewayRequest{GwId: "gwId2"}}
 	err = queue.Enqueue(&req)
