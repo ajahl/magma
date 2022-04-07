@@ -1,0 +1,27 @@
+go 1.18
+
+use (
+	./cwf/cloud/go
+	./cwf/gateway
+	./cwf/k8s/cwf_operator
+	./dp/cloud/go/active_mode_controller
+	./feg/cloud/go
+	./feg/cloud/go/protos
+	./feg/gateway
+	./feg/radius/lib/go/http
+	./feg/radius/lib/go/libgraphql
+	./feg/radius/lib/go/log
+	./feg/radius/lib/go/machine
+	./feg/radius/lib/go/oc
+	./feg/radius/lib/go/oc/helpers
+	./feg/radius/lib/go/radius
+	./feg/radius/src
+	./lte/cloud/go
+	./orc8r/cloud/api/v1/go
+	./orc8r/cloud/go
+	./orc8r/cloud/test
+	./orc8r/gateway/go
+	./orc8r/lib/go
+	./orc8r/lib/go/protos
+	./src/go
+)
