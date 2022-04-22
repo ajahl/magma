@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/blobstore"
 	"magma/orc8r/cloud/go/services/tenants"
@@ -16,10 +17,10 @@ import (
 const networkWildcard = "*"
 
 type Store interface {
-	CreateTenant(tenantID int64, tenant tenant_protos.Tenant) error
+	CreateTenant(tenantID int64, tenant *tenant_protos.Tenant) error
 	GetTenant(tenantID int64) (*tenant_protos.Tenant, error)
 	GetAllTenants() (*tenant_protos.TenantList, error)
-	SetTenant(tenantID int64, tenant tenant_protos.Tenant) error
+	SetTenant(tenantID int64, tenant *tenant_protos.Tenant) error
 	DeleteTenant(tenantID int64) error
 	GetControlProxy(tenantID int64) (string, error)
 	CreateOrUpdateControlProxy(tenantID int64, controlProxy string) error
@@ -33,8 +34,9 @@ func NewBlobstoreStore(factory blobstore.StoreFactory) Store {
 	return &blobstoreStore{factory}
 }
 
-func (b *blobstoreStore) CreateTenant(tenantID int64, tenant tenant_protos.Tenant) error {
-	return b.SetTenant(tenantID, tenant)
+func (b *blobstoreStore) CreateTenant(tenantID int64, tenant *tenant_protos.Tenant) error {
+	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
+	return b.SetTenant(tenantID, tenantCopy)
 }
 
 func (b *blobstoreStore) GetTenant(tenantID int64) (*tenant_protos.Tenant, error) {
@@ -56,7 +58,7 @@ func (b *blobstoreStore) GetTenant(tenantID int64) (*tenant_protos.Tenant, error
 	if err != nil {
 		return nil, err
 	}
-	return &retTenant, store.Commit()
+	return retTenant, store.Commit()
 }
 
 func (b *blobstoreStore) GetAllTenants() (*tenant_protos.TenantList, error) {
@@ -93,21 +95,22 @@ func (b *blobstoreStore) GetAllTenants() (*tenant_protos.TenantList, error) {
 		}
 		idAndTenant := &tenant_protos.IDAndTenant{
 			Id:     intID,
-			Tenant: &tenant,
+			Tenant: tenant,
 		}
 		retTenants.Tenants = append(retTenants.Tenants, idAndTenant)
 	}
 	return retTenants, nil
 }
 
-func (b *blobstoreStore) SetTenant(tenantID int64, tenant tenant_protos.Tenant) error {
+func (b *blobstoreStore) SetTenant(tenantID int64, tenant *tenant_protos.Tenant) error {
 	store, err := b.factory.StartTransaction(nil)
 	if err != nil {
 		return err
 	}
 	defer store.Rollback()
 
-	tenantBlob, err := tenantToBlob(tenantID, tenant)
+	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
+	tenantBlob, err := tenantToBlob(tenantID, tenantCopy)
 	if err != nil {
 		return err
 	}
@@ -175,8 +178,9 @@ func (b *blobstoreStore) CreateOrUpdateControlProxy(tenantID int64, controlProxy
 	return store.Commit()
 }
 
-func tenantToBlob(tenantID int64, tenant tenant_protos.Tenant) (blobstore.Blob, error) {
-	marshaledTenant, err := protos.Marshal(&tenant)
+func tenantToBlob(tenantID int64, tenant *tenant_protos.Tenant) (blobstore.Blob, error) {
+	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
+	marshaledTenant, err := protos.Marshal(tenantCopy)
 	if err != nil {
 		return blobstore.Blob{}, errors.Wrap(err, "Error marshaling protobuf")
 	}
@@ -187,11 +191,11 @@ func tenantToBlob(tenantID int64, tenant tenant_protos.Tenant) (blobstore.Blob, 
 	}, nil
 }
 
-func tenantFromBlob(blob blobstore.Blob) (tenant_protos.Tenant, error) {
+func tenantFromBlob(blob blobstore.Blob) (*tenant_protos.Tenant, error) {
 	tenant := tenant_protos.Tenant{}
 	err := protos.Unmarshal(blob.Value, &tenant)
 	if err != nil {
-		return tenant_protos.Tenant{}, errors.Wrap(err, "Error unmarshaling protobuf")
+		return &tenant_protos.Tenant{}, errors.Wrap(err, "Error unmarshaling protobuf")
 	}
-	return tenant, nil
+	return &tenant, nil
 }

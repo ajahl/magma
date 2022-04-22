@@ -136,7 +136,7 @@ func pushHandler(c echo.Context) error {
 		NetworkId: nID,
 		Metrics:   pushedMetrics,
 	}
-	err = metricsd.PushMetrics(c.Request().Context(), metrics)
+	err = metricsd.PushMetrics(c.Request().Context(), &metrics)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
