@@ -27,6 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"magma/orc8r/cloud/go/obsidian"
+	"magma/orc8r/cloud/go/test_utils"
 )
 
 type Test struct {
@@ -80,7 +81,8 @@ func RunUnitTest(t *testing.T, e *echo.Echo, test Test) {
 		// that off before comparing
 		if httpErr, ok := handlerErr.(*echo.HTTPError); ok {
 			// Coerce returned message to string, to avoid type mismatches
-			assert.Equal(t, test.ExpectedError, fmt.Sprintf("%s", httpErr.Message))
+			err := test_utils.CompareErrors(test.ExpectedError, fmt.Sprintf("%s", httpErr.Message))
+			assert.NoError(t, err)
 		} else {
 			assert.EqualError(t, handlerErr, test.ExpectedError)
 		}
@@ -88,7 +90,8 @@ func RunUnitTest(t *testing.T, e *echo.Echo, test Test) {
 		if handlerErr == nil {
 			assert.Fail(t, "unexpected nil error", "error was nil but was expecting %s", test.ExpectedErrorSubstring)
 		} else {
-			assert.Contains(t, handlerErr.Error(), test.ExpectedErrorSubstring)
+			err := test_utils.CompareErrors(test.ExpectedErrorSubstring, handlerErr.Error())
+			assert.NoError(t, err)
 		}
 	} else {
 		if assert.NoError(t, handlerErr) && test.ExpectedResult != nil {

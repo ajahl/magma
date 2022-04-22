@@ -17,6 +17,7 @@ import (
 	"context"
 
 	"github.com/golang/glog"
+	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/lib/go/merrors"
 	"magma/orc8r/lib/go/protos"
@@ -24,12 +25,13 @@ import (
 )
 
 // PushMetrics pushes a set of metrics to the metricsd service.
-func PushMetrics(ctx context.Context, metrics protos.PushedMetricsContainer) error {
+func PushMetrics(ctx context.Context, metrics *protos.PushedMetricsContainer) error {
 	client, err := getCloudMetricsdClient()
 	if err != nil {
 		return err
 	}
-	_, err = client.Push(ctx, &metrics)
+	metricsCopy := proto.Clone(metrics).(*protos.PushedMetricsContainer)
+	_, err = client.Push(ctx, metricsCopy)
 	return err
 }
 
