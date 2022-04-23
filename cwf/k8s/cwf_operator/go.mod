@@ -52,10 +52,10 @@ require (
 // Pinned to kubernetes-1.16.2
 // TODO remove golang.org/x/net line once Go Upgrade is merged
 replace (
-	golang.org/x/net => golang.org/x/net v0.0.0-20210520170846-37e1c6afe023
 	github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.2+incompatible // Required by OLM
 
 	github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309 // Required by Helmgithub.com/openshift/api => github.com/openshift/api v0.0.0-20190924102528-32369d4db2ad // Required until https://github.com/operator-framework/operator-lifecycle-manager/pull/1241 is resolved
+	golang.org/x/net => golang.org/x/net v0.0.0-20210520170846-37e1c6afe023
 
 	k8s.io/api => k8s.io/api v0.18.2
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.2
