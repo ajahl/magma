@@ -14,6 +14,7 @@ limitations under the License.
 package protos_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/golang/protobuf/ptypes"
@@ -155,9 +156,17 @@ func TestMconfigMarshal(t *testing.T) {
 	assert.NotNil(t, pdAny)
 	pdJson, err := protos.MarshalMconfigToString(pdAny)
 	assert.NoError(t, err)
+	pipelinedExpectedVal = strings.ReplaceAll(pipelinedExpectedVal, " ", "")
+	pipelinedExpectedVal = strings.ReplaceAll(pipelinedExpectedVal, "\n", "")
+	pdJson = strings.ReplaceAll(pdJson, " ", "")
+	pdJson = strings.ReplaceAll(pdJson, "\n", "")
 	assert.Equal(t, pipelinedExpectedVal, pdJson)
 
 	marshaledRes, err := protos.MarshalMconfigToString(cfg)
 	assert.NoError(t, err)
+	marshaledSrc = strings.ReplaceAll(marshaledSrc, " ", "")
+	marshaledSrc = strings.ReplaceAll(marshaledSrc, "\n", "")
+	marshaledRes = strings.ReplaceAll(marshaledRes, " ", "")
+	marshaledRes = strings.ReplaceAll(marshaledRes, "\n", "")
 	assert.Equal(t, marshaledSrc, marshaledRes)
 }

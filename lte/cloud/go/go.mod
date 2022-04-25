@@ -48,7 +48,6 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/thoas/go-funk v0.7.0
 	github.com/warthog618/sms v0.3.0
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 	google.golang.org/grpc v1.31.0
 	google.golang.org/protobuf v1.28.0

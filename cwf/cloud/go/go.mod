@@ -12,6 +12,7 @@
 module magma/cwf/cloud/go
 
 replace (
+	golang.org/x/net => golang.org/x/net v0.0.0-20210520170846-37e1c6afe023
 	magma/feg/cloud/go => ../../../feg/cloud/go
 	magma/feg/cloud/go/protos => ../../../feg/cloud/go/protos
 	magma/gateway => ../../../orc8r/gateway/go
@@ -33,7 +34,7 @@ require (
 	github.com/prometheus/client_golang v1.5.1
 	github.com/prometheus/common v0.9.1
 	github.com/stretchr/testify v1.7.0
-	google.golang.org/grpc v1.31.0
+	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.28.0
 	magma/feg/cloud/go v0.0.0
 	magma/feg/cloud/go/protos v0.0.0
