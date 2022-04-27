@@ -40,8 +40,7 @@ const (
 )
 
 func (store *sqlConfiguratorStorage) countEntities(networkID string, filter *EntityLoadFilter) (uint64, error) {
-	filterCopy := proto.Clone(filter).(*EntityLoadFilter)
-	selectBuilder, err := store.getBuilder(networkID, filterCopy, &EntityLoadCriteria{}, countEntities)
+	selectBuilder, err := store.getBuilder(networkID, filter, &EntityLoadCriteria{}, countEntities)
 	if err != nil {
 		return 0, err
 	}
@@ -55,10 +54,7 @@ func (store *sqlConfiguratorStorage) countEntities(networkID string, filter *Ent
 func (store *sqlConfiguratorStorage) loadEntities(networkID string, filter *EntityLoadFilter, criteria *EntityLoadCriteria) (EntitiesByTK, error) {
 	entsByTK := EntitiesByTK{}
 
-	filterCopy := proto.Clone(filter).(*EntityLoadFilter)
-	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
-
-	builder, err := store.getBuilder(networkID, filterCopy, criteriaCopy, loadEntities)
+	builder, err := store.getBuilder(networkID, filter, criteria, loadEntities)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +66,7 @@ func (store *sqlConfiguratorStorage) loadEntities(networkID string, filter *Enti
 	defer sqorc.CloseRowsLogOnError(rows, "loadEntities")
 
 	for rows.Next() {
-		ent, err := scanEntityRow(rows, criteriaCopy)
+		ent, err := scanEntityRow(rows, criteria)
 		if err != nil {
 			return nil, err
 		}
@@ -91,10 +87,7 @@ func (store *sqlConfiguratorStorage) loadAssocs(networkID string, filter *Entity
 
 	assocs := loadedAssocs{}
 
-	filterCopy := proto.Clone(filter).(*EntityLoadFilter)
-	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
-
-	builder, err := store.getBuilder(networkID, filterCopy, criteriaCopy, loadTyp)
+	builder, err := store.getBuilder(networkID, filter, criteria, loadTyp)
 	if err != nil {
 		return nil, err
 	}
@@ -129,11 +122,9 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 	// [[ WHERE ent.network_id = $network_filter AND ent.key = $key_filter AND ent.type = $type_filter AND ent.key > $page_token ]]
 	// ORDER BY ent.key
 	// LIMIT $page_size ;
-	filterCopy := proto.Clone(filter).(*EntityLoadFilter)
-	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
 
-	pageSize := store.getEntityLoadPageSize(criteriaCopy)
-	pageToken, err := DeserializePageToken(criteriaCopy.PageToken)
+	pageSize := store.getEntityLoadPageSize(criteria)
+	pageToken, err := DeserializePageToken(criteria.PageToken)
 	if err != nil {
 		return sq.SelectBuilder{}, err
 	}
@@ -162,7 +153,7 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 	case countEntities:
 		cols = []string{"COUNT(1)"}
 	case loadEntities:
-		cols = getLoadEntitiesCols(criteriaCopy)
+		cols = getLoadEntitiesCols(criteria)
 	case loadChildren, loadParents:
 		cols = getLoadAssocCols()
 	default:
@@ -183,9 +174,9 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 	}
 
 	// Select only specific TKs
-	if funk.NotEmpty(filterCopy.IDs) {
-		orClause := make(sq.Or, 0, len(filterCopy.IDs))
-		for _, id := range filterCopy.IDs {
+	if funk.NotEmpty(filter.IDs) {
+		orClause := make(sq.Or, 0, len(filter.IDs))
+		for _, id := range filter.IDs {
 			c := sq.And{
 				isInNetwork,
 				sq.Eq{entCol(entKeyCol): id.Key},
@@ -202,16 +193,16 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 	// Physical ID is the only search not scoped to a network, since we
 	// need to be able to look up a caller's network and ent based just on
 	// its provided physical ID.
-	if filterCopy.PhysicalID != nil {
-		b := builder.Where(sq.Eq{entCol(entPidCol): filterCopy.PhysicalID.Value})
+	if filter.PhysicalID != nil {
+		b := builder.Where(sq.Eq{entCol(entPidCol): filter.PhysicalID.Value})
 		return addSuffix(b), nil
 	}
 
 	// Select all with graph ID
-	if filterCopy.GraphID != nil {
+	if filter.GraphID != nil {
 		b := builder.Where(sq.And{
 			isInNetwork,
-			sq.Eq{entCol(entGidCol): filterCopy.GraphID.Value},
+			sq.Eq{entCol(entGidCol): filter.GraphID.Value},
 		})
 		return addSuffix(b), nil
 	}
@@ -220,14 +211,14 @@ func (store *sqlConfiguratorStorage) getBuilder(networkID string, filter *Entity
 
 	where := sq.And{isInNetwork}
 	// Type, key filters
-	if filterCopy.KeyFilter != nil {
-		where = append(where, sq.Eq{entCol(entKeyCol): filterCopy.KeyFilter.Value})
+	if filter.KeyFilter != nil {
+		where = append(where, sq.Eq{entCol(entKeyCol): filter.KeyFilter.Value})
 	}
-	if filterCopy.TypeFilter != nil {
-		where = append(where, sq.Eq{entCol(entTypeCol): filterCopy.TypeFilter.Value})
+	if filter.TypeFilter != nil {
+		where = append(where, sq.Eq{entCol(entTypeCol): filter.TypeFilter.Value})
 	}
 	// Specific page
-	if criteriaCopy.PageToken != "" {
+	if criteria.PageToken != "" {
 		where = append(where, sq.Gt{entCol(entKeyCol): pageToken.LastIncludedEntity})
 	}
 
@@ -243,13 +234,12 @@ func scanEntityRow(rows *sql.Rows, criteria *EntityLoadCriteria) (*NetworkEntity
 	var config []byte
 	var version uint64
 
-	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
 	// This corresponds with the order of the columns queried in the SELECT
 	scanArgs := []interface{}{&nid, &pk, &key, &entType, &physicalID, &version, &graphID}
-	if criteriaCopy.LoadMetadata {
+	if criteria.LoadMetadata {
 		scanArgs = append(scanArgs, &name, &description)
 	}
-	if criteriaCopy.LoadConfig {
+	if criteria.LoadConfig {
 		scanArgs = append(scanArgs, &config)
 	}
 
@@ -297,7 +287,6 @@ func scanAssocRow(rows *sql.Rows, loadTyp loadType) (loadedAssoc, error) {
 }
 
 func getLoadEntitiesCols(criteria *EntityLoadCriteria) []string {
-	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
 	cols := []string{
 		fmt.Sprintf("ent.%s", entNidCol),
 		fmt.Sprintf("ent.%s", entPkCol),
@@ -307,10 +296,10 @@ func getLoadEntitiesCols(criteria *EntityLoadCriteria) []string {
 		fmt.Sprintf("ent.%s", entVerCol),
 		fmt.Sprintf("ent.%s", entGidCol),
 	}
-	if criteriaCopy.LoadMetadata {
+	if criteria.LoadMetadata {
 		cols = append(cols, fmt.Sprintf("ent.%s", entNameCol), fmt.Sprintf("ent.%s", entDescCol))
 	}
-	if criteriaCopy.LoadConfig {
+	if criteria.LoadConfig {
 		cols = append(cols, fmt.Sprintf("ent.%s", entConfCol))
 	}
 	return cols
@@ -332,11 +321,10 @@ func getLoadAssocCols() []string {
 // on the EntityLoadCriteria specified. A page size of 0 will default to the
 // maximum load size.
 func (store *sqlConfiguratorStorage) getEntityLoadPageSize(loadCriteria *EntityLoadCriteria) int {
-	loadCriteriaCopy := proto.Clone(loadCriteria).(*EntityLoadCriteria)
-	if loadCriteriaCopy.PageSize == 0 {
+	if loadCriteria.PageSize == 0 {
 		return int(store.maxEntityLoadSize)
 	}
-	return util.MinInt(int(loadCriteriaCopy.PageSize), int(store.maxEntityLoadSize))
+	return util.MinInt(int(loadCriteria.PageSize), int(store.maxEntityLoadSize))
 }
 
 // updateEntitiesWithAssocs updates entsByTK in-place with the passed assocs.
@@ -420,12 +408,10 @@ func DeserializePageToken(encodedToken string) (*EntityPageToken, error) {
 
 func validatePaginatedLoadParameters(filter *EntityLoadFilter, criteria *EntityLoadCriteria) error {
 	err := fmt.Errorf("paginated loads cannot be used on multi-type queries")
-	filterCopy := proto.Clone(filter).(*EntityLoadFilter)
-	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
-	if criteriaCopy.PageSize != 0 && filterCopy.TypeFilter == nil {
+	if criteria.PageSize != 0 && filter.TypeFilter == nil {
 		return err
 	}
-	if criteriaCopy.PageToken != "" && filterCopy.TypeFilter == nil {
+	if criteria.PageToken != "" && filter.TypeFilter == nil {
 		return err
 	}
 	return nil

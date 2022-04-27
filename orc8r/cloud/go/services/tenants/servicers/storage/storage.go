@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/blobstore"
 	"magma/orc8r/cloud/go/services/tenants"
@@ -35,8 +34,7 @@ func NewBlobstoreStore(factory blobstore.StoreFactory) Store {
 }
 
 func (b *blobstoreStore) CreateTenant(tenantID int64, tenant *tenant_protos.Tenant) error {
-	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
-	return b.SetTenant(tenantID, tenantCopy)
+	return b.SetTenant(tenantID, tenant)
 }
 
 func (b *blobstoreStore) GetTenant(tenantID int64) (*tenant_protos.Tenant, error) {
@@ -109,8 +107,7 @@ func (b *blobstoreStore) SetTenant(tenantID int64, tenant *tenant_protos.Tenant)
 	}
 	defer store.Rollback()
 
-	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
-	tenantBlob, err := tenantToBlob(tenantID, tenantCopy)
+	tenantBlob, err := tenantToBlob(tenantID, tenant)
 	if err != nil {
 		return err
 	}
@@ -179,8 +176,7 @@ func (b *blobstoreStore) CreateOrUpdateControlProxy(tenantID int64, controlProxy
 }
 
 func tenantToBlob(tenantID int64, tenant *tenant_protos.Tenant) (blobstore.Blob, error) {
-	tenantCopy := proto.Clone(tenant).(*tenant_protos.Tenant)
-	marshaledTenant, err := protos.Marshal(tenantCopy)
+	marshaledTenant, err := protos.Marshal(tenant)
 	if err != nil {
 		return blobstore.Blob{}, errors.Wrap(err, "Error marshaling protobuf")
 	}
