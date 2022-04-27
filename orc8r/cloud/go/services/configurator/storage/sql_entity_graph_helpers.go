@@ -20,7 +20,6 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/pkg/errors"
 	"github.com/thoas/go-funk"
-	"google.golang.org/protobuf/proto"
 )
 
 type internalEntityGraph struct {
@@ -31,9 +30,8 @@ type internalEntityGraph struct {
 // loadGraphInternal will load all loadEntities and assocs for a given graph ID.
 // This function will NOT fill loadEntities with associations.
 func (store *sqlConfiguratorStorage) loadGraphInternal(networkID string, graphID string, criteria *EntityLoadCriteria) (internalEntityGraph, error) {
-	criteriaCopy := proto.Clone(criteria).(*EntityLoadCriteria)
 	loadFilter := EntityLoadFilter{GraphID: &wrappers.StringValue{Value: graphID}}
-	ents, err := store.loadEntities(networkID, &loadFilter, criteriaCopy)
+	ents, err := store.loadEntities(networkID, &loadFilter, criteria)
 	if err != nil {
 		return internalEntityGraph{}, errors.Wrap(err, "failed to load entities for graph")
 	}
@@ -43,7 +41,7 @@ func (store *sqlConfiguratorStorage) loadGraphInternal(networkID string, graphID
 
 	// Just loading children is sufficient, since this will load all assocs
 	// in the graph
-	assocs, err := store.loadAssocs(networkID, &loadFilter, criteriaCopy, loadChildren)
+	assocs, err := store.loadAssocs(networkID, &loadFilter, criteria, loadChildren)
 	if err != nil {
 		return internalEntityGraph{}, errors.Wrap(err, "error loading child edges for graph")
 	}
