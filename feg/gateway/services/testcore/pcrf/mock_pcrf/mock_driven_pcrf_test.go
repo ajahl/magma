@@ -301,9 +301,8 @@ func getMockReAuthHandler() gx.PolicyReAuthHandler {
 	}
 }
 
-// equalRuleDefinitionSlices compares two slices with *fegprotos.RuleDefinition message pointers. Slices can be unsorted.
-// If duplicates rules exist, each has to appear the same number of times in both lists and the rule names must differ.
-// Two rules with the same name must trigger an error
+// equalRuleDefinitionSlices compares two slices with *fegprotos.RuleDefinition message pointers.
+// Slices can be unsorted. Two rules with the same name must trigger an error.
 // Equality of elements is determined with proto.Equal
 func equalRuleDefinitionSlices(expect []*fegprotos.RuleDefinition, actual []*fegprotos.RuleDefinition) bool {
 	if len(expect) != len(actual) {
