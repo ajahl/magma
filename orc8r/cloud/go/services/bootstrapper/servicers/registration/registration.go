@@ -8,7 +8,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/orc8r"
 	"magma/orc8r/cloud/go/serdes"
@@ -69,12 +68,11 @@ func (r *RegistrationService) Register(c context.Context, request *protos.Regist
 }
 
 func RegisterDevice(deviceInfo *protos.GatewayDeviceInfo, hwid *protos.AccessGatewayID, challengeKey *protos.ChallengeKey) error {
-	deviceInfoCopy := proto.Clone(deviceInfo).(*protos.GatewayDeviceInfo)
 	gatewayRecord, err := createGatewayDevice(hwid, challengeKey)
 	if err != nil {
 		return err
 	}
-	err = device.RegisterDevice(context.Background(), deviceInfoCopy.NetworkId, orc8r.AccessGatewayRecordType, hwid.Id, gatewayRecord, serdes.Device)
+	err = device.RegisterDevice(context.Background(), deviceInfo.GetNetworkId(), orc8r.AccessGatewayRecordType, hwid.Id, gatewayRecord, serdes.Device)
 	return err
 }
 

@@ -95,8 +95,7 @@ func (store *sqlConfiguratorStorage) createEdges(networkID string, entity *Netwo
 	}
 
 	// Get assoc pks, since we don't trust the pks provided by the input ent
-	entityCopy := proto.Clone(entity).(*NetworkEntity)
-	entsByTk, err := store.loadEntsFromEdges(networkID, entityCopy)
+	entsByTk, err := store.loadEntsFromEdges(networkID, entity)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +103,7 @@ func (store *sqlConfiguratorStorage) createEdges(networkID string, entity *Netwo
 	insertBuilder := store.builder.Insert(entityAssocTable).
 		Columns(aFrCol, aToCol).
 		OnConflict(nil, aFrCol, aToCol)
-	for _, edge := range entityCopy.GetGraphEdges() {
+	for _, edge := range entity.GetGraphEdges() {
 		fromPk := entsByTk[edge.From.ToTK()].Pk
 		toPk := entsByTk[edge.To.ToTK()].Pk
 		insertBuilder = insertBuilder.Values(fromPk, toPk)
@@ -117,12 +116,11 @@ func (store *sqlConfiguratorStorage) createEdges(networkID string, entity *Netwo
 }
 
 func (store *sqlConfiguratorStorage) loadEntsFromEdges(networkID string, targetEntity *NetworkEntity) (EntitiesByTK, error) {
-	targetEntityCopy := proto.Clone(targetEntity).(*NetworkEntity)
-	loadedEntsByTk, err := store.loadEntitiesFromIDs(networkID, targetEntityCopy.Associations)
+	loadedEntsByTk, err := store.loadEntitiesFromIDs(networkID, targetEntity.Associations)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	loadedEntsByTk[targetEntityCopy.GetTK()] = targetEntityCopy
+	loadedEntsByTk[targetEntity.GetTK()] = targetEntity
 	return loadedEntsByTk, nil
 }
 
@@ -150,18 +148,17 @@ func (store *sqlConfiguratorStorage) mergeGraphs(createdEntity *NetworkEntity, a
 	// Otherwise, we'll take the lexicographically smallest graph ID to keep
 	// and change the graph ID of every entity of the other graphs to this
 	// target graph ID.
-	createdEntityCopy := proto.Clone(createdEntity).(*NetworkEntity)
-	adjacentGraphs := funk.Chain(createdEntityCopy.Associations).
+	adjacentGraphs := funk.Chain(createdEntity.Associations).
 		Map(func(id *EntityID) string { return allAssociatedEntsByTk[id.ToTK()].GraphID }).
 		Uniq().
 		Value().([]string)
-	noMergeNecessary := funk.IsEmpty(adjacentGraphs) || (len(adjacentGraphs) == 1 && adjacentGraphs[0] == createdEntityCopy.GraphID)
+	noMergeNecessary := funk.IsEmpty(adjacentGraphs) || (len(adjacentGraphs) == 1 && adjacentGraphs[0] == createdEntity.GraphID)
 	if noMergeNecessary {
-		return createdEntityCopy.GraphID, nil
+		return createdEntity.GraphID, nil
 	}
 
-	if !funk.ContainsString(adjacentGraphs, createdEntityCopy.GraphID) {
-		adjacentGraphs = append(adjacentGraphs, createdEntityCopy.GraphID)
+	if !funk.ContainsString(adjacentGraphs, createdEntity.GraphID) {
+		adjacentGraphs = append(adjacentGraphs, createdEntity.GraphID)
 	}
 	sort.Strings(adjacentGraphs)
 	targetGraphID := adjacentGraphs[0]
@@ -186,17 +183,16 @@ func (store *sqlConfiguratorStorage) mergeGraphs(createdEntity *NetworkEntity, a
 }
 
 func (store *sqlConfiguratorStorage) loadEntToUpdate(networkID string, update *EntityUpdateCriteria) (*NetworkEntity, error) {
-	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
 	loaded, err := store.loadEntities(
 		networkID,
-		&EntityLoadFilter{IDs: []*EntityID{updateCopy.GetID()}},
+		&EntityLoadFilter{IDs: []*EntityID{update.GetID()}},
 		&EntityLoadCriteria{},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load entity to update")
 	}
 	// don't error on deleting an entity which doesn't exist
-	if len(loaded) != 1 && !updateCopy.DeleteEntity {
+	if len(loaded) != 1 && !update.DeleteEntity {
 		return nil, errors.Errorf("expected to load 1 ent for update, got %d", len(loaded))
 	}
 
@@ -213,25 +209,24 @@ func (store *sqlConfiguratorStorage) loadEntToUpdate(networkID string, update *E
 
 // entOut is an output parameter
 func (store *sqlConfiguratorStorage) processEntityFieldsUpdate(pk string, update *EntityUpdateCriteria, entOut *NetworkEntity) error {
-	updateCopy := proto.Clone(update).(*EntityUpdateCriteria)
-	_, err := store.getEntityUpdateQueryBuilder(pk, updateCopy).
+	_, err := store.getEntityUpdateQueryBuilder(pk, update).
 		RunWith(store.tx).
 		Exec()
 	if err != nil {
 		return errors.Wrap(err, "failed to update entity fields")
 	}
 
-	if updateCopy.NewName != nil {
-		entOut.Name = (*updateCopy.NewName).Value
+	if update.NewName != nil {
+		entOut.Name = (*update.NewName).Value
 	}
-	if updateCopy.NewDescription != nil {
-		entOut.Description = (*updateCopy.NewDescription).Value
+	if update.NewDescription != nil {
+		entOut.Description = (*update.NewDescription).Value
 	}
-	if updateCopy.NewPhysicalID != nil {
-		entOut.PhysicalID = (*updateCopy.NewPhysicalID).Value
+	if update.NewPhysicalID != nil {
+		entOut.PhysicalID = (*update.NewPhysicalID).Value
 	}
-	if updateCopy.NewConfig != nil {
-		entOut.Config = (*updateCopy.NewConfig).Value
+	if update.NewConfig != nil {
+		entOut.Config = (*update.NewConfig).Value
 	}
 	entOut.Version++
 
