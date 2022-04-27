@@ -22,25 +22,23 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/pkg/errors"
 	"github.com/thoas/go-funk"
-	"google.golang.org/protobuf/proto"
 
 	"magma/orc8r/cloud/go/sqorc"
 )
 
 func getNetworkQueryColumns(criteria *NetworkLoadCriteria) []string {
-	criteriaCopy := proto.Clone(criteria).(*NetworkLoadCriteria)
 	ret := []string{
 		fmt.Sprintf("%s.%s", networksTable, nwIDCol),
 		fmt.Sprintf("%s.%s", networksTable, nwTypeCol),
 	}
-	if criteriaCopy.LoadMetadata {
+	if criteria.LoadMetadata {
 		ret = append(
 			ret,
 			fmt.Sprintf("%s.%s", networksTable, nwNameCol),
 			fmt.Sprintf("%s.%s", networksTable, nwDescCol),
 		)
 	}
-	if criteriaCopy.LoadConfigs {
+	if criteria.LoadConfigs {
 		ret = append(
 			ret,
 			fmt.Sprintf("%s.%s", networkConfigTable, nwcTypeCol),
@@ -52,26 +50,22 @@ func getNetworkQueryColumns(criteria *NetworkLoadCriteria) []string {
 }
 
 func (store *sqlConfiguratorStorage) getLoadNetworksSelectBuilder(filter *NetworkLoadFilter, criteria *NetworkLoadCriteria) sq.SelectBuilder {
-	filterCopy := proto.Clone(filter).(*NetworkLoadFilter)
-	criteriaCopy := proto.Clone(criteria).(*NetworkLoadCriteria)
-
-	selectBuilder := store.builder.Select(getNetworkQueryColumns(criteriaCopy)...).From(networksTable)
-	if funk.NotEmpty(filterCopy.Ids) {
+	selectBuilder := store.builder.Select(getNetworkQueryColumns(criteria)...).From(networksTable)
+	if funk.NotEmpty(filter.Ids) {
 		selectBuilder = selectBuilder.Where(sq.Eq{
-			fmt.Sprintf("%s.%s", networksTable, nwIDCol): filterCopy.Ids,
+			fmt.Sprintf("%s.%s", networksTable, nwIDCol): filter.Ids,
 		})
-	} else if funk.NotEmpty(filterCopy.TypeFilter) {
-		selectBuilder = selectBuilder.Where(sq.Eq{fmt.Sprintf("%s.%s", networksTable, nwTypeCol): filterCopy.TypeFilter.Value})
+	} else if funk.NotEmpty(filter.TypeFilter) {
+		selectBuilder = selectBuilder.Where(sq.Eq{fmt.Sprintf("%s.%s", networksTable, nwTypeCol): filter.TypeFilter.Value})
 	}
 	return selectBuilder
 }
 
 func scanNetworkRows(rows *sql.Rows, loadCriteria *NetworkLoadCriteria) (map[string]*Network, []string, error) {
-	loadCriteriaCopy := proto.Clone(loadCriteria).(*NetworkLoadCriteria)
 	// Pointer values because we're modifying .Config in-place
 	loadedNetworksByID := map[string]*Network{}
 	for rows.Next() {
-		nwResult, err := scanNextNetworkRow(rows, loadCriteriaCopy)
+		nwResult, err := scanNextNetworkRow(rows, loadCriteria)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -99,15 +93,14 @@ func scanNextNetworkRow(rows *sql.Rows, criteria *NetworkLoadCriteria) (*Network
 	var cfgValue []byte
 	var version uint64
 
-	criteriaCopy := proto.Clone(criteria).(*NetworkLoadCriteria)
 	scanArgs := []interface{}{
 		&id,
 		&networkType,
 	}
-	if criteriaCopy.LoadMetadata {
+	if criteria.LoadMetadata {
 		scanArgs = append(scanArgs, &name, &description)
 	}
-	if criteriaCopy.LoadConfigs {
+	if criteria.LoadConfigs {
 		scanArgs = append(scanArgs, &cfgType, &cfgValue)
 	}
 	scanArgs = append(scanArgs, &version)
@@ -118,7 +111,7 @@ func scanNextNetworkRow(rows *sql.Rows, criteria *NetworkLoadCriteria) (*Network
 	}
 
 	ret := &Network{ID: id, Type: nullStringToValue(networkType), Name: nullStringToValue(name), Description: nullStringToValue(description), Configs: map[string][]byte{}, Version: version}
-	if criteriaCopy.LoadConfigs && cfgType.Valid {
+	if criteria.LoadConfigs && cfgType.Valid {
 		ret.Configs[cfgType.String] = cfgValue
 	}
 	return ret, nil
@@ -159,35 +152,34 @@ func validateNetworkUpdates(updates []*NetworkUpdateCriteria) error {
 }
 
 func (store *sqlConfiguratorStorage) updateNetwork(update *NetworkUpdateCriteria, stmtCache *sq.StmtCache) error {
-	updateCopy := proto.Clone(update).(*NetworkUpdateCriteria)
 	// Update the network table first
-	updateBuilder := store.builder.Update(networksTable).Where(sq.Eq{nwIDCol: updateCopy.ID})
-	if updateCopy.NewName != nil {
-		updateBuilder = updateBuilder.Set(nwNameCol, stringPtrToVal(updateCopy.NewName))
+	updateBuilder := store.builder.Update(networksTable).Where(sq.Eq{nwIDCol: update.ID})
+	if update.NewName != nil {
+		updateBuilder = updateBuilder.Set(nwNameCol, stringPtrToVal(update.NewName))
 	}
-	if updateCopy.NewDescription != nil {
-		updateBuilder = updateBuilder.Set(nwDescCol, stringPtrToVal(updateCopy.NewDescription))
+	if update.NewDescription != nil {
+		updateBuilder = updateBuilder.Set(nwDescCol, stringPtrToVal(update.NewDescription))
 	}
-	if updateCopy.NewType != nil {
-		updateBuilder = updateBuilder.Set(nwTypeCol, stringPtrToVal(updateCopy.NewType))
+	if update.NewType != nil {
+		updateBuilder = updateBuilder.Set(nwTypeCol, stringPtrToVal(update.NewType))
 	}
 	updateBuilder = updateBuilder.Set(nwVerCol, sq.Expr(fmt.Sprintf("%s.%s+1", networksTable, nwVerCol)))
 	_, err := updateBuilder.RunWith(stmtCache).Exec()
 	if err != nil {
-		return errors.Wrapf(err, "error updating network %s", updateCopy.ID)
+		return errors.Wrapf(err, "error updating network %s", update.ID)
 	}
 
 	// Sort config keys for deterministic behavior on upserts
-	configUpdateTypes := funk.Keys(updateCopy.ConfigsToAddOrUpdate).([]string)
+	configUpdateTypes := funk.Keys(update.ConfigsToAddOrUpdate).([]string)
 	sort.Strings(configUpdateTypes)
 	for _, configType := range configUpdateTypes {
-		configValue := updateCopy.ConfigsToAddOrUpdate[configType]
+		configValue := update.ConfigsToAddOrUpdate[configType]
 
 		// INSERT INTO %s (network_id, type, value) VALUES ($1, $2, $3)
 		// ON CONFLICT (network_id, type) DO UPDATE SET value = $4
 		_, err := store.builder.Insert(networkConfigTable).
 			Columns(nwcIDCol, nwcTypeCol, nwcValCol).
-			Values(updateCopy.ID, configType, configValue).
+			Values(update.ID, configType, configValue).
 			OnConflict(
 				[]sqorc.UpsertValue{{Column: nwcValCol, Value: configValue}},
 				nwcIDCol, nwcTypeCol,
@@ -195,22 +187,22 @@ func (store *sqlConfiguratorStorage) updateNetwork(update *NetworkUpdateCriteria
 			RunWith(stmtCache).
 			Exec()
 		if err != nil {
-			return errors.Wrapf(err, "error updating config %s on network %s", configType, updateCopy.ID)
+			return errors.Wrapf(err, "error updating config %s on network %s", configType, update.ID)
 		}
 	}
 
 	// Finally delete configs
-	if funk.IsEmpty(updateCopy.ConfigsToDelete) {
+	if funk.IsEmpty(update.ConfigsToDelete) {
 		return nil
 	}
 
-	orClause := make(sq.Or, 0, len(updateCopy.ConfigsToDelete))
-	for _, configType := range updateCopy.ConfigsToDelete {
-		orClause = append(orClause, sq.Eq{nwcIDCol: updateCopy.ID, nwcTypeCol: configType})
+	orClause := make(sq.Or, 0, len(update.ConfigsToDelete))
+	for _, configType := range update.ConfigsToDelete {
+		orClause = append(orClause, sq.Eq{nwcIDCol: update.ID, nwcTypeCol: configType})
 	}
 	_, err = store.builder.Delete(networkConfigTable).Where(orClause).RunWith(store.tx).Exec()
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete configs for network %s", updateCopy.ID)
+		return errors.Wrapf(err, "failed to delete configs for network %s", update.ID)
 	}
 
 	return nil
