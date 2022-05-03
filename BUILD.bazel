@@ -87,8 +87,11 @@ gazelle_python_manifest(
     name = "gazelle_python_manifest",
     modules_mapping = ":modules_map",
     pip_deps_repository_name = "python_deps",
+    # pip_repository_incremental = True,
+    # pip_repository_name = "python_deps",
     requirements = "//bazel/external:requirements.txt",
 )
+
 gazelle(
     name = "py_gazelle",
     data = GAZELLE_PYTHON_RUNTIME_DEPS,
