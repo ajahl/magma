@@ -12,15 +12,16 @@
  */
 #pragma once
 
-#include <folly/Format.h>
-#include <folly/dynamic.h>
-#include <folly/json.h>
+// #include <folly/Format.h>
+// #include <folly/dynamic.h>
+// #include <folly/json.h>
 #include <google/protobuf/timestamp.pb.h>
 #include <lte/protos/pipelined.grpc.pb.h>
 #include <lte/protos/pipelined.pb.h>
 #include <lte/protos/policydb.pb.h>
 #include <lte/protos/session_manager.grpc.pb.h>
 #include <lte/protos/session_manager.pb.h>
+
 #include <sys/types.h>
 #include <cstdint>
 #include <experimental/optional>
@@ -204,13 +205,19 @@ std::string serialize_stored_charging_credit_map(
     StoredChargingCreditMap& stored);
 
 StoredChargingCreditMap deserialize_stored_charging_credit_map(
-    std::string& serialized);
+    const std::string& serialized);
 
 std::string serialize_stored_usage_monitor_map(StoredMonitorMap& stored);
 
-StoredMonitorMap deserialize_stored_usage_monitor_map(std::string& serialized);
+StoredMonitorMap deserialize_stored_usage_monitor_map(const std::string& serialized);
 
-BearerIDByPolicyID deserialize_bearer_id_by_policy(std::string& serialized);
+EventTriggerStatus deserialize_pending_event_triggers(const std::string& serialized);
+
+RuleStats deserialize_rule_stats(const std::string& serialized);
+
+std::string serialize_pending_event_triggers(EventTriggerStatus event_triggers);
+
+BearerIDByPolicyID deserialize_bearer_id_by_policy(const std::string& serialized);
 
 std::string serialize_bearer_id_by_policy(BearerIDByPolicyID bearer_map);
 
@@ -220,5 +227,5 @@ StoredSessionState deserialize_stored_session(std::string& serialized);
 
 std::string serialize_policy_stats_map(PolicyStatsMap stats_map);
 
-PolicyStatsMap deserialize_policy_stats_map(std::string& serialized);
+PolicyStatsMap deserialize_policy_stats_map(const std::string& serialized);
 }  // namespace magma

@@ -43,6 +43,7 @@ class StoredStateTest : public ::testing::Test {
         build_lte_context("192.168.0.2", "imei", "plmn_id", "imsi_plmn_id",
                           "user_location", 321, nullptr);
     stored.rat_specific_context.mutable_lte_context()->CopyFrom(lte_context);
+    std::cout << "\033[0;32m" << "[          ] " << "get_stored_session_config " << "\033[0;0m" << std::endl;
     return stored;
   }
 
@@ -184,9 +185,10 @@ TEST_F(StoredStateTest, test_stored_session_config) {
   auto original_common = stored.common_context.SerializeAsString();
   auto original_rat_specific = stored.rat_specific_context.SerializeAsString();
   auto recovered_common = deserialized.common_context.SerializeAsString();
-  auto recovered_rat_specific =
-      deserialized.rat_specific_context.SerializeAsString();
+  auto recovered_rat_specific = deserialized.rat_specific_context.SerializeAsString();
   EXPECT_EQ(original_common, recovered_common);
+  std::cout << "\033[0;32m" << "[          ] " << "test_stored_session_config o  " << original_rat_specific << "\033[0;0m" << std::endl;
+  std::cout << "\033[0;32m" << "[          ] " << "test_stored_session_config r  " << recovered_rat_specific << "\033[0;0m" << std::endl;
   EXPECT_EQ(original_rat_specific, recovered_rat_specific);
 }
 

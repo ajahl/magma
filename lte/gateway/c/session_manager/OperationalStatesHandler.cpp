@@ -12,8 +12,8 @@
  */
 #include "lte/gateway/c/session_manager/OperationalStatesHandler.hpp"
 
-#include <folly/dynamic.h>
-#include <folly/json.h>
+// #include <folly/dynamic.h>
+// #include <folly/json.h>
 #include <glog/logging.h>
 #include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/stringpiece.h>
@@ -44,24 +44,25 @@ OpState get_operational_states(magma::SessionStore* session_store) {
     std::map<std::string, std::string> state;
     state[TYPE] = SUBSCRIBER_STATE_TYPE;
     state[DEVICE_ID] = it.first;
-    folly::dynamic sessions_by_apn = folly::dynamic::object;
+    nlohmann::json sessions_by_apn;
 
     for (auto& session : it.second) {
       const auto apn = session->get_config().common_context.apn();
       if (sessions_by_apn[apn].empty()) {
-        sessions_by_apn[apn] = folly::dynamic::array;
+        sessions_by_apn[apn] = nlohmann::json::array();
       }
       sessions_by_apn[apn].push_back(get_dynamic_session_state(session));
     }
-    state[VALUE] = folly::toJson(sessions_by_apn);
+    // state[VALUE] = folly::toJson(sessions_by_apn);
+    state[VALUE] = sessions_by_apn.dump();
     states.push_back(state);
   }
   return states;
 }
 
-folly::dynamic get_dynamic_session_state(
+nlohmann::json get_dynamic_session_state(
     const std::unique_ptr<SessionState>& session) {
-  folly::dynamic state = folly::dynamic::object;
+  nlohmann::json state;
   const auto config = session->get_config().common_context;
   state[SESSION_ID] = session->get_session_id();
   state[MSISDN] = config.msisdn();
@@ -74,12 +75,12 @@ folly::dynamic get_dynamic_session_state(
   return state;
 }
 
-folly::dynamic get_dynamic_active_policies(
+nlohmann::json get_dynamic_active_policies(
     const std::unique_ptr<SessionState>& session) {
   google::protobuf::util::JsonPrintOptions options;
   options.add_whitespace = false;
 
-  folly::dynamic policies = folly::dynamic::array;
+  nlohmann::json policies = nlohmann::json::array();
   auto active_policies = session->get_all_active_policies();
   for (auto& policy : active_policies) {
     std::string json_policy;
@@ -90,7 +91,7 @@ folly::dynamic get_dynamic_active_policies(
                    << " to JSON: " << status.ToString();
       continue;
     }
-    policies.push_back(json_policy);
+    policies.push_back(nlohmann::json::parse(json_policy));
   }
   return policies;
 }
