@@ -13,7 +13,7 @@ limitations under the License.
 
 import asyncio
 from typing import Optional
-from xml.etree import ElementTree
+from xml.etree import ElementTree 
 
 from aiohttp import web
 from magma.common.misc_utils import get_ip_from_if

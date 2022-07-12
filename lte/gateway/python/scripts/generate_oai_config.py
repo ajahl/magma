@@ -156,7 +156,7 @@ def _get_csfb_mcc(service_mconfig):
     return ""
 
 
-def _get_csfb_mnc(service_mconfig):
+def _get_csfb_mnc(service_mconfig): 
     csfb_mnc = service_mconfig.csfb_mnc
     if csfb_mnc:
         return csfb_mnc

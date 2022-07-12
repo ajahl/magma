@@ -17,7 +17,7 @@ from typing import NamedTuple
 import grpc
 from lte.protos import (  # type: ignore[attr-defined]
     apn_pb2,
-    subscriberdb_pb2,
+    subscriberdb_pb2, 
     subscriberdb_pb2_grpc,
 )
 from magma.common.rpc_utils import print_grpc, return_void

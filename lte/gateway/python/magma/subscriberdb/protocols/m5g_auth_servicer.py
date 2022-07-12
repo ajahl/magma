@@ -17,7 +17,7 @@ from grpc import StatusCode
 from lte.protos import (  # type: ignore[attr-defined]
     diam_errors_pb2,
     subscriberauth_pb2,
-    subscriberauth_pb2_grpc,
+    subscriberauth_pb2_grpc, 
     subscriberdb_pb2,
     subscriberdb_pb2_grpc,
 )

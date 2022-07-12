@@ -75,7 +75,6 @@ async def check_and_apply_iptables_rules(
                 port,
                 enodebd_public_ip,
                 enodebd_ip,
-                add=True,
             ),
         )
     else:
