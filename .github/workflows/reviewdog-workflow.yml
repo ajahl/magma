@@ -190,7 +190,7 @@ jobs:
         uses: ajahl/action-mypy@master
         with:
           github_token: ${{ secrets.github_token }}
-          filter_mode: added
+          filter_mode: nofilter
           reporter: github-pr-review
 
   shellcheck:
