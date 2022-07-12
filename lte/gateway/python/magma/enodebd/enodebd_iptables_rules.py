@@ -36,7 +36,7 @@ IPTABLES_RULE_FMT = """sudo iptables -t nat
     -j DNAT --to-destination {private_ip}"""
 
 EXPECTED_IP4 = ('192.168.60.142', '10.0.2.1')
-EXPECTED_MASK = '255.255.255.0'
+EXPECTED_MASK = '255.255.255.0' 
 
 
 def get_iptables_rule(port, enodebd_public_ip, private_ip, add=True):

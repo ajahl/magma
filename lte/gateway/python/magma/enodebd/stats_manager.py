@@ -27,7 +27,7 @@ from . import metrics
 
 
 class StatsManager:
-    """ HTTP server to receive performance management uploads from eNodeB and
+    """ HTTP server to receive performance management uploads from eNodeB and 
         translate to metrics """
     # Dict to map performance counter names (from eNodeB) to metrics
     # For eNodeB sub-counters, the counter name is shown as

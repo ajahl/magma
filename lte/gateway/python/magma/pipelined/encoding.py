@@ -28,7 +28,7 @@ def pad(m):
 
 
 def encrypt_str(s: str, key: bytes, encryption_algorithm, mac: Optional[bytes] = None):
-    if encryption_algorithm == PipelineD.HEConfig.RC4:
+    if encryption_algorithm == PipelineD.HEConfig.RC4: 
         cipher = ARC4.new(key)
         return cipher.encrypt(s.encode('utf-8')).hex()
 

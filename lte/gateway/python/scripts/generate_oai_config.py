@@ -175,7 +175,7 @@ def _get_enable_nat(service_mconfig):
     """
     nat_enabled = get_service_config_value('mme', 'enable_nat', None)
 
-    if nat_enabled is None:
+    if nat_enabled is None: 
         nat_enabled = service_mconfig.nat_enabled
 
     return nat_enabled
