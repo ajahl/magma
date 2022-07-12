@@ -1,7 +1,7 @@
 ---
 name: reviewdog-workflow
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -187,7 +187,7 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
       - name: Run mypy with reviewdog
-        uses: ajahl/action-mypy@master # pin@v3.6.0
+        uses: ajahl/action-mypy@master
         with:
           github_token: ${{ secrets.github_token }}
           filter_mode: added
