@@ -63,7 +63,7 @@ async def check_and_apply_iptables_rules(
     port: str,
     enodebd_public_ip: str,
     enodebd_ip: str,
-) -> None:
+) -> None:  
     command = 'sudo iptables -t nat -L'
     output = subprocess.run(command, shell=True, stdout=subprocess.PIPE, check=True)
     command_output = output.stdout.decode('utf-8').strip()
@@ -98,7 +98,7 @@ def check_rules(
     port: str,
     enodebd_public_ip: str,
     private_ip: str,
-) -> bool:
+) -> None:
     unexpected_rules = []
     expected_rules_present = False
     pattern = r'DNAT\s+tcp\s+--\s+anywhere\s+{pub_ip}\s+tcp\s+dpt:{dport} to:{ip}'.format(
