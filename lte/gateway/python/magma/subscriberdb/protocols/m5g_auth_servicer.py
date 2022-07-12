@@ -35,7 +35,7 @@ from magma.subscriberdb.subscription.utils import ServiceNotActive
 
 class M5GAuthRpcServicer(subscriberauth_pb2_grpc.M5GSubscriberAuthenticationServicer):
     """
-    gRPC based server for the S6aProxy.
+    gRPC based server for the S6aProxy. 
     """
 
     def __init__(self, lte_processor, print_grpc_payload: bool = False):

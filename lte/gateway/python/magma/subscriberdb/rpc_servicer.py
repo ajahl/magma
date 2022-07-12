@@ -36,7 +36,7 @@ class suci_profile_data(NamedTuple):
 
 class SubscriberDBRpcServicer(subscriberdb_pb2_grpc.SubscriberDBServicer):
     """
-    gRPC based server for the SubscriberDB.
+    gRPC based server for the SubscriberDB. 
     """
 
     def __init__(self, store, lte_processor, print_grpc_payload: bool = False):
