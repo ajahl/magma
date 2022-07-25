@@ -193,7 +193,7 @@ jobs:
           filter_mode: nofilter
           reporter: github-pr-review
           target: "./lte/gateway/python/"
-          mypy_flags: "--verbose --show-error-codes"
+          # mypy_flags: "--verbose --show-error-codes"
 
   shellcheck:
     name: shellcheck
