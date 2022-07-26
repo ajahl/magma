@@ -193,7 +193,8 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           filter_mode: nofilter
-          reporter: github-pr-check
+          # reporter: github-pr-check
+          reporter: github-pr-review
           # target: "./lte/gateway/python/"
           # mypy_flags: "--verbose --show-error-codes"
 
