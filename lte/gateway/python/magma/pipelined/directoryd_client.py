@@ -114,4 +114,4 @@ def get_all_records(retries: int = 3, sleep_time: float = 0.1) -> Optional[List[
                 err.code(),
                 err.details(),
             )
-    return  None
+    return
