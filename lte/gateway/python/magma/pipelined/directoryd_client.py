@@ -86,7 +86,7 @@ def get_record(imsi: str, field: str) -> Optional[str]:
             err.code(),
             err.details(),
         )
-    return None
+    return
 
 
 def get_all_records(retries: int = 3, sleep_time: float = 0.1) -> Optional[List[dict]]:
