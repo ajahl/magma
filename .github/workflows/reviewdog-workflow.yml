@@ -189,7 +189,7 @@ jobs:
           fetch-depth: 0
       - name: Run mypy with reviewdog
         # uses: ajahl/action-mypy@master
-        uses: tsuyoshicho/action-mypy@v3.9.2 #pin
+        uses: tsuyoshicho/action-mypy@176f65a2ad781202baffaf870e5715d768d799a8 #pin@v3.9.2
         with:
           github_token: ${{ secrets.github_token }}
           # filter_mode: nofilter
