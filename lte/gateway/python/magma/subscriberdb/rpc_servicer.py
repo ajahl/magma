@@ -34,7 +34,7 @@ class suci_profile_data(NamedTuple):
     home_network_private_key: bytes
 
 
-class SubscriberDBRpcServicer(subscriberdb_pb2_grpc.SubscriberDBServicer):
+class SubscriberDBRpcServicer(subscriberdb_pb2_grpc.SubscriberDBServicer): 
     """
     gRPC based server for the SubscriberDB.  
     """
