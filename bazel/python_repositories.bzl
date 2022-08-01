@@ -35,7 +35,7 @@ def python_repositories(name = ""):
     )
     new_git_repository(
         name = "aioeventlet_repo",
-        remote = "https://github.com/sebathomas/deb-python-aioeventlet.git",
+        remote = "https://github.com/magma/deb-python-aioeventlet.git",
         build_file = "//bazel/external:aioeventlet.BUILD",
         commit = "86130360db113430370ed6c64d42aee3b47cd619",
         shallow_since = "1655813728",
