@@ -18,13 +18,12 @@ on:
       - build-all
     branches:
       - master
-      - 'v1.*'
+      - '*'
     types:
       - completed
 
 jobs:
   lte-integ-test-magma-deb:
-    if: ${{ (github.repository_owner == 'magma' || github.event_name == 'workflow_dispatch') }}
     runs-on: macos-12
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # pin@v3
@@ -56,6 +55,18 @@ jobs:
           sudo mkdir -p /etc/vbox/
           echo '* 192.168.0.0/16' | sudo tee /etc/vbox/networks.conf 
           echo '* 3001::/64' | sudo tee -a /etc/vbox/networks.conf
+      - name: Get debian package version
+        env:
+          REPO: ${{ github.event.repository.full_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACTS: ${GITHUB_TOKEN}" https://api.github.com/repos/"$REPO"/actions/runs/${WORKFLOW_RUN_ID}/artifacts
+        run: |
+          echo ${ARTIFACTS}
+          curl -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/"$REPO"/actions/runs/${WORKFLOW_RUN_ID}/artifacts | jq --compact-output '.artifacts[]' >> artifacts.json
+          while read -r artifacts; do
+            echo "$artifacts"
+          done < workflow-artifacts.json
       - name: Run the integ test
         env:
           MAGMA_DEV_CPUS: 3

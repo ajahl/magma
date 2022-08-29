@@ -16,11 +16,11 @@ on:
   push:
     branches:
       - master
-      - 'v1.*'
+      - '*'
   pull_request:
     branches:
       - master
-      - 'v1.*'
+      - '*'
     types: [ opened, reopened, synchronize ]
 
 jobs:
@@ -37,4 +37,4 @@ jobs:
           echo "EXTRACT DEBIAN VERSION ....."
           ARTIFACT="magma_1.8.0-1662721115-68277677_amd64.deb"
           ARTIFACTS=$(echo $ARTIFACT)
-          echo "::set-output name=artifacts::$(echo $ARTIFACTS)"
+
