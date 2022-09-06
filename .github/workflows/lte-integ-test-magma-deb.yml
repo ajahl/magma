@@ -14,7 +14,10 @@ name: LTE integ test magma-deb
 on:
   workflow_dispatch: null
   workflow_run:
-    workflows: [build-all]
+    workflows:
+      - build-all
+    branches:
+      - master
     types:
       - completed
 
