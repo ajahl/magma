@@ -28,4 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: fake-step
-        run: echo "Hello World!"
+        # run: echo "Hello World!"
+        run: |
+          exit 1 
