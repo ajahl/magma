@@ -22,6 +22,7 @@ on:
       - master
       - 'v1.*'
     types: [ opened, reopened, synchronize ]
+
 jobs:
   build-all-fake:
     runs-on: ubuntu-latest
