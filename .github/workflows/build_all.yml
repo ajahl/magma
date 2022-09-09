@@ -36,5 +36,5 @@ jobs:
         run: |
           echo "EXTRACT DEBIAN VERSION ....."
           ARTIFACT="magma_1.8.0-1662721115-68277677_amd64.deb"
-          ARTIFACTS=$(echo $ARTIFACT
+          ARTIFACTS=$(echo $ARTIFACT)
           echo "::set-output name=artifacts::$(echo $ARTIFACTS)"
