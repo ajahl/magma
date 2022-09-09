@@ -28,6 +28,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: fake-step
-        # run: echo "Hello World!"
         run: |
-          exit 1 
+          echo "BUILD ALL RUNS ....."
+          exit 0
+      - name: debian packages
+        id: publish_packages
+        run: |
+          echo "EXTRACT DEBIAN VERSION ....."
+          ARTIFACT="magma_1.8.0-1662721115-68277677_amd64.deb"
+          ARTIFACTS=$(echo $ARTIFACT
+          echo "::set-output name=artifacts::$(echo $ARTIFACTS)"
