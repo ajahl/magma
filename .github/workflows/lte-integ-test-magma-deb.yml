@@ -63,7 +63,7 @@ jobs:
           ARTIFACTS: ${GITHUB_TOKEN}" https://api.github.com/repos/"$REPO"/actions/runs/${WORKFLOW_RUN_ID}/artifacts
         run: |
           echo ${ARTIFACTS}
-          curl -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/"$REPO"/actions/runs/${WORKFLOW_RUN_ID}/artifacts | jq --compact-output '.artifacts[]' >> artifacts.json
+          curl -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${ARTIFACTS}" | jq --compact-output '.artifacts[]' >> artifacts.json
           while read -r artifacts; do
             echo "$artifacts"
           done < workflow-artifacts.json
