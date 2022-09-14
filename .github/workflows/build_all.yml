@@ -76,5 +76,7 @@ jobs:
           PUBLISH_ERROR="false"
           for i in `ls -a1 *.deb`
           do
-            echo "Pushing package $i"
+            echo "#############################################"  
+            exho "Pushing package: $i"
+            echo "#############################################"
           done
