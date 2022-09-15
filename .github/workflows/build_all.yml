@@ -70,6 +70,8 @@ jobs:
       - name: Publish debian packages
         id: publish_packages
         if: github.event_name == 'push'
+        env:
+          ARTIFACT: ''
         run: |
           cd lte/gateway/magma-packages
           ARTIFACTS='{"packages":[],"valid":false}'
@@ -77,6 +79,18 @@ jobs:
           for i in `ls -a1 *.deb`
           do
             echo "#############################################"  
-            exho "Pushing package: $i"
+            echo "Pushing package: $i"
             echo "#############################################"
+            if [grep -o '^magma_\d*.\d*.\d*-\d*-\d*' $i]; then
+              ARTIFACT=$i
+              JSON=${{ toJSON($i) }}
+              echo $JSON
+              break
+            fi
           done
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: ajahl/magma
+          event-type: build-all-artifact
+          client-payload: '{ "artifact": "${{ ARTIFACT }}" }'
