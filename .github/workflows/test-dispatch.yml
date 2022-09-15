@@ -15,9 +15,6 @@ on:
   pull_request:
     types: [opened,reopened,synchronize]
 
-env:
-  ARTIFACT: 'TEST'
-
 jobs:
   agw-build:
     runs-on: macos-12

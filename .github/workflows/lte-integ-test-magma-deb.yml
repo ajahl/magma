@@ -13,13 +13,64 @@ name: LTE integ test magma-deb
 
 on:
   workflow_dispatch: null
-  repository_dispatch:
-    types: build-all-artifact
+  workflow_run:
+    workflows:
+      - build-all
+    branches:
+      - master
+      - '*'
+    types:
+      - completed
 
 jobs:
   lte-integ-test-magma-deb:
     runs-on: macos-12
     steps:
-      - name: Run the integ test
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # pin@v3
+      - name: Cache magma-deb-box
+        uses: actions/cache@0865c47f36e68161719c5b124609996bb5c40129 # pin@v3
+        with:
+          path: ~/.vagrant.d/boxes/magmacore-VAGRANTSLASH-magma_deb
+          key: vagrant-box-magma-deb-focal64-20220804.0.0
+      - name: Cache magma-test-box
+        uses: actions/cache@0865c47f36e68161719c5b124609996bb5c40129 # pin@v3
+        with:
+          path: ~/.vagrant.d/boxes/magmacore-VAGRANTSLASH-magma_test
+          key: vagrant-box-magma-test
+      - name: Cache magma-trfserver-box
+        uses: actions/cache@0865c47f36e68161719c5b124609996bb5c40129 # pin@v3
+        with:
+          path: ~/.vagrant.d/boxes/magmacore-VAGRANTSLASH-magma_trfserver
+          key: vagrant-box-magma-trfserver-v20220722
+      - uses: actions/setup-python@7f80679172b057fc5e90d70d197929d454754a5a # pin@v2
+        with:
+          python-version: '3.8.10'
+      - name: Install pre requisites
         run: |
-          echo ${{ github.event.client_payload.artifact }}
+          pip3 install --upgrade pip
+          pip3 install ansible fabric3 jsonpickle requests PyYAML
+          vagrant plugin install vagrant-vbguest vagrant-disksize vagrant-reload
+      - name: Open up network interfaces for VM
+        run: |
+          sudo mkdir -p /etc/vbox/
+          echo '* 192.168.0.0/16' | sudo tee /etc/vbox/networks.conf 
+          echo '* 3001::/64' | sudo tee -a /etc/vbox/networks.conf
+      - name: Get debian package version
+        env:
+          REPO: ${{ github.event.repository.full_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACTS: ${GITHUB_TOKEN}" https://api.github.com/repos/"$REPO"/actions/runs/${WORKFLOW_RUN_ID}/artifacts
+        run: |
+          echo ${ARTIFACTS}
+          curl -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/"$REPO"/actions/runs/${WORKFLOW_RUN_ID}/artifacts | jq --compact-output '.artifacts[]' >> artifacts.json
+          while read -r artifacts; do
+            echo "$artifacts"
+          done < workflow-artifacts.json
+      - name: Run the integ test
+        env:
+          MAGMA_DEV_CPUS: 3
+          MAGMA_DEV_MEMORY_MB: 9216
+        run: |
+          cd lte/gateway
+          fab integ_test_deb_installation
