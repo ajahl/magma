@@ -12,8 +12,6 @@
 name: 0test-accept
 
 on:
-  pull_request:
-    types: [opened,reopened,synchronize]
   repository_dispatch:
     types: [build-all-artifact]
 
