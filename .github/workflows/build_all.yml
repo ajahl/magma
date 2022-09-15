@@ -21,7 +21,10 @@ on:
     branches:
       - master
       - 'v1.*'
-    types: [ opened, reopened, synchronize ]
+    types: [opened,reopened,synchronize]
+
+env:
+  ARTIFACT: 'TEST'
 
 jobs:
   agw-build:
@@ -70,8 +73,6 @@ jobs:
       - name: Publish debian packages
         id: publish_packages
         if: github.event_name == 'push'
-        env:
-          ARTIFACT: ''
         run: |
           cd lte/gateway/magma-packages
           ARTIFACTS='{"packages":[],"valid":false}'
@@ -81,16 +82,15 @@ jobs:
             echo "#############################################"  
             echo "Pushing package: $i"
             echo "#############################################"
-            if [grep -o '^magma_\d*.\d*.\d*-\d*-\d*' $i]; then
+            if [grep -o -q '^magma_\d*.\d*.\d*-\d*-\d*' '$i']; then
               ARTIFACT=$i
-              JSON=${{ toJSON($i) }}
-              echo $JSON
               break
             fi
           done
+      - name: Trigger integ workflow
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           repository: ajahl/magma
           event-type: build-all-artifact
-          client-payload: '{ "artifact": "${{ ARTIFACT }}" }'
+          client-payload: '{ "artifact": "$ARTIFACT" }'
