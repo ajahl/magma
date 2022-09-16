@@ -151,8 +151,6 @@
   vars:
     packages:
       - "{{ lookup('env','MAGMA_PACKAGE') }}"
-  debug:
-    msg: "apt install {{ lookup('env','MAGMA_PACKAGE') }}"
 
 # Install openvswitch in containerized agw only
 - name: Install prebuilt openvswitch packages
