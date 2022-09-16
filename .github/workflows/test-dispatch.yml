@@ -31,7 +31,7 @@ jobs:
           do
             echo "::set-output name=artifact::${i%_[a-z0-9]*.deb}"
             echo "#############################################"  
-            echo "Pushing package: $ARTIFACT"
+            echo "Pushing package: ${{ steps.publish_packages.outputs.artifact }}"
             echo "#############################################"
           done
       - name: Trigger integ workflow
