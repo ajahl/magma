@@ -20,7 +20,7 @@ SUCCESS_MESSAGE="ok"
 WHOAMI=$(whoami)
 
 echo "##############SH##############"
-echo "echo2 $MAGMA_PACKAGE"
+echo "echo2 $MAGMA_PACKAGE" 
 echo "##############################"
 
 echo "Checking if the script has been executed by root user"
