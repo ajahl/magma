@@ -24,9 +24,9 @@ jobs:
         id: publish_packages
         run: |
           touch magma-sctpd_1.8.0-1663241096-1212843f_amd64.deb
-          touch magma_1.8.0-1663241096-1212843f_amd64.deb
+          touch magma=1.8.0-1663241096-1212843f_amd64.deb
           touch td-agent-bit_1.6.9_amd64.deb
-          for i in `ls -a1 magma_*.deb`
+          for i in `ls -a1 magma=*.deb`
           do
             echo "::set-output name=artifact::${i%_[a-z0-9]*.deb}"
             echo "#############################################"  
