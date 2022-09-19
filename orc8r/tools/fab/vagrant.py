@@ -39,7 +39,6 @@ def setup_env_vagrant(machine='magma', apply_to_env=True, force_provision=False)
     print("#####################################  VM is %s." % machine)
     print("#####################################  Magma Deb Version %s." % os.getenv('MAGMA_PACKAGE'))
     
-    
     __ensure_in_vagrant_dir()
 
     # Ensure that VM is running
