@@ -20,7 +20,7 @@ SUCCESS_MESSAGE="ok"
 WHOAMI=$(whoami)
 
 echo "##############SH##############"
-echo $MAGMA_PACKAGE
+echo "echo2 $MAGMA_PACKAGE"
 echo "##############################"
 
 echo "Checking if the script has been executed by root user"
@@ -49,7 +49,7 @@ if [ "$MAGMA_INSTALLED" != "$SUCCESS_MESSAGE" ]; then
   127.0.0.1 ansible_connection=local" > $DEPLOY_PATH/agw_hosts
 
   # install magma and its dependencies including OVS.
-  su - $MAGMA_USER -c "ansible-playbook -e \"MAGMA_ROOT='/home/$MAGMA_USER/magma' OUTPUT_DIR='/tmp'\" -i $DEPLOY_PATH/agw_hosts -e \"use_master=True\" $DEPLOY_PATH/magma_deploy.yml"
+  su - $MAGMA_USER -c "ansible-playbook -e \"MAGMA_ROOT='/home/$MAGMA_USER/magma' OUTPUT_DIR='/tmp'\" -i $DEPLOY_PATH/agw_hosts -e \"use_master=True\" $DEPLOY_PATH/magma_deploy.yml --extra-vars \"MAGMA_PACKAGE=\"$MAGMA_PACKAGE\"\"" 
 
   echo "Cleanup temp files"
   cd /root || exit

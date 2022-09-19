@@ -150,7 +150,7 @@
     dpkg_options: 'force-confold,force-confdef,force-overwrite'
   vars:
     packages:
-      - "{{ lookup('env','MAGMA_PACKAGE') }}"
+      - "{{ MAGMA_PACKAGE }}"
 
 # Install openvswitch in containerized agw only
 - name: Install prebuilt openvswitch packages
