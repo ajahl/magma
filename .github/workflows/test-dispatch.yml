@@ -29,13 +29,10 @@ jobs:
           touch td-agent-bit_1.6.9_amd64.deb
           for i in `ls -a1 magma_*.deb`
           do
-            version_pin=${i#magma_}
-            version_pin=${version_pin%_[a-z0-9]*.deb}
-            version_pin='magma='${version_pin}
-            echo "::set-output name=artifact::${version_pin}"
-            echo "#############################################"  
-            echo "Pushing package: ${version_pin}"
-            echo "#############################################"
+            magma_package=${i#magma_}
+            magma_package=${magma_package%_[a-z0-9]*.deb}
+            magma_package='magma='${magma_package}
+            echo "::set-output name=artifact::${magma_package}"
           done
       - name: Trigger integ workflow
         uses: peter-evans/repository-dispatch@v2

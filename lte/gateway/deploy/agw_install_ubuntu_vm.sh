@@ -19,10 +19,6 @@ DEPLOY_PATH="/home/$MAGMA_USER/magma/lte/gateway/deploy"
 SUCCESS_MESSAGE="ok"
 WHOAMI=$(whoami)
 
-echo "##############SH##############"
-echo "echo2 $MAGMA_PACKAGE" 
-echo "##############################"
-
 echo "Checking if the script has been executed by root user"
 if [ "$WHOAMI" != "root" ]; then
   echo "You're executing the script as $WHOAMI instead of root.. exiting"
