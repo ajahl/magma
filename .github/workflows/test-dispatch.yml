@@ -27,12 +27,15 @@ jobs:
           touch magma-sctpd_1.8.0-1663241096-1212843f_amd64.deb
           touch magma_1.8.0-1663241096-1212843f_amd64.deb
           touch td-agent-bit_1.6.9_amd64.deb
-          for i in `ls -a1 magma_*.deb`
+          for i in `ls -a1 *.deb`
           do
-            magma_package=${i#magma_}
-            magma_package=${magma_package%_[a-z0-9]*.deb}
-            magma_package='magma='${magma_package}
-            echo "::set-output name=artifact::${magma_package}"
+            match="magma_[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-z0-9]+_[a-z0-9]+.deb"
+            if [[ $i =~ $match ]]; then
+              magma_package=${i#magma_}
+              magma_package=${magma_package%_[a-z0-9]*.deb}
+              magma_package='magma='${magma_package}
+              echo "::set-output name=artifact::${magma_package}"
+            fi
           done
       - name: Trigger integ workflow
         uses: peter-evans/repository-dispatch@v2
