@@ -82,7 +82,7 @@
       "mmeGid": 1,
       "mmeRelativeCapacity": 11,
       "mnc": "01",
-      "natEnabled": true,
+      "natEnabled": false,
       "nonEpsServiceControl": 0,
       "relayEnabled": false,
       "tac": 1
@@ -109,7 +109,7 @@
       "enable5gFeatures": false,
       "liUes": {},
       "logLevel": "INFO",
-      "natEnabled": true,
+      "natEnabled": false,
       "services": [
         "DPI",
         "ENFORCEMENT"
