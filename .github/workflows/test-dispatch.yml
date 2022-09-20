@@ -34,7 +34,7 @@ jobs:
               magma_package=${i#magma_}
               magma_package=${magma_package%_[a-z0-9]*.deb}
               magma_package='magma='${magma_package}
-              echo "::set-output name=artifact::${magma_package}"
+              echo "::set-output name=magma_package::${magma_package}"
             fi
           done
       - name: Trigger integ workflow
@@ -43,4 +43,4 @@ jobs:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           repository: ajahl/magma
           event-type: build-all-artifact
-          client-payload: '{ "artifact": "${{ steps.publish_packages.outputs.artifact }}" }'
+          client-payload: '{ "artifact": "${{ steps.publish_packages.outputs.magma_package }}" }'
