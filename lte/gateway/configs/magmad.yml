@@ -70,7 +70,7 @@ skip_checkin_if_missing_meta_services: []
 
 # Init system to use to control services
 # Supported systems include: [systemd, runit, docker]
-init_system: systemd
+init_system: docker
 
 # bootstrap_manager config
 bootstrap_config:
