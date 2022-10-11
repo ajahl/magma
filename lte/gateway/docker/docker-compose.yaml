@@ -234,12 +234,9 @@ services:
       core: -1
     healthcheck:
       test: ["CMD", "test", "-S", "/tmp/sctpd_downstream.sock"]
-      interval: "1s"
+      interval: "4s"
       timeout: "4s"
       retries: 3
-    depends_on:
-      oai_mme:
-        condition: service_healthy
     security_opt:
       - seccomp:unconfined
     environment:
@@ -266,6 +263,10 @@ services:
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
     depends_on:
       - magmad
+      - mobilityd
+      - pipelined
+      - sessiond
+      - sctpd
     cap_add:
       - NET_ADMIN
       - NET_RAW
@@ -292,8 +293,9 @@ services:
       timeout: "4s"
       retries: 3
     depends_on:
-      mobilityd:
-        condition: service_healthy
+      - mobilityd
+      - subscriberdb
+
     command: >
       bash -c "/usr/bin/ovs-vsctl --all destroy Flow_Sample_Collector_Set &&
         /usr/bin/ovs-vsctl set bridge gtp_br0 protocols=OpenFlow10,OpenFlow13,OpenFlow14 other-config:disable-in-band=true &&
@@ -310,10 +312,7 @@ services:
     security_opt:
       - seccomp:unconfined
     depends_on:
-      directoryd:
-        condition: service_healthy
-      pipelined:
-        condition: service_healthy
+      - directoryd
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50065"]
       interval: "4s"
@@ -375,6 +374,8 @@ services:
       interval: "4s"
       timeout: "4s"
       retries: 3
+    depends_on:
+     - pipelined
     cap_add:
       - NET_ADMIN
     environment:

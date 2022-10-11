@@ -17,11 +17,11 @@ PRECOMMIT_TESTS = s1aptests/test_services_are_running.py \
 s1aptests/test_attach_nw_initiated_detach_with_mme_restart.py \
 s1aptests/test_attach_detach_multiple_ip_blocks_mobilityd_restart.py \
 s1aptests/test_attach_ul_udp_data_with_mme_restart.py \
-# s1aptests/test_attach_ul_udp_data_with_mobilityd_restart.py \
-# s1aptests/test_attach_ul_udp_data_with_multiple_service_restart.py \
-# s1aptests/test_attach_ul_udp_data_with_pipelined_restart.py \
-# s1aptests/test_attach_ul_udp_data_with_sessiond_restart.py \
-# s1aptests/test_service_req_ul_udp_data_with_mme_restart.py \
+s1aptests/test_attach_ul_udp_data_with_mobilityd_restart.py \
+s1aptests/test_attach_ul_udp_data_with_multiple_service_restart.py \
+s1aptests/test_attach_ul_udp_data_with_pipelined_restart.py \
+s1aptests/test_attach_ul_udp_data_with_sessiond_restart.py \
+s1aptests/test_service_req_ul_udp_data_with_mme_restart.py \
 # s1aptests/test_attach_detach_with_sctpd_restart.py \
 
 # s1aptests/test_attach_detach_setsessionrules_tcp_data.py \
