@@ -1028,7 +1028,7 @@ class MagmadUtil(object):
         wait_time_seconds = 0
 
         WAIT_INTERVAL_SECONDS = 5
-        MAX_WAIT_SECONDS = 120
+        MAX_WAIT_SECONDS = 220
         print(f"  check every {WAIT_INTERVAL_SECONDS} seconds (max {MAX_WAIT_SECONDS} seconds) if pipelined is started ...")
         datapath_is_initialized = False
         while not datapath_is_initialized:

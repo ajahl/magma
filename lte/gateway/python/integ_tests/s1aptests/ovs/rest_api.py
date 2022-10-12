@@ -71,6 +71,7 @@ def get_datapath_state(ip=DEV_VM_URL) -> Tuple[bool, bool]:
     url = "http://%s:%d/stats/switches" % (ip, OF_REST_PORT)
     try:
         datapath_list = _ovs_api_request('GET', url)
+        print(f"  datapath {datapath_list}")
     except requests.ConnectionError:
         # Check if datapath is initialized failed: pipelined not reachable.
         return False, False
