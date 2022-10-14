@@ -390,6 +390,10 @@ class S1ApUtil(object):
             f"s1ap response expected, received: "
             f"{resp_type.value}, {response.msg_type}",
         )
+        print(
+            f"s1ap response expected, received: "
+            f"{resp_type.value}, {response.msg_type}",
+        )
         assert resp_type.value == response.msg_type
 
         msg = response.cast(resp_msg_type)
@@ -1073,17 +1077,17 @@ class MagmadUtil(object):
                 # AGW in production.
                 #
 
-                if (
-                    service_name == "oai_mme"
-                    or service_name == "sessiond"
-                    or service_name == "mobilityd"
-                    or service_name == "pipelined"
-                ):
-                    self.exec_command(
-                        "docker restart --time 1 oai_mme mobilityd sessiond "
-                        "connectiond pipelined envoy_controller",
-                    )
-                elif service_name == "sctpd":
+                # if (
+                #     service_name == "oai_mme"
+                #     or service_name == "sessiond"
+                #     or service_name == "mobilityd"
+                #     or service_name == "pipelined"
+                # ):
+                #     self.exec_command(
+                #         "docker restart --time 1 oai_mme mobilityd sessiond "
+                #         "connectiond pipelined envoy_controller",
+                #     )
+                if service_name == "sctpd":
                     self.exec_command_output(
                         "docker stop "
                         "sctpd oai_mme mobilityd sessiond "
