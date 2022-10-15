@@ -153,7 +153,6 @@ s1aptests/test_x2_handover_ping_pong.py \
 s1aptests/test_attach_detach_with_mme_restart.py \
 s1aptests/test_attach_detach_with_mobilityd_restart.py \
 s1aptests/test_idle_mode_with_mme_restart.py \
-s1aptests/test_3485_timer_for_default_bearer_with_mme_restart.py \
 s1aptests/test_attach_nw_initiated_detach_fail.py \
 s1aptests/test_tau_ta_updating.py \
 s1aptests/test_tau_ta_updating_reject.py \
@@ -165,6 +164,7 @@ s1aptests/test_attach_implicit_detach_timer_expiry.py \
 s1aptests/test_mobile_reachability_tmr_with_mme_restart.py \
 s1aptests/test_implicit_detach_timer_with_mme_restart.py \
 s1aptests/test_restore_mme_config_after_sanity.py
+# s1aptests/test_3485_timer_for_default_bearer_with_mme_restart.py \
 # s1aptests/test_attach_detach_rar_tcp_he.py \
 # s1aptests/test_attach_detach_flaky_retry_success.py \
 # s1aptests/test_attach_detach_dedicated.py \
