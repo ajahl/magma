@@ -39,11 +39,12 @@ RUN apt-get update && apt-get install -y \
     vim \
     virtualenv
 
-# Golang 1.18
+# Golang 1.19
 WORKDIR /usr/local
-ARG GOLANG_VERSION="1.18.3"
+ARG GOLANG_VERSION="1.19.3"
 RUN GO_TARBALL="go${GOLANG_VERSION}.linux-amd64.tar.gz" \
- && curl https://artifactory.magmacore.org/artifactory/generic/${GO_TARBALL} --remote-name --location \
+#  && curl https://artifactory.magmacore.org/artifactory/generic/${GO_TARBALL} --remote-name --location \
+ && curl https://go.dev/dl/${GO_TARBALL} --remote-name --location \
  && tar -xzf ${GO_TARBALL} \
  && ln -s /usr/local/go/bin/go /usr/local/bin/go \
  && rm ${GO_TARBALL}
@@ -61,7 +62,7 @@ ENV GOBIN /var/opt/magma/bin
 ENV MAGMA_ROOT /magma
 ENV PIP_CACHE_HOME ~/.pipcache
 ENV PYTHON_BUILD /build/python
-ENV PATH ${PYTHON_BUILD}/bin:${PATH}:${GOBIN}
+ENV PATH ${PYTHON_BUILD}/bin:${PATH}:${GOBIN}:/usr/local/go/bin
 ENV GO111MODULE on
 # Use public go modules proxy
 ENV GOPROXY https://proxy.golang.org

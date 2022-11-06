@@ -8,7 +8,7 @@ FROM --platform=$PLATFORM ubuntu:xenial as base
 ENV GO111MODULE on
 ENV GOPATH ${USER}/go
 ENV GOBIN /build/bin
-ENV PATH ${PATH}:${GOBIN}:${GOPATH}/bin
+ENV PATH ${PATH}:${GOBIN}:${GOPATH}/bin:/usr/local/go/bin:/usr/local/bin/go
 
 # Used in Makefiles
 ENV MAGMA_ROOT /src/magma
@@ -24,11 +24,12 @@ RUN apt-get update && apt-get install -y \
   unzip \
   vim
 
-# Golang 1.18
+# Golang 1.19
 WORKDIR /usr/local
-ARG GOLANG_VERSION="1.18.3"
+ARG GOLANG_VERSION="1.19.3"
 RUN GO_TARBALL="go${GOLANG_VERSION}.linux-amd64.tar.gz" \
- && curl https://artifactory.magmacore.org/artifactory/generic/${GO_TARBALL} --remote-name --location \
+#  && curl https://artifactory.magmacore.org/artifactory/generic/${GO_TARBALL} --remote-name --location \
+ && curl https://go.dev/dl/${GO_TARBALL} --remote-name --location \
  && tar -xzf ${GO_TARBALL} \
  && ln -s /usr/local/go/bin/go /usr/local/bin/go \
  && rm ${GO_TARBALL}

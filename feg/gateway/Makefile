@@ -22,7 +22,7 @@ install:
 	go install ./... magma/gateway/services/magmad
 
 install_envoy_controller:
-	go install ./... magma/feg/gateway/services/envoy_controller
+	go install -buildvcs=false ./... magma/feg/gateway/services/envoy_controller
 
 test:
 	mkdir -p /tmp/test-results
@@ -59,7 +59,7 @@ lint_tools:
 	else \
 		echo "-> installing golangci " && \
 			curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-			| sudo sh -s -- -b /usr/sbin/ v1.45.0; \
+			| sudo sh -s -- -b /usr/sbin/ v1.50.1; \
 	fi
 
 build_only:
