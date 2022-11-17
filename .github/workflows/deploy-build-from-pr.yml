@@ -34,7 +34,7 @@ jobs:
         uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0 # pin@v6.3.3
         with:
           script: |
-            var artifacts = await github.actions.listWorkflowRunArtifacts({
+            var artifacts = await github.rest.actions.listWorkflowRunArtifacts({
                owner: context.repo.owner,
                repo: context.repo.repo,
                run_id: ${{github.event.workflow_run.id }},
@@ -46,7 +46,7 @@ jobs:
                 console.log(String(matchMetadataArtifact));
                 continue;
               }
-              var download = await github.actions.downloadArtifact({
+              var download = await github.rest.actions.downloadArtifact({
                             owner: context.repo.owner,
                             repo: context.repo.repo,
                             artifact_id: matchMetadataArtifact.id,
@@ -54,7 +54,7 @@ jobs:
                          });
               fs.writeFileSync('${{github.workspace}}/artifact' + i + '.zip', Buffer.from(download.data));
               console.log('Downloaded ' + matchMetadataArtifact.name + ' and placed it there ${{github.workspace}}/artifact' + i + '.zip');
-              github.actions.deleteArtifact({
+              github.rest.actions.deleteArtifact({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 artifact_id: matchMetadataArtifact.id
