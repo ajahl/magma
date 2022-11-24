@@ -124,123 +124,13 @@ jobs:
           pip install artifactory
           python ci-scripts/helm_repo_rotation.py
   agw-build:
-    if: github.event_name == 'push' && github.repository_owner == 'magma'
-    runs-on: macos-12
+    # if: github.event_name == 'push' && github.repository_owner == 'magma'
+    runs-on: ubuntu-latest
     outputs:
       artifacts: ${{ steps.publish_packages.outputs.artifacts }}
       magma_package: ${{ steps.publish_packages.outputs.magma_package }}
     steps:
-      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
-        with:
-          fetch-depth: 0
-      - name: Cache magma-dev-box
-        uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # pin@v3.0.11
-        with:
-          path: ~/.vagrant.d/boxes/magmacore-VAGRANTSLASH-magma_dev
-          key: vagrant-box-magma-dev-v1.2.20221012
-      - name: Log in to vagrant cloud
-        run: |
-          if [[ -n "${{ secrets.VAGRANT_TOKEN }}" ]]
-          then
-            echo "Logging in to vagrant cloud to mitigate rate limiting."
-            vagrant cloud auth login --token "${{ secrets.VAGRANT_TOKEN }}"
-          else
-            echo "Vagrant cloud token is not configured. Skipping login."
-          fi
-      - uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # pin@v4.3.0
-        with:
-          python-version: '3.8.10'
-      - name: Install pre requisites
-        run: |
-          pip3 install --upgrade pip
-          pip3 install ansible fabric3 jsonpickle requests PyYAML
-          vagrant plugin install vagrant-disksize vagrant-vbguest vagrant-mutate vagrant-reload
-      - name: Open up network interfaces for VM
-        run: |
-          sudo mkdir -p /etc/vbox/
-          sudo touch /etc/vbox/networks.conf
-          sudo sh -c "echo '* 192.168.0.0/16' > /etc/vbox/networks.conf"
-          sudo sh -c "echo '* 3001::/64' >> /etc/vbox/networks.conf"
-      - name: Build AGW
-        run: |
-          export MAGMA_DEV_MEMORY_MB=4096
-          cd lte/gateway
-          fab release package:destroy_vm=True
-          mkdir magma-packages
-          vagrant ssh -c "cp -r magma-packages /vagrant"
-      - name: Setup JFROG CLI
-        uses: jfrog/setup-jfrog-cli@d0a59b1cdaeeb16e65b5039fc92b8507337f1559 # pin@v3
-      - name: Publish debian packages
-        id: publish_packages
-        if: github.event_name == 'push'
-        env:
-          DEBIAN_META_INFO: deb.distribution=focal-ci;deb.component=main;deb.architecture=amd64
-        run: |
-          cd lte/gateway/magma-packages
-          ARTIFACTS='{"packages":[],"valid":false}'
-          PUBLISH_ERROR="false"
-          for i in `ls -a1 *.deb`
-          do
-            echo "Pushing package $i to JFROG artifiactory: https://artifactory.magmacore.org/artifactory/debian-test/pool"
-            HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -uci-bot:${{ secrets.JFROG_CIBOT_APIKEYS }} -XPUT "https://artifactory.magmacore.org/artifactory/debian-test/pool/focal-ci/$i;deb.distribution=focal-ci;deb.component=main;deb.architecture=amd64" -T $i)
-            echo "$HTTP_RESPONSE"
-            # extract the body and download uri
-            HTTP_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-            URI=$(echo $HTTP_BODY | jq -r '.uri')
-            if [[ "$URI" != "null" ]]; then
-              ARTIFACTS=$(echo $ARTIFACTS | jq --arg uri $URI '.packages += [$uri]')
-            else
-              PUBLISH_ERROR="true"
-            fi
-            # extract and check status
-            HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-            if [[ "$HTTP_STATUS" != "2"* ]]; then
-              PUBLISH_ERROR="true"
-            fi
-            # extract magma debian package version
-            match="magma_[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-z0-9]+_[a-z0-9]+.deb"
-            if [[ $i =~ $match ]]; then
-              magma_package=${i#magma_}
-              magma_package=${magma_package%_[a-z0-9]*.deb}
-              magma_package='magma='${magma_package}
-              echo "magma_package=${magma_package}" >> $GITHUB_OUTPUT
-            fi
-          done
-
-          #Uploading it to the Linux foundation Registry
-          jf rt upload \
-            --recursive=false \
-            --detailed-summary \
-            --url https://linuxfoundation.jfrog.io/artifactory/ \
-            --user ${{ secrets.LF_JFROG_USERNAME }} \
-            --password ${{ secrets.LF_JFROG_PASSWORD }} \
-            --target-props="${DEBIAN_META_INFO}" \
-            "(*).deb" magma-packages-test/pool/focal-ci/{1}.deb
-          # set output
-          if [[ "$PUBLISH_ERROR" != "true" ]]; then
-            ARTIFACTS=$(echo $ARTIFACTS | jq '. += {"valid":true}')
-          fi
-          echo "artifacts=$(echo $ARTIFACTS)" >> $GITHUB_OUTPUT
-      - uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # pin@v3
-        if: github.event_name == 'pull_request'
-        with:
-          name: magma-packages
-          path: lte/gateway/magma-packages/*.deb
-      - uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # pin@v3
-        name: Export sentry executables
-        if: github.event_name == 'push'
-        with:
-          name: sentry-exec
-          path: lte/gateway/magma-packages
-      - name: Extract commit title
-        # yamllint enable
-        if: github.event_name == 'push'
-        id: commit
-        run: |
-          str="$(jq '.head_commit.message' $GITHUB_EVENT_PATH)"    # get the head_commit message
-          echo "title=${str%%\\n*}" >> $GITHUB_OUTPUT
       - name: Notify failure to slack
-        if: failure() && github.event_name == 'push'
         env:
           SLACK_TITLE: "Github action agw build failed"
           SLACK_MESSAGE: "AGW  build failed on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
@@ -250,7 +140,6 @@ jobs:
         uses: bryannice/gitactions-slack-notification@994ea1036ed0a741632907a1431f8d94f00dd84f # pin@2.0.0
       # Notify ci channel when push succeeds
       - name: Notify success to Slack
-        if: success() && github.event_name == 'push'
         env:
           SLACK_TITLE: "Github action agw build got published"
           SLACK_MESSAGE: "AGW  build succeeded on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
