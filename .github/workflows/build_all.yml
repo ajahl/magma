@@ -243,23 +243,21 @@ jobs:
         if: failure() && github.event_name == 'push'
         env:
           SLACK_TITLE: "Github action agw build failed"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE: "AGW  build failed on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
+          SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_USERNAME: ${{ github.workflow }}
-          SLACK_AVATAR: ":boom:"
-        uses: Ilshidur/action-slack@689ad44a9c9092315abd286d0e3a9a74d31ab78a # pin@2.1.0
-        with:
-          args: "AGW  build failed on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
+          SLACK_ICON: ":boom:"
+        uses: bryannice/gitactions-slack-notification@994ea1036ed0a741632907a1431f8d94f00dd84f # pin@2.0.0
       # Notify ci channel when push succeeds
       - name: Notify success to Slack
         if: success() && github.event_name == 'push'
         env:
           SLACK_TITLE: "Github action agw build got published"
+          SLACK_MESSAGE: "AGW  build succeeded on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_ARTIFACTS }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_OSS }}
+          SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_OSS }}
           SLACK_USERNAME: ${{ github.workflow }}
-        uses: Ilshidur/action-slack@689ad44a9c9092315abd286d0e3a9a74d31ab78a # pin@2.1.0
-        with:
-          args: "AGW  build succeeded on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
+        uses: bryannice/gitactions-slack-notification@994ea1036ed0a741632907a1431f8d94f00dd84f # pin@2.0.0
   sentry_release:
     if: always() && github.event_name == 'push'
     needs: [ agw-build ]
