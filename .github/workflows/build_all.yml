@@ -134,19 +134,23 @@ jobs:
         env:
           SLACK_TITLE: "Github action agw build failed"
           SLACK_MESSAGE: "AGW  build failed on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
-          SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_USERNAME: ${{ github.workflow }}
-          SLACK_ICON: ":boom:"
-        uses: bryannice/gitactions-slack-notification@994ea1036ed0a741632907a1431f8d94f00dd84f # pin@2.0.0
+          SLACK_ICON_EMOJI: ":boom:"
+          SLACK_COLOR: ${{ job.status }}
+          MSG_MINIMAL: "true"
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # pin@v2.2.0
       # Notify ci channel when push succeeds
       - name: Notify success to Slack
         env:
           SLACK_TITLE: "Github action agw build got published"
           SLACK_MESSAGE: "AGW  build succeeded on [${{github.sha}}](${{github.event.repository.owner.html_url}}/magma/commit/${{github.sha}}): ${{ steps.commit.outputs.title}}"
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_ARTIFACTS }}
-          SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_OSS }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_OSS }}
           SLACK_USERNAME: ${{ github.workflow }}
-        uses: bryannice/gitactions-slack-notification@994ea1036ed0a741632907a1431f8d94f00dd84f # pin@2.0.0
+          SLACK_COLOR: ${{ job.status }}
+          MSG_MINIMAL: "true"
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # pin@v2.2.0
   sentry_release:
     if: always() && github.event_name == 'push'
     needs: [ agw-build ]
