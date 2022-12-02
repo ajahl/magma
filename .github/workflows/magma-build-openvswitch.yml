@@ -1,0 +1,48 @@
+# Copyright 2022 The Magma Authors.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Magma Build & Publish Open vSwitch Artifacts
+
+on:
+  workflow_dispatch: null
+  push:
+    branches:
+      - master
+      - 'v1.*'
+    paths:
+      - third_party/**
+
+jobs:
+  build-debian-packages:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
+      - name: build openvswitch
+        working-directory: third_party/gtp_ovs/ovs-gtp-patches/2.15
+        run: |
+          pwd
+          ./build.py
+        shell: bash
+      - name: Setup JFrog CLI
+        id: jfrog-setup
+        # Workaround because secrets are available in `env` but not in `if`
+        if: ${{ env.JF_USER != '' && env.JF_PASSWORD != '' }}
+        uses: jfrog/setup-jfrog-cli@d0a59b1cdaeeb16e65b5039fc92b8507337f1559 # pin@v3
+        env:
+          JF_URL: https://linuxfoundation.jfrog.io/
+          JF_USER: ${{ secrets.LF_JFROG_USERNAME }}
+          JF_PASSWORD: ${{ secrets.LF_JFROG_PASSWORD }}
+      - name: Publish debian package
+        if: steps.jfrog-setup.conclusion == 'success' && github.event_name == 'workflow_dispatch'
+        working-directory: ../ovs-build/
+        run: |
+          echo "publish ..."
+
