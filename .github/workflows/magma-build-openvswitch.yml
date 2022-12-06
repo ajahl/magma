@@ -64,35 +64,73 @@ jobs:
           ./build.sh ${{ env.DEST }}
           ls ${{ env.DEST }}/*.deb
 
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ovs_deps
+      #     path: ${{ env.DEST }}
+
       - name: Test installability of the debian package
         working-directory: ${{ env.DEST }}
         run: |
-          sudo apt-get install --yes --allow-downgrades ${{ env.debs }}
-        shell: bash
-        env:
-          debs: |
-            ./libopenvswitch*.deb
-            ./libopenvswitch-dev*.deb
-            ./openvswitch-common*.deb
-            ./openvswitch-datapath-dkms*.deb
-            ./openvswitch-datapath-source*.deb
-            ./openvswitch-switch*.deb
-            ./openvswitch-test*.deb
-            ./python3-openvswitch*.deb
+            DEBS="libopenvswitch*.deb 
+                  openvswitch-common*.deb
+                  openvswitch-datapath-dkms*.deb
+                  openvswitch-datapath-source*.deb
+                  openvswitch-switch*.deb
+                  openvswitch-test*.deb
+                  python3-openvswitch*.deb"
 
-      - run: echo "repository=debian-test" >> $GITHUB_ENV
-        if: github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch'
+            for pkg in $DEBS; do
+              sudo apt-get install --yes --allow-downgrades  ./$pkg
+            done
 
-      - run: |
-          echo "You have chosen repository ${{ env.repository }} and 'is production' ${{ inputs.production }}."
-          echo "ERROR: Production deployment is protected. Abort!"
-          exit 1
-        if: |
-          env.repository == 'magma-packages-prod' &&
-          ! (
-            inputs.production &&
-            contains('["maxhbr", "nstng", "jheidbrink", "lkreutzer", "Neudrino", "MoritzThomasHuebner", "tmdzk", "wolfseb"]', github.actor)
-          )
+      # - name: Test installability of the debian package
+      #   working-directory: ${{ env.DEST }}
+      #   run: |
+      #     sudo apt-get install --yes --allow-downgrades ${{ env.debs }}
+      #   shell: bash
+      #   env:
+      #     debs: |
+      #       ./libopenvswitch*.deb
+      #       ./libopenvswitch-dev*.deb
+      #       ./openvswitch-common*.deb
+      #       ./openvswitch-datapath-dkms*.deb
+      #       ./openvswitch-datapath-source*.deb
+      #       ./openvswitch-switch*.deb
+      #       ./openvswitch-test*.deb
+      #       ./python3-openvswitch*.deb
+
+  # test_packages:
+  #   needs: build_packages
+  #   runs-on: ubuntu-20.04
+  #   strategy:
+  #     matrix:
+  #       deps: [libopenvswitch*.deb, openvswitch-common*.deb]
+  #   steps:
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: ovs_deps
+  #         path: ${{ env.DEST }}
+
+  #     - name: Test installability of the debian package
+  #       working-directory: ${{ env.DEST }}
+  #       run: |
+  #         sudo apt-get install --yes --allow-downgrades ./${{ matrix.debs }}
+  #       shell: bash
+  # upload-packages:
+  #     - run: echo "repository=debian-test" >> $GITHUB_ENV
+  #       if: github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch'
+
+  #     - run: |
+  #         echo "You have chosen repository ${{ env.repository }} and 'is production' ${{ inputs.production }}."
+  #         echo "ERROR: Production deployment is protected. Abort!"
+  #         exit 1
+  #       if: |
+  #         env.repository == 'magma-packages-prod' &&
+  #         ! (
+  #           inputs.production &&
+  #           contains('["maxhbr", "nstng", "jheidbrink", "lkreutzer", "Neudrino", "MoritzThomasHuebner", "tmdzk", "wolfseb"]', github.actor)
+  #         )
 
       # - name: Setup JFrog CLI
       #   id: jfrog-setup
