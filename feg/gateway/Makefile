@@ -22,7 +22,7 @@ install:
 	go install ./... magma/gateway/services/magmad
 
 install_envoy_controller:
-	go install ./... magma/feg/gateway/services/envoy_controller
+	go install  -buildvcs=false ./... magma/feg/gateway/services/envoy_controller
 
 test:
 	mkdir -p /tmp/test-results
