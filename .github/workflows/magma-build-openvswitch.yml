@@ -12,22 +12,22 @@
 name: Magma Build & Publish Open vSwitch Artifacts
 
 on:
-  workflow_dispatch: null
-  #  inputs:
-  #     production:
-  #       description: Is production build?
-  #       type: boolean
-  #       default: false
-  #     repository:
-  #       description: Repository to push to?
-  #       type: choice
-  #       default: magma-packages-test
-  #       options: [ magma-packages-test, magma-packages-prod ]
-  #       required: true
-  #     distribution:
-  #       description: Distribution to set?
-  #       default: 'focal-ci'
-  #       required: true
+  workflow_dispatch: 
+   inputs:
+      production:
+        description: Is production build?
+        type: boolean
+        default: false
+      repository:
+        description: Repository to push to?
+        type: choice
+        default: magma-packages-test
+        options: [ magma-packages-test, magma-packages-prod ]
+        required: true
+      distribution:
+        description: Distribution to set?
+        default: 'focal-ci'
+        required: true
   push:
     branches:
       - master
@@ -53,86 +53,35 @@ jobs:
       MAGMA_ROOT: "${{ github.workspace }}"
       DEST: "${{ github.workspace }}/deb_packages"
       # required debian packages
-      debian_packages: "libopenvswitch_*.deb    
-             libopenvswitch-dev*.deb 
-             openvswitch-common*.deb
-             openvswitch-datapath-dkms*.deb
-             openvswitch-datapath-source*.deb
-             openvswitch-switch*.deb
-             openvswitch-pki*.deb
-             openvswitch-test*.deb
-             python3-openvswitch*.deb
-             openvswitch-dbg*.deb
-             openvswitch-vtep*.deb"
+      # debian_packages: "libopenvswitch_*.deb    
+      #        libopenvswitch-dev*.deb 
+      #        openvswitch-common*.deb
+      #        openvswitch-datapath-dkms*.deb
+      #        openvswitch-datapath-source*.deb
+      #        openvswitch-switch*.deb
+      #        openvswitch-pki*.deb
+      #        openvswitch-test*.deb
+      #        python3-openvswitch*.deb
+      #        openvswitch-dbg*.deb
+      #        openvswitch-vtep*.deb"
       repository: ${{ inputs.repository || 'magma-packages-test' }}
       distribution: ${{ inputs.distribution || 'focal-ci' }}
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
 
-      - name: build openvswitch
+      - name: Build openvswitch
         working-directory: third_party/gtp_ovs/ovs-gtp-patches/2.15
         run: |
           mkdir ${{ env.DEST }}
           ./build.sh ${{ env.DEST }}
           ls ${{ env.DEST }}/*.deb
 
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ovs_deps
-      #     path: ${{ env.DEST }}
-
-      # openvswitch-ipsec*.deb is not installable  (sudo pip install ovs)
-            # DEBS="libopenvswitch_*.deb 
-            #       libopenvswitch-dev*.deb 
-            #       openvswitch-common*.deb
-            #       openvswitch-datapath-dkms*.deb
-            #       openvswitch-datapath-source*.deb
-            #       openvswitch-switch*.deb
-            #       openvswitch-pki*.deb
-            #       openvswitch-test*.deb
-            #       python3-openvswitch*.deb
-            #       openvswitch-dbg*.deb
-            #       openvswitch-vtep*.deb"
 
       - name: Test installability of the debian package
         working-directory: ${{ env.DEST }}
         run: |
-            for pkg in ${{ env.debian_packages }}; do
-              sudo apt-get install --yes --allow-downgrades  ./$pkg
-            done
-
-      # - name: Test installability of the debian package
-      #   working-directory: ${{ env.DEST }}
-      #   run: |
-      #     sudo apt-get install --yes --allow-downgrades ${{ env.debs }}
-      #   shell: bash
-      #   env:
-      #     debs: |
-      #       ./libopenvswitch*.deb
-      #       ./libopenvswitch-dev*.deb
-      #       ./openvswitch-common*.deb
-      #       ./openvswitch-datapath-dkms*.deb
-      #       ./openvswitch-datapath-source*.deb
-      #       ./openvswitch-switch*.deb
-      #       ./openvswitch-test*.deb
-      #       ./python3-openvswitch*.deb
-
-      #   needs: build_packages
-      #   runs-on: ubuntu-20.04
-      #   strategy:
-      #     matrix:
-      #       deps: [libopenvswitch*.deb, openvswitch-common*.deb]
-      #   steps:
-      #     - uses: actions/download-artifact@v3
-      #       with:
-      #         name: ovs_deps
-      #         path: ${{ env.DEST }}
-    
-      #     - name: Test installability of the debian package
-      #       working-directory: ${{ env.DEST }}
-      #       run: |
-      #         sudo apt-get install --yes --allow-downgrades ./${{ matrix.debs }}
-      #       shell: bash
+            sudo pip install ovs==2.16.0
+            sudo apt-get install --yes --allow-downgrades  ./*.deb
 
 
       - run: echo "repository=debian-test" >> $GITHUB_ENV
@@ -163,8 +112,8 @@ jobs:
         # if: steps.jfrog-setup.conclusion == 'success' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.DEST }}
         run: |
-            for pkg in ${{ env.debian_packages }}; do
-              file=$(ls $pkg)
+            for file in ./*.deb; do
+              # file=$(ls $pkg)
               name=${file%%.deb}
               architecture=${name##*_}
               echo Architecture is ${architecture} . Distribution ${{ env.distribution }} . ${file}
